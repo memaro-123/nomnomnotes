@@ -30,6 +30,10 @@ app.post('/login', (req, res) => { //this is from the login form submit
   const { username, password } = req.body// destructures username and passwrd into the new varibales username and pasword
   res.json("recieved")
 })
+app.post('/register', (req, res) => { //need to do server bullshit
+  const { username, password } = req.body// 
+  res.json("registered")
+})
 
 app.listen(PORT, () =>
     console.log(`✅ Server running on http://localhost:${PORT}`)
