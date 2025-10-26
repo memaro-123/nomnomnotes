@@ -53,14 +53,14 @@ export default function Edit({ handleOpenEdit }) {
     const handleSubmit = async () => {
         setLoading(true)
         try {
-            const auth = getAuth();
-            const token = await auth.currentUser.getIdToken();
+            // const auth = getAuth();
+            // const token = await auth.currentUser.getIdToken();
 
             const writeResponse = await fetch("http://localhost:8080/api/write-diary", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
+                //   Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ 
                     name, 
