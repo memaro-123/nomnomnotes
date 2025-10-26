@@ -4,6 +4,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
 const admin = require("firebase-admin");
+const writeDiaryRoute = require("./api/write-diary");
+
 
 dotenv.config();
 
@@ -13,11 +15,15 @@ admin.initializeApp({
   ),
 });
 
+const db = admin.firestore();
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/write-diary", writeDiaryRoute);
+
 
 app.get("/", (req, res) => {
   res.send("Hello from the backend!");
