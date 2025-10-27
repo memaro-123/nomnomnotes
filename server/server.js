@@ -5,6 +5,11 @@ const dotenv = require("dotenv");
 const path = require("path");
 const admin = require("firebase-admin");
 
+// TODO: Replace the following with your app's Firebase configuration
+
+
+
+
 const app = express();
 app.use(express.json())
 
@@ -27,11 +32,11 @@ app.get("/", (req, res) => {
 });
 
 app.post('/login', (req, res) => { //this is from the login form submit
-  const { username, password } = req.body// destructures username and passwrd into the new varibales username and pasword
+  const { email, password } = req.body// destructures email and passwrd into the new varibales email and pasword
   res.json("recieved")
 })
 app.post('/register', (req, res) => { //need to do server bullshit
-  const { username, password } = req.body// 
+  const { email, password } = req.body// 
   res.json("registered")
 })
 
