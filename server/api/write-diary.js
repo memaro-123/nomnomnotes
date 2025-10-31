@@ -2,7 +2,7 @@ const express = require("express");
 const admin = require("firebase-admin");
 const router = express.Router();
 
-// notice the path here is just "/" — not "/api/write-diary"
+
 router.post("/", async (req, res) => {
   console.log(req.body)
   const { name, selectedCuisines, city, state, selectedPrices, selectedLabels, images, notes, taste, service, value } = req.body;

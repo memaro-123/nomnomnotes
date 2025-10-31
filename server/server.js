@@ -6,7 +6,6 @@ const path = require("path");
 const admin = require("firebase-admin");
 const writeDiaryRoute = require("./api/write-diary");
 
-
 dotenv.config();
 
 admin.initializeApp({
@@ -29,8 +28,8 @@ app.get("/", (req, res) => {
   res.send("Hello from the backend!");
 });
 
-app.post('/login', (req, res) => { //this is from the login form submit
-  const { email, password } = req.body// destructures email and passwrd into the new varibales email and pasword
+app.post('/login', (req, res) => { 
+  const { email, password } = req.body
   res.json("recieved")
 })
 app.post('/register', (req, res) => { //need to do server bullshit
