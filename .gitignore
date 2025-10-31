@@ -1,0 +1,36 @@
+# Remove the corrupted .gitignore
+rm .gitignore
+
+# Create a clean, working .gitignore
+cat > .gitignore << 'EOF'
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+*.env
+
+# Firebase secrets
+service-account.json
+*-service-account.json
+firebase-admin-sdk.json
+
+# Zone.Identifier files
+*.Zone.Identifier
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+EOF

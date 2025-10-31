@@ -29,6 +29,15 @@ app.get("/", (req, res) => {
   res.send("Hello from the backend!");
 });
 
+app.post('/login', (req, res) => { //this is from the login form submit
+  const { email, password } = req.body// destructures email and passwrd into the new varibales email and pasword
+  res.json("recieved")
+})
+app.post('/register', (req, res) => { //need to do server bullshit
+  const { email, password } = req.body// 
+  res.json("registered")
+})
+
 app.listen(PORT, () =>
     console.log(`✅ Server running on http://localhost:${PORT}`)
   );
