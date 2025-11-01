@@ -1,15 +1,19 @@
 const express = require("express");
-const admin = require("firebase-admin");
+const { db, admin } = require("../firebase.js");
+const { verifyUser } = require("./utils/verifyUser.tsx");
 const router = express.Router();
 
 
 router.post("/", async (req, res) => {
+  // authorize user
+  const decoded = await verifyUser(req)
+  const uid = decoded.uid;
+
   console.log(req.body)
   const { name, selectedCuisines, city, state, selectedPrices, selectedLabels, images, notes, taste, service, value } = req.body;
 
   try {
-    const uid = "test-user";
-    await admin.firestore().collection("users").doc(uid).collection("diary").add({
+    await db.collection("users").doc(uid).collection("diary").add({
       name,
       selectedCuisines,
       city,

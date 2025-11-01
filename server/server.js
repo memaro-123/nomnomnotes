@@ -3,19 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
-const admin = require("firebase-admin");
 const writeDiaryRoute = require("./api/write-diary");
 
 dotenv.config();
-
-admin.initializeApp({
-  credential: admin.credential.cert(
-    path.join(__dirname, "service-account.json")
-  ),
-});
-
-const db = admin.firestore();
-
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -40,4 +30,5 @@ app.post('/register', (req, res) => { //need to do server bullshit
 app.listen(PORT, () =>
     console.log(`✅ Server running on http://localhost:${PORT}`)
   );
+
   

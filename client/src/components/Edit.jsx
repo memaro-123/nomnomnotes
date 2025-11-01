@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { auth } from '../firebase'
 
 export default function Edit({ handleOpenEdit }) {
     const [name, setName] = useState('')
@@ -52,13 +53,13 @@ export default function Edit({ handleOpenEdit }) {
     const handleSubmit = async () => {
         setLoading(true)
         try {
-            // const token = await auth.currentUser.getIdToken();
+            const token = await auth.currentUser.getIdToken();
 
             const writeResponse = await fetch("http://localhost:8080/api/write-diary", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                //   Authorization: `Bearer ${token}`,
+                   Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ 
                     name, 

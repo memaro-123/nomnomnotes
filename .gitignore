@@ -15,6 +15,7 @@ node_modules/
 service-account.json
 *-service-account.json
 firebase-admin-sdk.json
+firebase-debug.log
 
 # Zone.Identifier files
 *.Zone.Identifier
@@ -34,3 +35,4 @@ Thumbs.db
 .vscode/
 .idea/
 EOF
+
