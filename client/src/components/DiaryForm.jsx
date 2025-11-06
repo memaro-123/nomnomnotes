@@ -2,7 +2,7 @@ import "../styles/edit.css";
 import { useState, useEffect } from 'react';
 import { auth } from '../firebase'
 
-export default function Edit({ handleOpenEdit }) {
+export default function DiaryForm({ handleOpenEdit }) {
     const [name, setName] = useState('')
     const [selectedCuisines, setSelectedCuisines] = useState([])
     const [city, setCity] = useState('')

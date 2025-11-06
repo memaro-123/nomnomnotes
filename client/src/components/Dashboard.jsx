@@ -1,4 +1,5 @@
-import Edit from './Edit'
+import DiaryForm from './DiaryForm'
+import EntryList from './EntryList'
 import { useState, useEffect } from 'react'
 
 export default function Dashboard() {
@@ -12,10 +13,12 @@ export default function Dashboard() {
         console.log({openEdit})
     }, [openEdit])
 
+
     return (
       <div>
         <button onClick={() => setOpenEdit(prev => !prev)}>add diary</button>
-        {openEdit && <Edit handleOpenEdit={handleOpenEdit}/>}
+        {openEdit && <DiaryForm handleOpenEdit={handleOpenEdit}/>}
+        <EntryList/>
       </div>
     )
   }
