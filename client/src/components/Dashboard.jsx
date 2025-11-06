@@ -16,7 +16,7 @@ export default function Dashboard() {
 
     return (
       <div>
-        <button onClick={() => setOpenEdit(prev => !prev)}>add diary</button>
+        <button onClick={() => setOpenEdit(true)}>add diary</button>
         {openEdit && <DiaryForm handleOpenEdit={handleOpenEdit}/>}
         <EntryList/>
       </div>

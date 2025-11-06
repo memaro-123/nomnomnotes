@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { auth } from '../firebase'
 
+import Entry from './Entry'
+
 export default function EntryList() {
     const [entries, setEntries] = useState([])
     const [openEntry, setOpenEntry] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [selectedEntry, setSelectedEntry] = useState(null)
     const [error, setError] = useState(null)
 
 
@@ -12,7 +15,8 @@ export default function EntryList() {
         const fetchDiaries = async () => {
             setLoading(true)
             try {
-                auth.onAuthStateChanged(async (user) => {
+                auth.onAuthStateChanged(async (user) => { 
+                    //change this later so that you can pass the uid into the entrylist to change who's list ur viewing!!
                     const token = await user.getIdToken();
 
                     const fetchResponse = await fetch("http://localhost:8080/api/fetch-diaries", {
@@ -43,21 +47,26 @@ export default function EntryList() {
         console.log('fetched entries in entry list', entries)
     }, [entries])
 
-        if (loading) {
-        return(<div>Loading...</div>)
-        }
+    const handleCloseEntry = () => {
+        setOpenEntry(prev => !prev)
+        setSelectedEntry(null)
+    }
 
-      return (
+    if (loading) {
+    return(<div>Loading...</div>)
+    }
+
+    return (
         <div style={{border: '1px solid white'}}>
             <div>
                 {entries.map(entry => {
                 return(
-                    <button key={entry.id} onClick={() => setOpenEntry(prev => !prev)}>{entry.name}</button>
+                    <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry)}}>{entry.name}</button>
                 )
                 })}
             </div>
-            {openEntry && <div>an entry</div>}
+            {openEntry && <Entry handleCloseEntry={handleCloseEntry} entry={selectedEntry}/>}
             {error && <div>{error.message}</div>}
         </div>
-      )
+    )
 }

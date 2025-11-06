@@ -122,6 +122,7 @@ export default function DiaryForm({ handleOpenEdit }) {
 
   return (
       <div className="edit-container">
+        <button onClick={handleOpenEdit}>x</button>
         <span>Enter name of food or restaurant</span>
         <input 
           type="text" 
