@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
+import DiaryForm from './DiaryForm'
 import { auth } from '../firebase'
 
+import EditDiaryButton from './EditDiaryButton'
 import Entry from './Entry'
 
 export default function EntryList() {
     const [entries, setEntries] = useState([])
     const [openEntry, setOpenEntry] = useState(false)
-    const [loading, setLoading] = useState(false)
     const [selectedEntry, setSelectedEntry] = useState(null)
+    const [openOptionsId, setOpenOptionsId] = useState(null)
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
 
@@ -19,7 +22,7 @@ export default function EntryList() {
                     //change this later so that you can pass the uid into the entrylist to change who's list ur viewing!!
                     const token = await user.getIdToken();
 
-                    const fetchResponse = await fetch("http://localhost:8080/api/fetch-diaries", {
+                    const fetchResponse = await fetch("http://localhost:8080/api/diary", {
                         headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
@@ -52,6 +55,10 @@ export default function EntryList() {
         setSelectedEntry(null)
     }
 
+    const handleCloseOptions = () => {
+        setOpenOptionsId(null)
+    }
+
     if (loading) {
     return(<div>Loading...</div>)
     }
@@ -61,7 +68,16 @@ export default function EntryList() {
             <div>
                 {entries.map(entry => {
                 return(
-                    <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry)}}>{entry.name}</button>
+                    <div>
+                        <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry);}}>{entry.name}</button>
+                        <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
+                        {entry.id === openOptionsId && 
+                            <div>
+                                <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
+                                <button>Delete</button>
+                            </div>
+                        }
+                    </div>
                 )
                 })}
             </div>

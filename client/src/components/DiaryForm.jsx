@@ -1,21 +1,18 @@
 import "../styles/edit.css";
 import { useState, useEffect } from 'react';
-import { auth } from '../firebase'
 
-export default function DiaryForm({ handleOpenEdit }) {
-    const [name, setName] = useState('')
-    const [selectedCuisines, setSelectedCuisines] = useState([])
-    const [city, setCity] = useState('')
-    const [state, setState] = useState('')
-    const [selectedPrices, setSelectedPrices] = useState('')
-    const [selectedLabels, setSelectedLabels] = useState('')
-    const [images, setImages] = useState([])
-    const [notes, setNotes] = useState('')
-    const [taste, setTaste] = useState(5)
-    const [service, setService] = useState(5)
-    const [value, setValue] = useState(5)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
+export default function DiaryForm({ handleCloseForm, entry, loading, error, handleSubmit }) {
+    const [name, setName] = useState(entry.name || '')
+    const [selectedCuisines, setSelectedCuisines] = useState(entry.selectedCuisines || [])
+    const [city, setCity] = useState(entry.city || '')
+    const [state, setState] = useState(entry.state || '')
+    const [selectedPrices, setSelectedPrices] = useState(entry.selectedPrices || '')
+    const [selectedLabels, setSelectedLabels] = useState(entry.selectedLabels || '')
+    const [images, setImages] = useState(entry.images || [])
+    const [notes, setNotes] = useState(entry.notes || '')
+    const [taste, setTaste] = useState(entry.taste || 5)
+    const [service, setService] = useState(entry.service || 5)
+    const [value, setValue] = useState(entry.value || 5)
 
     const cuisines = ['Chinese', 'Indian', 'Italian']
     const price = ['$', '$$', '$$$', '$$$$']
@@ -51,48 +48,6 @@ export default function DiaryForm({ handleOpenEdit }) {
         setImages((prevSelected) => prevSelected.filter((_, i) => index !== i) );
     }
 
-    const handleSubmit = async () => {
-        setLoading(true)
-        try {
-            const token = await auth.currentUser.getIdToken();
-
-            const writeResponse = await fetch("http://localhost:8080/api/write-diary", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                   Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ 
-                    name, 
-                    selectedCuisines, 
-                    city, 
-                    state, 
-                    selectedPrices,
-                    selectedLabels,
-                    images,
-                    notes,
-                    taste,
-                    service, 
-                    value,
-                }),
-            }
-        );
-
-            if (!writeResponse.ok) {
-                throw new Error ('Error writing diary :/')
-            }
-
-            const writeData = await writeResponse.json()
-            console.log(writeData)
-
-        } catch (error) {
-            setError(error)
-        } finally {
-            setLoading(false);
-            handleOpenEdit();
-        }
-    };
-
     useEffect(() => {
         console.log(selectedCuisines)
     }, [selectedCuisines])
@@ -115,14 +70,14 @@ export default function DiaryForm({ handleOpenEdit }) {
         return (
             <div>
                 {error}
-                <button onClick={handleOpenEdit}>x</button>
+                <button onClick={handleCloseForm}>x</button>
             </div>
         )
     }
 
   return (
       <div className="edit-container">
-        <button onClick={handleOpenEdit}>x</button>
+        <button onClick={handleCloseForm}>x</button>
         <span>Enter name of food or restaurant</span>
         <input 
           type="text" 
@@ -247,7 +202,20 @@ export default function DiaryForm({ handleOpenEdit }) {
         />
         <span>{value}</span>
 
-      <button className="submit-btn" onClick={handleSubmit}> 
+      <button className="submit-btn" onClick={() => handleSubmit({
+          entryId: entry.id || null,
+          name: name, 
+          selectedCuisines: selectedCuisines, 
+          city: city, 
+          state: state, 
+          selectedPrices: selectedPrices,
+          selectedLabels: selectedLabels,
+          images: images,
+          notes: notes,
+          taste: taste,
+          service: service, 
+          value: value,
+      })}> 
         Submit
       </button>
     </div>
