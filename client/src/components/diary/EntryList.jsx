@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
-import { auth } from '../firebase'
+import { useEffect, useState } from 'react'
+import { auth } from '../../firebase'
 
+import DeleteDiaryButton from './DeleteDiaryButton'
 import EditDiaryButton from './EditDiaryButton'
 import Entry from './Entry'
-import DeleteDiaryButton from './DeleteDiaryButton'
 
 export default function EntryList() {
     const [entries, setEntries] = useState([])

@@ -1,6 +1,5 @@
+import Dashboard from './components/diary/Dashboard'
 import './styles/App.css'
-import Login from './components/Login'
-import Dashboard from './components/Dashboard'
 
 export default function App() {
   return (

@@ -1,4 +1,4 @@
-import "../styles/edit.css";
+import "../../styles/edit.css";
 import { useState, useEffect } from 'react';
 
 export default function DiaryForm({ handleCloseForm, entry, loading, error, handleSubmit }) {

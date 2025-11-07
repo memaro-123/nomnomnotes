@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
-import DiaryForm from './DiaryForm'
-import { auth } from '../firebase'
+import { useEffect, useState } from 'react'
+import { auth } from '../../firebase'
 
 export default function DeleteDiaryButton({ entry, handleCloseOptions }) {
     const [openForm, setOpenForm] = useState(false)
