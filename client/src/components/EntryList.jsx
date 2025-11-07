@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import DiaryForm from './DiaryForm'
 import { auth } from '../firebase'
 
 import EditDiaryButton from './EditDiaryButton'
 import Entry from './Entry'
+import DeleteDiaryButton from './DeleteDiaryButton'
 
 export default function EntryList() {
     const [entries, setEntries] = useState([])
@@ -68,13 +68,13 @@ export default function EntryList() {
             <div>
                 {entries.map(entry => {
                 return(
-                    <div>
+                    <div key={entry.id}>
                         <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry);}}>{entry.name}</button>
                         <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
                         {entry.id === openOptionsId && 
                             <div>
                                 <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
-                                <button>Delete</button>
+                                <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
                             </div>
                         }
                     </div>

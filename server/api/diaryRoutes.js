@@ -88,4 +88,25 @@ router.patch("/edit", verifyUser, async (req, res) => {
   }
 });
 
+
+router.delete("/delete/:entryId", verifyUser, async (req, res) => {
+  const uid = req.user.uid;
+  const { entryId } = req.params;
+
+  if (!entryId) {
+    return res.status(400).json({ error: "Missing entryId" });
+  }
+
+  try {
+    const entryRef = db.collection("users").doc(uid).collection("diary").doc(entryId);
+    await entryRef.delete();
+
+    res.json({ success: true, message: "Diary entry deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting diary entry:", err);
+    res.status(500).json({ error: "Failed to delete diary entry" });
+  }
+});
+
+
 module.exports = router;
