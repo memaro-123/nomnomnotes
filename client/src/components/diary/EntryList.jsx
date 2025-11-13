@@ -1,50 +1,14 @@
 import { useEffect, useState } from 'react'
-import { auth } from '../../firebase'
-
 import DeleteDiaryButton from './DeleteDiaryButton'
 import EditDiaryButton from './EditDiaryButton'
 import Entry from './Entry'
 
-export default function EntryList() {
-    const [entries, setEntries] = useState([])
+export default function EntryList({ entries, loading, error }) {
     const [openEntry, setOpenEntry] = useState(false)
     const [selectedEntry, setSelectedEntry] = useState(null)
     const [openOptionsId, setOpenOptionsId] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
 
-
-    useEffect(() => {
-        const fetchDiaries = async () => {
-            setLoading(true)
-            try {
-                auth.onAuthStateChanged(async (user) => { 
-                    //change this later so that you can pass the uid into the entrylist to change who's list ur viewing!!
-                    const token = await user.getIdToken();
-
-                    const fetchResponse = await fetch("http://localhost:8080/api/diary", {
-                        headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    }});
-
-                    if (!fetchResponse.ok) {
-                        throw new Error ('Error writing diary :/')
-                    }
-
-                    const diaryData = await fetchResponse.json()
-                    console.log(diaryData)
-                    setEntries(diaryData.diaryData)
-                })
-            } catch (error) {
-                setError(error)
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDiaries();
-    }, [])
+    
 
     useEffect(() => {
         console.log('fetched entries in entry list', entries)

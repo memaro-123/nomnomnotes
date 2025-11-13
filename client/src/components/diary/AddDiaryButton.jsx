@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import DiaryForm from './DiaryForm'
 import { auth } from '../../firebase'
+import Validate from './InputValidation'
 
-export default function AddDiaryButton() {
+export default function AddDiaryButton({ fetchDiaries }) {
     const [openForm, setOpenForm] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -12,7 +13,11 @@ export default function AddDiaryButton() {
     }
 
     const handleSubmit = async (entryData) => {
-        setLoading(true)
+        if(!Validate(entryData)){
+            return
+        }
+        else{
+            setLoading(true)
         try {
             const token = await auth.currentUser.getIdToken();
 
@@ -31,13 +36,16 @@ export default function AddDiaryButton() {
 
             const writeData = await writeResponse.json()
             console.log(writeData)
-
+            fetchDiaries()
         } catch (error) {
             setError(error.message)
         } finally {
             setLoading(false);
             setOpenForm(false)
         }
+        }
+        
+        
     };
 
     useEffect(() => {
