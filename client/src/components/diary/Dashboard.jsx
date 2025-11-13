@@ -1,6 +1,7 @@
 
 import EntryList from './EntryList'
 import AddDiaryButton from './AddDiaryButton'
+import Logout from './logoutButton'
 import { auth } from '../../firebase';
 import { useEffect, useState } from 'react'
 export default function Dashboard() {
@@ -43,6 +44,7 @@ export default function Dashboard() {
       <div>
         <AddDiaryButton fetchDiaries={fetchDiaries} />
         <EntryList entries={entries} loading={loading}  error={error}/>
+        <Logout></Logout>
       </div>
     )
   }
