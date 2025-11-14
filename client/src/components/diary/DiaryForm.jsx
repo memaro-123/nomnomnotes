@@ -15,7 +15,7 @@ export default function DiaryForm({ handleCloseForm, entry, loading, error, hand
     const [value, setValue] = useState(entry?.value || 5)
 
     const cuisines = ['Chinese', 'Indian', 'Italian', 'Mexican', 'Japanese']
-    const price = ['$', '$$', '$$$', '$$$$']
+    const prices = ['$', '$$', '$$$', '$$$$']
     const labels = ['breakfast', 'lunch', 'dinner', 'cash-only', 'apple pay']
 
     const handleCuisine = (cuisine) => {
@@ -100,7 +100,7 @@ export default function DiaryForm({ handleCloseForm, entry, loading, error, hand
 
                 <span>Price Range</span>
                 <div className="chip-group">
-                    {price.map((p, i) => (
+                    {prices.map((p, i) => (
                         <button 
                             key={i} 
                             onClick={() => setSelectedPrices(p)} 

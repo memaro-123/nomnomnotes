@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
-import { auth } from '../firebase'
+import { auth } from '../../firebase'
 import { GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "firebase/auth"
 
 export default function Login() {

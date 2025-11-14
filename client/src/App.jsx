@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
-import Login from './components/Login'
-import Dashboard from './components/diary/Dashboard'
+import Login from './components/auth/Login'
+import Dashboard from './components/Dashboard'
 import './styles/App.css'
 
 export default function App() {

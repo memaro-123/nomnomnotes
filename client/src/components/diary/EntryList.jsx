@@ -3,11 +3,10 @@ import DeleteDiaryButton from './DeleteDiaryButton'
 import EditDiaryButton from './EditDiaryButton'
 import Entry from './Entry'
 
-export default function EntryList({ entries, loading, error }) {
+export default function EntryList({ entries, loading, error, search, cuisineFilters, priceFilters, labelFilters }) {
     const [openEntry, setOpenEntry] = useState(false)
     const [selectedEntry, setSelectedEntry] = useState(null)
     const [openOptionsId, setOpenOptionsId] = useState(null)
-
     
 
     useEffect(() => {
@@ -27,24 +26,50 @@ export default function EntryList({ entries, loading, error }) {
     return(<div>Loading...</div>)
     }
 
+      
+
     return (
         <div style={{border: '1px solid white'}}>
             <div>
-                {entries.map(entry => {
-                return(
-                    <div key={entry.id}>
-                        <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry);}}>{entry.name}</button>
-                        <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
-                        {entry.id === openOptionsId && 
-                            <div>
-                                <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
-                                <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
-                            </div>
-                        }
-                    </div>
+                {entries
+                .filter(entry => {
+                    if (labelFilters.length === 0) return true;
+                    return labelFilters.some(filter => entry.selectedLabels.includes(filter));
+                })
+                .filter(entry => {
+                    if (cuisineFilters.length === 0) return true;
+                    return cuisineFilters.some(filter => entry.selectedCuisines.includes(filter));
+                })
+                .filter(entry => {
+                    if (priceFilters.length === 0) return true; 
+                    return priceFilters.includes(entry.selectedPrices);
+                })
+                .filter(entry =>
+                    entry.name.toLowerCase().includes(search.toLowerCase())
                 )
+                .map(entry => {
+                    return(
+                        <div key={entry.id}>
+                            <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry);}}>{entry.name}</button>
+                            {entry.selectedCuisines.map((cuisine, i) => {
+                                return(<div key={i}>{cuisine}</div>)
+                            })}
+                            {entry.selectedLabels.map((label, i) => {
+                                return(<div key={i}>{label}</div>)
+                            })}
+                            {entry.selectedPrices}
+                            <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
+                            {entry.id === openOptionsId && 
+                                <div>
+                                    <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
+                                    <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
+                                </div>
+                            }
+                        </div>
+                    )
                 })}
             </div>
+
             {openEntry && <Entry handleCloseEntry={handleCloseEntry} entry={selectedEntry}/>}
             {error && <div>{error.message}</div>}
         </div>
