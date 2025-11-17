@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { auth } from '../../firebase'
 import DiaryForm from './DiaryForm'
 
-export default function EditDiaryButton({ entry, handleCloseOptions }) {
+export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiaries}) {
     const [openForm, setOpenForm] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -16,7 +16,7 @@ export default function EditDiaryButton({ entry, handleCloseOptions }) {
         setLoading(true)
         try {
             const token = await auth.currentUser.getIdToken();
-
+            entryData.entryId = entry.id
             if (!entryData.entryId) {
                 throw new Error("Entry ID is required for editing");
             }
@@ -33,6 +33,10 @@ export default function EditDiaryButton({ entry, handleCloseOptions }) {
             if (!editResponse.ok) {
                 throw new Error ('Error writing diary :/')
             }
+            if (fetchDiaries) {
+                await fetchDiaries();
+            }
+
 
         } catch (error) {
             setError(error.message)

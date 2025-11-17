@@ -24,11 +24,11 @@ export default function Dashboard() {
             const token = await user.getIdToken();
 
             const fetchResponse = await fetch("http://localhost:8080/api/diary", {
+              
                 headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
-            }});
-
+            }})
             if (!fetchResponse.ok) {
                 throw new Error ('Error writing diary :/')
             }
@@ -82,7 +82,7 @@ export default function Dashboard() {
         <input type="text" placeholder="Search Entries" value={search} onChange={e => handleSearch(e.target.value)}/>
         <Filters handleCuisineFilter={handleCuisineFilter} handleLabelFilter={handleLabelFilter} handlePriceFilter={handlePriceFilter}/>
         <AddDiaryButton fetchDiaries={fetchDiaries} />
-        <EntryList entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters}/>
+        <EntryList entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
         <Logout/>
       </div>
     )

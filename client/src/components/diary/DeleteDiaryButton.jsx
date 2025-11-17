@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { auth } from '../../firebase'
 
-export default function DeleteDiaryButton({ entry, handleCloseOptions }) {
+export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiaries }) {
     const [openForm, setOpenForm] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -38,6 +38,7 @@ export default function DeleteDiaryButton({ entry, handleCloseOptions }) {
             setLoading(false);
             setOpenForm(false);
             handleCloseOptions();
+            fetchDiaries()
         }
     };
 

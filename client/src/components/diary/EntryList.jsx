@@ -3,7 +3,7 @@ import DeleteDiaryButton from './DeleteDiaryButton'
 import EditDiaryButton from './EditDiaryButton'
 import Entry from './Entry'
 
-export default function EntryList({ entries, loading, error, search, cuisineFilters, priceFilters, labelFilters }) {
+export default function EntryList({ entries, loading, error, search, cuisineFilters, priceFilters, labelFilters, fetchDiaries   }) {
     const [openEntry, setOpenEntry] = useState(false)
     const [selectedEntry, setSelectedEntry] = useState(null)
     const [openOptionsId, setOpenOptionsId] = useState(null)
@@ -61,8 +61,8 @@ export default function EntryList({ entries, loading, error, search, cuisineFilt
                             <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
                             {entry.id === openOptionsId && 
                                 <div>
-                                    <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
-                                    <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions}/>
+                                    <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries}  />
+                                    <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries} />
                                 </div>
                             }
                         </div>
