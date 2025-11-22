@@ -1,7 +1,7 @@
 
 import EntryList from './diary/EntryList'
 import AddDiaryButton from './diary/AddDiaryButton'
-import Logout from './auth/logoutButton'
+import Logout from './auth/LogoutButton'
 import Filters from './diary/Filters'
 import { auth } from '../firebase';
 import { useEffect, useState } from 'react'
