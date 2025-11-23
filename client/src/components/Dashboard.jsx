@@ -1,10 +1,11 @@
-
 import EntryList from './diary/EntryList'
 import AddDiaryButton from './diary/AddDiaryButton'
 import Logout from './auth/logoutButton'
 import Filters from './diary/Filters'
 import { auth } from '../firebase';
 import { useEffect, useState } from 'react'
+import SettingsModal from './SettingsModal';
+import { FiSettings } from 'react-icons/fi';
 
 export default function Dashboard() {
 
@@ -15,6 +16,8 @@ export default function Dashboard() {
   const [cuisineFilters, setCuisineFilters] = useState([])
   const [labelFilters, setLabelFilters] = useState([])
   const [priceFilters, setPriceFilters] = useState([])
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
 
     const fetchDiaries = async () => {
       setLoading(true)
@@ -84,6 +87,28 @@ export default function Dashboard() {
         <AddDiaryButton fetchDiaries={fetchDiaries} />
         <EntryList entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
         <Logout/>
+
+        {/* Settings icon in the bottom left right corner*/}
+        <button
+          onClick={() => setSettingsOpen(true)}
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            backgroundColor: '#fff',
+            borderRadius: '50%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+          }}
+        >
+          <FiSettings size={24} />
+        </button>
+
+        {/* Settings Modal */}
+        {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+
       </div>
     )
   }

@@ -1,5 +1,5 @@
 const sqlite3 = require("sqlite3");
-const { paramExec,fetchAll } = require("./helperFunctions.js");
+const { paramExec, fetchAll, fetchFirst } = require("./helperFunctions.js");
 
 const insertEntry = async ({
   user_id,
@@ -145,6 +145,19 @@ const deleteEntry = async (id,userId) => {
     db.close()
   }
 }
+const getUserByUID = async (uid) => {
+  const db = new sqlite3.Database("my.db");
+  const sql = `SELECT username, permissions FROM users WHERE uid = ?`;
+  try {
+    const row = await fetchFirst(db, sql, [uid]);
+    return row;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  } finally {
+    db.close();
+  }
+};
 
 
-module.exports = { insertEntry, editEntry ,getEntry, getAllEntries,deleteEntry}
+module.exports = { insertEntry, editEntry, getEntry, getAllEntries, deleteEntry, getUserByUID}
