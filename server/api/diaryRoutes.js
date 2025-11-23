@@ -1,7 +1,7 @@
 const { insertEntry, editEntry, getAllEntries, deleteEntry} = require("../../sqlDB/dbFunctions.js");
 const express = require("express");
 const { db, admin } = require("../firebase.js");
-const { verifyUser } = require("./middleware/verifyUser.tsx");
+const { verifyUser } = require("./middleware/verifyUser.js");
 const router = express.Router();
 /*
 router.get("/", verifyUser, async (req, res) => {

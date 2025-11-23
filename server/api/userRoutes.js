@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('./sqlDB/dbFunctions'); 
-const { verifyUser } = require('./verifyUser.tsx'); 
+const db = require('../../sqlDB/dbFunctions'); 
+const { verifyUser } = require('./middleware/verifyUser'); 
 
 router.get('/info', verifyUser, async (req, res) => {
   try {
