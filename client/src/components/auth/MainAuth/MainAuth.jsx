@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import EmailAndPass from '../EmailAndPass/EmailAndPass'
-import ForgotPassword from '../ForgotPassword'
+import ForgotPassword from '../ForgotPassword/ForgotPassword'
 import styles from './MainAuth.module.css'
 
 export default function MainAuth() {
