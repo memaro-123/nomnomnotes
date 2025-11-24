@@ -80,6 +80,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
             return;
         }
     
+        setLoading(true)
         createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user
@@ -99,7 +100,10 @@ export default function EmailAndPassword({ handleAuthPage }) {
                     console.log(error.message)
                     setError('An unexpected error occured. Please try again.')
             }
-        })   
+        })
+        .finally(() => {
+            setLoading(false);
+        });
     }
 
 
