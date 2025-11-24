@@ -1,4 +1,3 @@
-
 import EntryList from './diary/EntryList'
 import AddDiaryButton from './diary/AddDiaryButton'
 import Logout from './auth/logoutButton'
@@ -15,6 +14,7 @@ export default function Dashboard() {
   const [cuisineFilters, setCuisineFilters] = useState([])
   const [labelFilters, setLabelFilters] = useState([])
   const [priceFilters, setPriceFilters] = useState([])
+  
 
     const fetchDiaries = async () => {
       setLoading(true)
@@ -43,13 +43,14 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-
+    
     useEffect(() => {
       fetchDiaries();
     }, []);
-
+    
     const handleSearch = (e) => {
       setSearch(e)
+      
     }
 
     const handleCuisineFilter = (filter) => {
@@ -63,7 +64,7 @@ export default function Dashboard() {
     const handlePriceFilter = (filter) => {
       setPriceFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
     }
-
+    
     useEffect(() => {
       console.log('cuisine:', cuisineFilters)
     })

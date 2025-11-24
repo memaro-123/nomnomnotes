@@ -24,11 +24,26 @@ const main = async () => {
     value REAL
 );`
     );
-  } catch (error) {
+  
+    await execute(
+      db, 
+      `CREATE TABLE IF NOT EXISTS friends (
+        user_id TEXT PRIMARY KEY,
+        friends TEXT,          
+        sent_requests TEXT,    
+        received_requests TEXT 
+      );`
+    );
+
+    console.log("all the tables made right");
+  } 
+  catch (error) {
     console.log(error);
   } finally {
     db.close();
   }
+  
+
 };
 
 main();
