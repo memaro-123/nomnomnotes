@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import DiaryForm from "./DiaryForm";
+import DiaryForm from "./DiaryForm/DiaryForm";
 import { auth } from "../../firebase";
 import Validate from "./InputValidation";
 
