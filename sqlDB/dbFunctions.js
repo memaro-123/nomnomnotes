@@ -157,7 +157,15 @@ const getUserByUID = async (uid) => {
   } finally {
     db.close();
   }
-};
+}
+function execute(db, sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function(err) {
+      if (err) reject(err);
+      else resolve(this);
+    });
+  });
+}
 
 
-module.exports = { insertEntry, editEntry, getEntry, getAllEntries, deleteEntry, getUserByUID}
+module.exports = { insertEntry, editEntry, getEntry, getAllEntries, deleteEntry, getUserByUID, execute}

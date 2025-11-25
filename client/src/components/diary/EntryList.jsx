@@ -3,7 +3,7 @@ import DeleteDiaryButton from './DeleteDiaryButton'
 import EditDiaryButton from './EditDiaryButton'
 import Entry from './Entry'
 
-export default function EntryList({ entries, loading, error, search, cuisineFilters, priceFilters, labelFilters, fetchDiaries   }) {
+export default function EntryList({ entries, loading, error, search, cuisineFilters, priceFilters, labelFilters, fetchDiaries, isReadOnly}) {
     const [openEntry, setOpenEntry] = useState(false)
     const [selectedEntry, setSelectedEntry] = useState(null)
     const [openOptionsId, setOpenOptionsId] = useState(null)
@@ -58,19 +58,24 @@ export default function EntryList({ entries, loading, error, search, cuisineFilt
                                 return(<div key={i}>{label}</div>)
                             })}
                             {entry.selectedPrices}
-                            <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
-                            {entry.id === openOptionsId && 
-                                <div>
-                                    <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries}  />
-                                    <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries} />
-                                </div>
-                            }
+                            
+                            {!isReadOnly && (
+                                <>
+                                    <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
+                                    {entry.id === openOptionsId && 
+                                        <div>
+                                            <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries}  />
+                                            <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries} />
+                                        </div>
+                                    }
+                                </>
+                            )}
                         </div>
                     )
                 })}
             </div>
 
-            {openEntry && <Entry handleCloseEntry={handleCloseEntry} entry={selectedEntry}/>}
+            {openEntry && <Entry handleCloseEntry={handleCloseEntry} entry={selectedEntry} isReadOnly={isReadOnly} />}
             {error && <div>{error.message}</div>}
         </div>
     )
