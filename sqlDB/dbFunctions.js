@@ -1,22 +1,23 @@
 const sqlite3 = require("sqlite3");
 const { paramExec, fetchAll } = require("./helperFunctions.js");
-const intializeUser = async ({ myID }) => {
-  {
-    const db = new sqlite3.Database("my.db");
-    try {
-      await paramExec(
-        db,
-        "INSERT INTO friends (user_id, sent_requests, received_requests, friends) VALUES (?, ?, ?, ?)",
-        [myID, JSON.stringify([]), JSON.stringify([]), JSON.stringify([])]
-      );
-    } catch (err) {
-      console.error(err);
-      throw err;
-    } finally {
-      db.close();
-    }
+const intializeUser = async ({ myID, username = "defaultUsername" }) => {
+  console.log("this shits going don")
+  const db = new sqlite3.Database("my.db");
+  try {
+    await paramExec(
+      db,
+      "INSERT OR IGNORE INTO friends (user_id, sent_requests, received_requests, friends, username) VALUES (?, ?, ?, ?, ?)",
+      [myID, JSON.stringify([]), JSON.stringify([]), JSON.stringify([]), username]
+    );
+    console.log("we just added that shit on everything")
+  } catch (err) {
+    console.error(err);
+    throw err;
+  } finally {
+    db.close();
   }
 };
+
 const insertSentCode = async ({ myID, sentID }) => {
   const db = new sqlite3.Database("my.db");
   try {
@@ -408,12 +409,60 @@ const getFirstRow = (db, sql, params = []) => {
     });
   });
 };
+const updateUsername = async ({ myID, newName }) => {
+  const db = new sqlite3.Database("my.db");
+  try {
+    await paramExec(
+      db,
+      "UPDATE friends SET username = ? WHERE user_id = ?",
+      [newName, myID]
+    );
+    console.log(`Username updated to "${newName}" for user ID ${myID}`);
+  } catch (err) {
+    console.error("Error updating username:", err);
+    throw err;
+  } finally {
+    db.close();
+  }
+};
+const getUsername = async (id ) => {
+  const db = new sqlite3.Database("my.db");
+  try {
+    const row = await getFirstRow(db, "SELECT username FROM friends WHERE user_id = ?", [id]);
+    return row?.username || null;
+  } catch (err) {
+    console.error("Error getting username:", err);
+    throw err;
+  } finally {
+    db.close();
+  }
+};
+const usernameExists = async (username) => {
+  const db = new sqlite3.Database("my.db");
+  try {
+    const row = await getFirstRow(
+      db,
+      "SELECT user_id FROM friends WHERE username = ?",
+      [username]
+    );
+    return !!row; 
+  } catch (err) {
+    console.error("error checking username exists:", err);
+    throw err;
+  } finally {
+    db.close();
+  }
+};
+
 
 module.exports = {
   insertEntry,
   editEntry,
   getEntry,
+  usernameExists,
+  getUsername,
   getAllEntries,
+  updateUsername,
   deleteEntry,
   execute,
   insertSentCode,

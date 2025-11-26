@@ -77,7 +77,7 @@ router.get("/friends/requests", verifyUser, async (req, res) => {
 
 
 // This handles accepting or rejecting a friend request
-router.patch("/friends/:friendId", verifyUser, async (req, res) => {
+router.patch("/friends/:friendI d", verifyUser, async (req, res) => {
   const uid = req.user.uid;
   const { friendId } = req.params;
   const { action } = req.body; // should be 'accept' or 'reject'
@@ -101,9 +101,6 @@ router.patch("/friends/:friendId", verifyUser, async (req, res) => {
 });
 router.patch("/makefriend", verifyUser, async (req, res) => {
   //API TO ACCEPT A FRIEND REQ
-  console.log("=== MAKEFRIEND ROUTE HIT ===");
-  console.log("Request body:", req.body);
-  console.log("User from token:", req.user); 
   const { myID, friendID } = req.body;
   if (!myID || !friendID) {
     return res.status(400).json({ error: "Missing id" });
@@ -142,4 +139,66 @@ router.delete("/friends/:friendId", verifyUser, async (req, res) => {
   }
 });
 
+router.patch("/updateUsername", verifyUser, async (req, res) => {
+  const { myID, newName } = req.body;
+  let exists=true
+  try {
+     exists = await dbFunctions.usernameExists(newName);
+  }catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "check existance" });
+  }
+
+  if (exists){
+    return res.status(400).json({ error: "name already taken" });
+  }
+  if (!myID || !newName)  {
+    return res.status(400).json({ error: "Missing id or name" });
+  }
+  if (!(await dbFunctions.userExists({id:myID}))) {
+    return res.status(400).json({ error: "friend doesn't exist" });
+  }
+  try {
+    await dbFunctions.updateUsername({myID, newName })
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to change usrname" });
+  }
+});
+router.get("/getUsername", verifyUser, async (req, res) => {
+  const { id } = req.query;
+  if (!id)  {
+    return res.status(400).json({ error: "Missing id or name" });
+  }
+  if (!(await dbFunctions.userExists({id:id}))) {
+    return res.status(400).json({ error: "you doesn't exist" });
+  }
+  try {
+    const username = await dbFunctions.getUsername(id)
+
+    res.json({ username: username, success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to change usrname" });
+  }
+});
+router.patch("/getUsername", verifyUser, async (req, res) => {
+  const { id } = req.query;
+  if (!id)  {
+    return res.status(400).json({ error: "Missing id or name" });
+  }
+  if (!(await dbFunctions.userExists({id:id}))) {
+    return res.status(400).json({ error: "you doesn't exist" });
+  }
+  try {
+    const username = await dbFunctions.getUsername(id)
+
+    res.json({ username: username, success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to change usrname" });
+  }
+});
 module.exports = router;

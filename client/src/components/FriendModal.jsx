@@ -1,10 +1,37 @@
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import FriendFinder from '/src/components/friendFinder/friendSearch.jsx'
+import PendingReqs from "./PendingReqs.jsx"
+import FriendList from "./FriendList.jsx"
+import ChooseUsername from "./ChooseUsername.jsx"
 export default function FriendModal({ onClose, onSelectFriend }) {
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [newFriendUID, setNewFriendUID] = useState("");
+  const [myUsername, setMyUsername] = useState("");
+useEffect(() => {
+  const fetchMyUsername = async () => {
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const uid = auth.currentUser.uid;
+
+      const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${uid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch username");
+
+      const data = await res.json();
+      setMyUsername(data.username);
+    } catch (err) {
+      console.error("Failed to fetch my username", err);
+      setMyUsername(null);
+    }
+  };
+
+  fetchMyUsername();
+}, []);
+
   const refreshFriends = async () => {
   const token = await auth.currentUser.getIdToken();
   const friendsRes = await fetch("http://localhost:8080/api/user/friends", {
@@ -14,8 +41,24 @@ export default function FriendModal({ onClose, onSelectFriend }) {
   const data = await friendsRes.json();
   setFriends(data.friends || []);
 };
-
-  // This fetches the friends and pending requests
+  const getUsername= async (id) =>{
+    const token = await auth.currentUser.getIdToken();
+    try{
+      const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      throw new Error("Failed to fetch username");
+    }
+    const data = await res.json();
+    return data.username;
+    }
+    catch(err){       
+    console.error(err);
+    return null;
+  }
+    
+  }
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,8 +86,6 @@ export default function FriendModal({ onClose, onSelectFriend }) {
     };
     fetchData();
   }, []);
-
-  // For sending a friend request
 
 
   // For accepting or rejecting a pending request
@@ -82,8 +123,12 @@ export default function FriendModal({ onClose, onSelectFriend }) {
       console.error("Failed to update request", err);
     }
   };
-
-  return (
+  if (myUsername ==="defaultUsername"){
+    return(<ChooseUsername onClose ={onClose}></ChooseUsername>)
+    
+  }
+  else{
+    return (
     <div
       style={{
         position: "fixed",
@@ -107,48 +152,9 @@ export default function FriendModal({ onClose, onSelectFriend }) {
         overflowY: "auto",
         boxShadow: "0 4px 20px rgba(0,0,0,0.3)"
       }}>
-        {/* Pending friend requests, accept or reject */}
-        <h2 style={{ marginTop: 0 }}>Pending Friend Requests</h2>
-        {pendingRequests.length === 0 ? <p>No pending requests</p> : (
-          <ul>
-            {pendingRequests.map(r => (
-              <li key={r} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                <span>{r}</span>
-                <div>
-                  <button 
-                    onClick={() => handleRequestAction(r, "accept")}
-                    style={{ marginRight: "5px", cursor: "pointer" }}
-                  >Accept</button>
-                  <button 
-                    onClick={() => handleRequestAction(r, "reject")}
-                    style={{ cursor: "pointer" }}
-                  >Reject</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
 
-        <hr style={{ margin: "15px 0" }} />
-
-        {/* Friends List */}
-        <h2>Friends</h2>
-        {friends.length === 0 ? <p>No friends yet</p> : (
-          <ul>
-            {friends.map(f => (
-              <li key={f} style={{ marginBottom: "8px" }}>
-                <button
-                  style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "6px", border: "1px solid #ccc", backgroundColor: "#f9f9f9" }}
-                  onClick={() => onSelectFriend(f.friend_id)}
-                >
-                  {f.username}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <hr style={{ margin: "15px 0" }} />
+        <FriendList friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
 
         {/* Place to add a new friend using UID */}
         <h2>Add Friend by UID</h2>
@@ -165,4 +171,6 @@ export default function FriendModal({ onClose, onSelectFriend }) {
       </div>
     </div>
   );
+  }
+  
 }

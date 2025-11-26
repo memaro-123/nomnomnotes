@@ -130,6 +130,7 @@ router.patch("/sendreq", verifyUser, async (req, res) => {
 });
 
 router.post("/initfriend", verifyUser, async (req, res) => {
+  console.log("this initfriend starting now")
   const { myID } = req.body;
   if (!myID) {
     return res.status(400).json({ error: "Missing id" });
