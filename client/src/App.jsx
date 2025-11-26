@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import MainAuth from './components/auth/MainAuth/MainAuth';
+import Dashboard from './components/Dashboard';
 import { auth } from './firebase';
-import Login from './components/auth/Login'
-import Dashboard from './components/Dashboard'
-import './styles/App.css'
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -15,19 +14,14 @@ export default function App() {
       setLoading(false);
     });
 
-
     return () => unsubscribe();
   }, []);
 
   if (loading) return <div>Loading...</div>;
 
-  return (
-    // this is where you can control which pages are shown
-    // create a user context, import it, and then u can conditionally render pages based on
-    // whehter there is a user or not    
-
+  return (  
     <>
-      {user ? <Dashboard /> : <Login />}
+      {user ? <Dashboard /> : <MainAuth />}
     </>
   );
 }
