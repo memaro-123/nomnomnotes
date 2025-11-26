@@ -72,9 +72,10 @@ export default function Dashboard() {
     useEffect(() => {
       fetchDiaries();
     }, []);
-
+    
     const handleSearch = (e) => {
       setSearch(e)
+      
     }
 
     const handleCuisineFilter = (filter) => {
@@ -88,7 +89,7 @@ export default function Dashboard() {
     const handlePriceFilter = (filter) => {
       setPriceFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
     }
-
+    
     useEffect(() => {
       console.log('cuisine:', cuisineFilters)
     })

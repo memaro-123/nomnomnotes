@@ -1,10 +1,19 @@
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
-
+import FriendFinder from '/src/components/friendFinder/friendSearch.jsx'
 export default function FriendModal({ onClose, onSelectFriend }) {
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [newFriendUID, setNewFriendUID] = useState("");
+  const refreshFriends = async () => {
+  const token = await auth.currentUser.getIdToken();
+  const friendsRes = await fetch("http://localhost:8080/api/user/friends", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const data = await friendsRes.json();
+  setFriends(data.friends || []);
+};
 
   // This fetches the friends and pending requests
   useEffect(() => {
@@ -18,13 +27,16 @@ export default function FriendModal({ onClose, onSelectFriend }) {
         });
         const friendsData = await friendsRes.json();
         setFriends(friendsData.friends || []);
+        console.log(friendsData)
 
         // Pending friend requests
         const pendingRes = await fetch("http://localhost:8080/api/user/friends/requests", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const pendingData = await pendingRes.json();
+        console.log(pendingData)
         setPendingRequests(pendingData.requests || []);
+        
       } catch (err) {
         console.error("Failed to fetch friends or requests", err);
       }
@@ -33,45 +45,39 @@ export default function FriendModal({ onClose, onSelectFriend }) {
   }, []);
 
   // For sending a friend request
-  const sendFriendRequest = async () => {
-    if (!newFriendUID) return;
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const res = await fetch("http://localhost:8080/api/user/friends/request", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ friendId: newFriendUID })
-      });
-      if (res.ok) {
-        alert("Friend request sent!");
-        setNewFriendUID("");
-      }
-    } catch (err) {
-      console.error("Failed to send friend request", err);
-    }
-  };
+
 
   // For accepting or rejecting a pending request
   const handleRequestAction = async (requesterId, action) => {
     try {
       const token = await auth.currentUser.getIdToken();
-      await fetch(`http://localhost:8080/api/user/friends/${requesterId}`, {
+      
+      if (action === "accept") {
+        const myID = auth.currentUser.uid;
+        const response =await fetch("http://localhost:8080/api/user/makefriend", {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ action })
+        body: JSON.stringify({ 
+          myID: myID,
+          friendID: requesterId 
+        })
       });
-      // Remove request from pending state when rejected
-      setPendingRequests(prev => prev.filter(r => r.requesterId !== requesterId));
-      // Add to friends list if accepted (and remove from pending state)
-      if (action === "accept") {
-        setFriends(prev => [...prev, { friend_id: requesterId, username: "New Friend" }]);
+      if (response.ok) {
+        setPendingRequests(prev => prev.filter(r => r !== requesterId));
+        await refreshFriends();
+
       }
+      
+      }
+      else if (action === "reject") {
+      setPendingRequests(prev => prev.filter(r => r !== requesterId));
+    }
+      
+
+      
     } catch (err) {
       console.error("Failed to update request", err);
     }
@@ -106,15 +112,15 @@ export default function FriendModal({ onClose, onSelectFriend }) {
         {pendingRequests.length === 0 ? <p>No pending requests</p> : (
           <ul>
             {pendingRequests.map(r => (
-              <li key={r.requesterId} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                <span>{r.username}</span>
+              <li key={r} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                <span>{r}</span>
                 <div>
                   <button 
-                    onClick={() => handleRequestAction(r.requesterId, "accept")}
+                    onClick={() => handleRequestAction(r, "accept")}
                     style={{ marginRight: "5px", cursor: "pointer" }}
                   >Accept</button>
                   <button 
-                    onClick={() => handleRequestAction(r.requesterId, "reject")}
+                    onClick={() => handleRequestAction(r, "reject")}
                     style={{ cursor: "pointer" }}
                   >Reject</button>
                 </div>
@@ -130,7 +136,7 @@ export default function FriendModal({ onClose, onSelectFriend }) {
         {friends.length === 0 ? <p>No friends yet</p> : (
           <ul>
             {friends.map(f => (
-              <li key={f.friend_id} style={{ marginBottom: "8px" }}>
+              <li key={f} style={{ marginBottom: "8px" }}>
                 <button
                   style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "6px", border: "1px solid #ccc", backgroundColor: "#f9f9f9" }}
                   onClick={() => onSelectFriend(f.friend_id)}
@@ -147,19 +153,7 @@ export default function FriendModal({ onClose, onSelectFriend }) {
         {/* Place to add a new friend using UID */}
         <h2>Add Friend by UID</h2>
         <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-          <input
-            type="text"
-            value={newFriendUID}
-            onChange={e => setNewFriendUID(e.target.value)}
-            placeholder="Enter friend's UID"
-            style={{ flex: 1, padding: "5px", borderRadius: "6px", border: "1px solid #ccc" }}
-          />
-          <button 
-            onClick={sendFriendRequest}
-            style={{ cursor: "pointer", padding: "5px 10px", borderRadius: "6px", backgroundColor: "#4CAF50", color: "#fff", border: "none" }}
-          >
-            Send
-          </button>
+          <FriendFinder></FriendFinder>
         </div>
 
         <button 

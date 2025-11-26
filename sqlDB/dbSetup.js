@@ -16,43 +16,44 @@ function runAsync(db, sql) {
 const main = async () => {
   const db = new sqlite3.Database(dbPath);
   try {
-    // Create table of diary entries
-    await runAsync(db, `
-      CREATE TABLE IF NOT EXISTS diary_entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        selected_cuisines TEXT,
-        city TEXT,
-        state TEXT,
-        selected_prices TEXT,
-        selected_labels TEXT,
-        images TEXT,
-        notes TEXT,
-        taste REAL,
-        service REAL,
-        value REAL
-      );
-    `);
+    await execute(
+      db,
+      `CREATE TABLE IF NOT EXISTS diary_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    selected_cuisines TEXT,
+    city TEXT,
+    state TEXT,
+    selected_prices TEXT,
+    selected_labels TEXT,
+    images TEXT,
+    notes TEXT,
+    taste REAL,
+    service REAL,
+    value REAL
+);`
+    );
+  
+    await execute(
+      db, 
+      `CREATE TABLE IF NOT EXISTS friends (
+        user_id TEXT PRIMARY KEY,
+        friends TEXT,          
+        sent_requests TEXT,    
+        received_requests TEXT 
+      );`
+    );
 
-    // Create friends table
-    await runAsync(db, `
-      CREATE TABLE IF NOT EXISTS friends (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        requester_id TEXT NOT NULL,
-        receiver_id TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'pending',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(requester_id, receiver_id)
-      );
-    `);
-
-    console.log("Database setup complete!");
-  } catch (err) {
-    console.error("Error setting up database:", err);
+    console.log("all the tables made right");
+  } 
+  catch (error) {
+    console.log(error);
   } finally {
     db.close();
   }
+  
+
 };
 
 main();

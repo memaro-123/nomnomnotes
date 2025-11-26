@@ -5,27 +5,19 @@ const sqlite3 = require("sqlite3");
 const { fetchAll, paramExec } = require("../../sqlDB/helperFunctions.js");
 const dbFunctions = require("../../sqlDB/dbFunctions.js");
 
+
 // This gets the logged-in use's info
-router.get('/info', verifyUser, async (req, res) => {
+router.get("/friends", verifyUser, async (req, res) => {
+  const uid = req.user.uid;
   try {
-    const uid = req.user.uid;
-    const userInfo = await dbFunctions.getUserByUID(uid);
-
-    if (!userInfo) return res.status(404).json({ message: 'User not found' });
-
-    const parsedPermissions = typeof userInfo.permissions === 'string' 
-      ? JSON.parse(userInfo.permissions) 
-      : userInfo.permissions;
-
-    res.json({
-      username: userInfo.username,
-      permissions: parsedPermissions
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    const friends = await dbFunctions.getFriends(uid);
+    res.json({ success: true, friends });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "smths wrong fetching friedns" });
   }
 });
+
 
 // This gets all of the accepted friends
 router.get("/friends", verifyUser, async (req, res) => {
@@ -50,7 +42,7 @@ router.get("/friends", verifyUser, async (req, res) => {
     db.close();
   }
 });
-
+/*
 // Handles sending a friend request
 router.post("/friends/request", verifyUser, async (req, res) => {
   const uid = req.user.uid;
@@ -70,27 +62,19 @@ router.post("/friends/request", verifyUser, async (req, res) => {
     db.close();
   }
 });
-
+*/
 // This gets all pending friend requests for the logged-in user
 router.get("/friends/requests", verifyUser, async (req, res) => {
   const uid = req.user.uid;
-  const db = new sqlite3.Database("my.db");
-  const sql = `
-    SELECT f.requester_id AS requesterId, u.username
-    FROM friends f
-    JOIN users u ON u.uid = f.requester_id
-    WHERE f.receiver_id = ? AND f.status = 'pending'
-  `;
   try {
-    const requests = await fetchAll(db, sql, [uid]);
+    const requests = await dbFunctions.getRecieved(uid);
     res.json({ success: true, requests });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch friend requests" });
-  } finally {
-    db.close();
+    res.status(500).json({ error: "Failed to fetch pending requests" });
   }
 });
+
 
 // This handles accepting or rejecting a friend request
 router.patch("/friends/:friendId", verifyUser, async (req, res) => {
@@ -115,7 +99,28 @@ router.patch("/friends/:friendId", verifyUser, async (req, res) => {
     db.close();
   }
 });
+router.patch("/makefriend", verifyUser, async (req, res) => {
+  //API TO ACCEPT A FRIEND REQ
+  console.log("=== MAKEFRIEND ROUTE HIT ===");
+  console.log("Request body:", req.body);
+  console.log("User from token:", req.user); 
+  const { myID, friendID } = req.body;
+  if (!myID || !friendID) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+  if (!(await dbFunctions.userExists({id:friendID}))) {
+    return res.status(400).json({ error: "friend doesn't exist" });
+  }
+  try {
+    await dbFunctions.insertNewFriend({ myID, friendID });
+    console.log("insertNewFriend jsut ran type shit");
 
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update friendstuff 2" });
+  }
+});
 // This handles removing a friend (i dont think we need a block feature for this app)
 router.delete("/friends/:friendId", verifyUser, async (req, res) => {
   const uid = req.user.uid;
