@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import DiaryForm from "./DiaryForm/DiaryForm";
-import { auth } from "../../firebase";
+import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
+import { auth } from "../../firebase";
+import DiaryForm from "./DiaryForm";
 
 export default function AddDiaryButton({ fetchDiaries }) {
   const [openForm, setOpenForm] = useState(false);
