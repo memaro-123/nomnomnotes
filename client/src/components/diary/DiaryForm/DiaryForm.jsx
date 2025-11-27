@@ -21,10 +21,10 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
     const [service, setService] = useState(entry?.service || 0)
     const [value, setValue] = useState(entry?.value || 0)
 
-    const [nameError, setNameError] = useState('error')
-    const [ratingError, setRatingError] = useState('error')
-    const [imageError, setImageError] = useState('error')
-    const [locationError, setLocationError] = useState('error')
+    const [nameError, setNameError] = useState('')
+    const [ratingError, setRatingError] = useState('')
+    const [imageError, setImageError] = useState('')
+    const [locationError, setLocationError] = useState('')
 
     const cuisines = ['Chinese', 'Indian', 'Italian', 'Mexican', 'Japanese']
     const prices = ['$', '$$', '$$$', '$$$$']
@@ -58,7 +58,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             error = true;
         }
 
-        if (!taste && !service && !value) {
+        if (!taste || !service || !value) {
             setRatingError('rating is required')
             error = true;
         }
