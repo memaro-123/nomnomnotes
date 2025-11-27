@@ -52,13 +52,13 @@ export default function StarRating({ value, onChange}) {
                         onClick={(e) => handleClick(e, starIndex)}
                     >
                         {display === 'full' ? (
-                            <StarIcon size={32} weight={'fill'}/>
+                            <StarIcon size={16} weight={'fill'}/>
                         ) : display === 'half' ? (
                             <div>
-                                <StarHalfIcon size={32} weight={'fill'}/>
+                                <StarHalfIcon size={16} weight={'fill'}/>
                             </div>
                         ) : (
-                            <StarIcon size={32}/>
+                            <StarIcon size={16}/>
                         )}
                     </button>
                 )

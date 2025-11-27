@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import MainAuth from './components/auth/MainAuth/MainAuth';
 import Dashboard from './components/Dashboard';
 import { auth } from './firebase';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -21,6 +22,7 @@ export default function App() {
 
   return (  
     <>
+      <Toaster />
       {user ? <Dashboard /> : <MainAuth />}
     </>
   );

@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { auth } from '../../firebase'
 import DiaryForm from './DiaryForm/DiaryForm'
+import { toast } from 'react-hot-toast';
 
 export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiaries}) {
     const [openForm, setOpenForm] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
 
     const handleCloseForm = () => {
         setOpenForm(false)
@@ -13,8 +12,7 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
     }
 
     const handleSubmit = async (entryData) => {
-        setLoading(true)
-        try {
+        const saveDiaryEntry = async() => {
             const token = await auth.currentUser.getIdToken();
             entryData.entryId = entry.id
             if (!entryData.entryId) {
@@ -31,20 +29,25 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
             });
 
             if (!editResponse.ok) {
-                throw new Error ('Error writing diary :/')
+                throw new Error ('error writing diary')
             }
+
             if (fetchDiaries) {
                 await fetchDiaries();
             }
-
-
-        } catch (error) {
-            setError(error.message)
-        } finally {
-            setLoading(false);
-            setOpenForm(false);
-            handleCloseOptions();
         }
+
+        toast.promise(
+            saveDiaryEntry(),
+            {
+              loading: 'editing diary entry...',
+              success: () => {
+                handleCloseForm()
+                return <span>diary entry edited successfully!</span>}
+              ,
+              error: (err) => <span>{err.message || 'faliled to edit diary entry'}</span>,
+            }
+        )
     };
 
     useEffect(() => {
@@ -54,7 +57,7 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
     return(
         <div>
             <button onClick={() => setOpenForm(true)}>edit</button>
-            {openForm && <DiaryForm handleCloseForm={handleCloseForm} entry={entry} loading={loading} error={error} handleSubmit={handleSubmit}/>}
+            {openForm && <DiaryForm handleCloseForm={handleCloseForm} entry={entry} handleSubmit={handleSubmit}/>}
         </div>
     )
 }
