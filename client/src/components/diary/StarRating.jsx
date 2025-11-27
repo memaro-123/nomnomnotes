@@ -40,25 +40,24 @@ export default function StarRating({ value, onChange}) {
     };
 
     return(
-        <div>
+        <div className="flex gap-2">
             {[0, 1, 2, 3, 4].map((starIndex) => {
                 const display = getStarDisplay(starIndex);
 
                 return (
                     <button
+                        className="hover:cursor-pointer"
                         key={starIndex}
                         onMouseMove={(e) => handleMouseMove(e, starIndex)}
                         onMouseLeave={(handleMouseLeave)}
                         onClick={(e) => handleClick(e, starIndex)}
                     >
                         {display === 'full' ? (
-                            <StarIcon size={16} weight={'fill'}/>
+                            <div className="text-amber-400"><StarIcon size={32} weight={'fill'}/></div>
                         ) : display === 'half' ? (
-                            <div>
-                                <StarHalfIcon size={16} weight={'fill'}/>
-                            </div>
+                            <div className="text-amber-400"><StarHalfIcon size={32} weight={'fill'}/></div>
                         ) : (
-                            <StarIcon size={16}/>
+                            <div className="text-gray-400"><StarIcon size={32}/></div>
                         )}
                     </button>
                 )
