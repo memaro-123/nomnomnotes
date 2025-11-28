@@ -1,9 +1,9 @@
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import MainAuth from './components/auth/MainAuth/MainAuth';
+import { Toaster } from 'react-hot-toast';
+import MainAuth from './components/auth/MainAuth';
 import Dashboard from './components/Dashboard';
 import { auth } from './firebase';
-import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const [user, setUser] = useState(null);

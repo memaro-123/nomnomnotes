@@ -1,8 +1,7 @@
-import { useState } from 'react'
-import { auth } from '../../../firebase'
-import { sendPasswordResetEmail } from 'firebase/auth'
-import styles from './ForgotPassword.module.css'
 import { SealCheckIcon } from "@phosphor-icons/react";
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { useState } from 'react';
+import { auth } from '../firebase';
 
 export default function ForgotPassword({ handleAuthPage }) {
     const [email, setEmail] = useState('')
@@ -52,34 +51,34 @@ export default function ForgotPassword({ handleAuthPage }) {
     }
 
     return (
-        <div className={styles.container}>
-            {error && <span className={styles.error}>{error}</span>}
+        <div >
+            {error && <span >{error}</span>}
             {success ? (
-                <div className={styles.successTitle}>
+                <div >
                     <SealCheckIcon size={35} weight='fill'/>
                     <span>reset link sent</span>
                 </div> 
             ):( 
                 <div>
-                    <span className={styles.title}>forgot your login?</span>
+                    <span >forgot your login?</span>
                 </div>
             )}
-            <span className={styles.caption}>{success ? 'check your inbox for the reset link' : "let's whisk up a new password"}</span>
+            <span >{success ? 'check your inbox for the reset link' : "let's whisk up a new password"}</span>
             
             {/* email input */}
-            <div className={styles.inputWrapper}>
-                <div className={styles.labelContainer}>
+            <div >
+                <div >
                     <span>email</span>
-                    {emailError && <span className={styles.error}>{emailError}</span>}
+                    {emailError && <span >{emailError}</span>}
                 </div>
-                <div className={styles.inputContainer}>
+                <div >
                     <input value={email} onChange ={e => setEmail(e.target.value)} type="text" placeholder={'enter your password'}/>
                 </div>
             </div>
 
-            <div className={styles.buttonContainer}>
-                <button onClick={() => handleAuthPage('emailAndPassword')} className={styles.directoryButton}>back to login</button>
-                <button onClick={handlePasswordReset} className={styles.authButton}>{success ? 'resend' : 'send'}</button>
+            <div >
+                <button onClick={() => handleAuthPage('emailAndPassword')} >back to login</button>
+                <button onClick={handlePasswordReset} >{success ? 'resend' : 'send'}</button>
             </div>
         </div>
     )

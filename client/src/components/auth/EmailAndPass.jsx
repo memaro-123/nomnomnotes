@@ -1,14 +1,13 @@
+import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import {
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithEmailAndPassword,
     signInWithPopup
-} from 'firebase/auth'
-import { useState } from 'react'
-import { auth } from '../../../firebase'
-import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
+} from 'firebase/auth';
+import { useState } from 'react';
 import { FcGoogle } from "react-icons/fc";
-import styles from './EmailAndPass.module.css'
+import { auth } from '../../firebase';
 
 
 export default function EmailAndPassword({ handleAuthPage }) {
@@ -132,53 +131,53 @@ export default function EmailAndPassword({ handleAuthPage }) {
     }
 
     return(
-        <div className={styles.container}>
-            {error && <span className={styles.error}>{error}</span>}
+        <div >
+            {error && <span >{error}</span>}
 
-            <span className={styles.title}>nomnom notes</span>
+            <span>nomnom notes</span>
 
-            <div className={styles.caption}> <button onClick={()=> handleSwitchAuthMode('login')}>login</button> or <button onClick={()=> handleSwitchAuthMode('signUp')}>sign up</button> to start your food journal</div>
+            <div > <button onClick={()=> handleSwitchAuthMode('login')}>login</button> or <button onClick={()=> handleSwitchAuthMode('signUp')}>sign up</button> to start your food journal</div>
 
 
             {/* email input */}
-            <div className={styles.inputWrapper}>
-                <div className={styles.labelContainer}>
+            <div >
+                <div >
                     <span>email</span>
-                    {emailError && <span className={styles.error}>{emailError}</span>}
+                    {emailError && <span >{emailError}</span>}
                 </div>
-                <div className={styles.inputContainer}>
+                <div >
                     <input value={email} onChange ={e => setEmail(e.target.value)} type="text" placeholder={'enter your password'}/>
                 </div>
             </div>
 
 
             {/* password input */}
-            <div className={styles.inputWrapper}>
-                <div className={styles.labelContainer}>
+            <div >
+                <div >
                     <span>password</span>
-                    {passwordError && <span className={styles.error}>{passwordError}</span>}
+                    {passwordError && <span >{passwordError}</span>}
                 </div>
-                <div className={styles.inputContainer}>
+                <div >
                     <input value={password} onChange={e => setPassword(e.target.value)} type={passwordVisibility} placeholder={'enter your password'}/>
                     {passwordVisibility === 'password' && <EyeIcon size={15} onClick={() => setPasswordVisibility('text')}/>}
                     {passwordVisibility === 'text' && <EyeSlashIcon size={15} onClick={() => setPasswordVisibility('password')}/>}
                 </div>
             </div>
 
-            <div className={styles.buttonContainer}>
-                <button onClick={() => handleAuthPage('forgotPassword')} className={styles.directoryButton}>forgot password</button>
+            <div >
+                <button onClick={() => handleAuthPage('forgotPassword')} >forgot password</button>
 
                 {authMode === 'signUp' && 
-                    <button onClick={handleSignUp} className={styles.authButton}>sign up</button>
+                    <button onClick={handleSignUp} >sign up</button>
                 }
 
                 {authMode === 'login' && 
-                    <button onClick={handleLogin} className={styles.authButton}>login</button>
+                    <button onClick={handleLogin} >login</button>
                 }
             </div>
 
-            <div className={styles.divider}><hr/><span>or login with</span><hr/></div>
-            <button onClick={handleGoogleSignIn} className={styles.authButton}><FcGoogle/>google</button>
+            <div ><hr/><span>or login with</span><hr/></div>
+            <button onClick={handleGoogleSignIn} ><FcGoogle/>google</button>
         </div>
     )
 }
