@@ -1,24 +1,21 @@
 import EntryList from './diary/EntryList'
 import AddDiaryButton from './diary/AddDiaryButton'
-import Logout from './auth/logoutButton'
 import Filters from './diary/Filters'
 import { auth } from '../firebase';
 import { useEffect, useState } from 'react'
 import SettingsModal from './SettingsModal';
-import { FiSettings } from 'react-icons/fi';
 import FriendModal from "./FriendModal";
+import { HouseIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 
 export default function Dashboard() {
 
   const [entries, setEntries] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState()
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
   const [cuisineFilters, setCuisineFilters] = useState([])
   const [labelFilters, setLabelFilters] = useState([])
   const [priceFilters, setPriceFilters] = useState([])
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [friendModalOpen, setFriendModalOpen] = useState(false);
   const [viewingFriendId, setViewingFriendId] = useState(null);
 
 
@@ -75,7 +72,6 @@ export default function Dashboard() {
     
     const handleSearch = (e) => {
       setSearch(e)
-      
     }
 
     const handleCuisineFilter = (filter) => {
@@ -104,64 +100,62 @@ export default function Dashboard() {
 
 
     return (
-      <div>
-        <input type="text" placeholder="Search Entries" value={search} onChange={e => handleSearch(e.target.value)}/>
-        <Filters handleCuisineFilter={handleCuisineFilter} handleLabelFilter={handleLabelFilter} handlePriceFilter={handlePriceFilter}/>
-        <AddDiaryButton fetchDiaries={fetchDiaries} />
-        <EntryList entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
-        <Logout/>
+      <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
+        {/* header: settings, title, some emojis  */}
+        <div className="flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
+            <span className="text-xl">🐠 🥦 🍎</span>
+            <span className="text-lg font-bold">nomnom notes</span>
+            <SettingsModal/>
+        </div>
 
-        {/* Settings icon in the bottom left right corner*/}
-        <button
-          onClick={() => setSettingsOpen(true)}
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            backgroundColor: '#fff',
-            borderRadius: '50%',
-            padding: '10px',
-            border: '1px solid #ccc',
-            cursor: 'pointer',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-          }}
-        >
-          <FiSettings size={24} />
-        </button>
+        <div className="w-full h-full max-h-full flex gap-5">
 
-        {/* Settings Modal */}
-        {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+          {/* friends */}
+          <div className="w-1/4 border-2 border-gray-300 p-5 rounded-md shadow-md">
+            <FriendModal/>
+          </div>
 
-        {/* Friend icon in the top right corner*/}
-        <button
-          onClick={() => setFriendModalOpen(true)}
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            backgroundColor: '#fff',
-            borderRadius: '50%',
-            padding: '10px',
-            border: '1px solid #ccc',
-            cursor: 'pointer',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-          }}
-        >
-          👤
-        </button>
-    
-        {/* Friend Modal */}
-        {friendModalOpen && (
-          <FriendModal
-            onClose={() => setFriendModalOpen(false)}
-            onSelectFriend={(friendId) => {
-              setViewingFriendId(friendId);
-              setFriendModalOpen(false);
-              fetchFriendDiaries(friendId);
-            }}
-          />
-        )}
+          {/* diary part */}
+          <div className="w-full h-full max-h-full flex flex-col gap-3">
 
+            {/* diary header */}
+            <div className="flex flex-col gap-2">
+              <div className="w-full flex items-center justify-between">
+                <div className="flex items-center justify-center gap-3">
+                  <button className="hover:cursor-pointer"><HouseIcon size={28} weight={'fill'}/></button>
+                  <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>
+                </div>
+                {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
+              </div>
+              <hr className="border-t-3 border-gray-300 border-dotted"/>
+            </div>
+
+            <div className="flex items-center justify-center w-full h-full max-h-full gap-4">
+
+              <div className="flex flex-col flex-1 w-full h-full gap-2">
+                <span className="font-pacifico text-2xl">table of contents</span>
+                {/* searching */}
+                <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-full w-full px-2 py-1 focus-within:shadow-lg transition-shadow">
+                  <MagnifyingGlassIcon size={16}/>
+                  <input 
+                  className="focus:outline-none"
+                  type="text" placeholder="search entries" value={search} onChange={e => handleSearch(e.target.value)}/>
+                </div>
+
+                {/* filters */}
+                <div className="flex w-full items-center justify-between px-2">
+                  <span className="text-gray-500">sort by: recent *to do*</span>
+                  <Filters handleCuisineFilter={handleCuisineFilter} handleLabelFilter={handleLabelFilter} handlePriceFilter={handlePriceFilter}/>
+                </div>
+
+                <EntryList entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
+              </div>
+
+              <img className="hidden md:block md:w-1/2 md:h-[calc(100vh-170px)] rounded-lg shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex-shrink-0" 
+            src="paper.png" alt="lined paper" />
+            </div>
+          </div>
+        </div>
       </div>
     )
   }

@@ -53,7 +53,9 @@ export default function AddDiaryButton({ fetchDiaries }) {
 
   return (
     <div>
-      <button onClick={() => setOpenForm(true)}>add diary</button>
+      <button 
+      className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer"
+      onClick={() => setOpenForm(true)}>add entry</button>
       {openForm && (
         <DiaryForm
           handleCloseForm={handleCloseForm}

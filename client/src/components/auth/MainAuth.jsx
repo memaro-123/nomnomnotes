@@ -18,7 +18,7 @@ export default function MainAuth() {
                 {authPage == 'forgotPassword' && <ForgotPassword handleAuthPage={handleAuthPage}/>}
             </div>
 
-            <div className="hidden lg:flex gap-5 shrink-0 flex-1 items-center justify-start lg:pr-55">
+            <div className="hidden lg:flex gap-5 shrink-0 flex-1 items-center justify-start lg:pr-45">
                 <div className="flex flex-col gap-5 items-center justify-center shrink-0">
                     <img className="w-[250px] h-auto rounded-lg shadow-[0_4px_4px_rgba(0,0,0,0.25)]" src="pudding.jpg" alt="boba" />
                     <img className="w-[250px] h-auto rounded-lg shadow-[0_4px_4px_rgba(0,0,0,0.25)]" src="boba.jpg" alt="burger and fries" />

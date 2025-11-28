@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { SlidersHorizontalIcon } from "@phosphor-icons/react";
 
 export default function Filters({ handleCuisineFilter, handleLabelFilter, handlePriceFilter }) {
     const [open, setOpen] = useState(false)
@@ -9,9 +10,11 @@ export default function Filters({ handleCuisineFilter, handleLabelFilter, handle
 
     return(
         <div>
-            <button onClick={() => setOpen(true)}>filter</button>
+            <button 
+            className="bg-black text-white p-1 rounded-sm hover:cursor-pointer"
+            onClick={() => setOpen(true)}><SlidersHorizontalIcon size={16}/></button>
             {open && 
-                <div style={{display:'flex', flexDirection:'column'}}>
+                <div>
                     All Filters
                     <button onClick={() => setOpen(false)}>x</button>
                     Cuisines

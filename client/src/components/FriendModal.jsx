@@ -9,6 +9,7 @@ export default function FriendModal({ onClose, onSelectFriend }) {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [newFriendUID, setNewFriendUID] = useState("");
   const [myUsername, setMyUsername] = useState("");
+  
 useEffect(() => {
   const fetchMyUsername = async () => {
     try {
@@ -129,42 +130,20 @@ useEffect(() => {
   }
   else{
     return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000
-      }}
-    >
-      <div style={{
-        backgroundColor: "#fff",
-        padding: "25px",
-        borderRadius: "12px",
-        minWidth: "350px",
-        maxHeight: "80vh",
-        overflowY: "auto",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.3)"
-      }}>
+    <div>
+      <div>
         <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
 
         <FriendList friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
 
         {/* Place to add a new friend using UID */}
         <h2>Add Friend by UID</h2>
-        <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+        <div>
           <FriendFinder></FriendFinder>
         </div>
 
         <button 
           onClick={onClose} 
-          style={{ marginTop: "10px", cursor: "pointer", padding: "5px 10px", borderRadius: "6px", border: "1px solid #ccc" }}
         >
           Close
         </button>

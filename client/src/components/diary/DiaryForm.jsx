@@ -121,7 +121,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 </div>
                 <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow" >
                     <input 
-                    className="focus:outline-none"
+                    className="focus:outline-none w-full"
                     value={title} 
                     onChange ={e => setTitle(e.target.value)} 
                     type="text" placeholder={'enter the title'}/>
@@ -275,7 +275,9 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 <span>cuisines</span>
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
-                    <input type="text" placeholder="search cuisines" value={searchCuisine} onChange={e => setSearchCuisine(e.target.value)}/>
+                    <input 
+                    className="focus:outline-none"
+                    type="text" placeholder="search cuisines" value={searchCuisine} onChange={e => setSearchCuisine(e.target.value)}/>
                 </div>
                 <div className="flex flex-wrap gap-1 h-[100px] overflow-y-auto">
                     {cuisines
@@ -298,7 +300,9 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 <span>labels</span>
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
-                    <input type="text" placeholder="search labels" value={searchLabel} onChange={e => setSearchLabel(e.target.value)}/>
+                    <input 
+                    className="focus:outline-none"
+                    type="text" placeholder="search labels" value={searchLabel} onChange={e => setSearchLabel(e.target.value)}/>
                 </div>
                 <div className="flex flex-wrap gap-1 h-[100px] overflow-y-auto">
                     {labels

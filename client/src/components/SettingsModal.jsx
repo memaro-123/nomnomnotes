@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import Logout from './auth/logoutButton';
+import { GearIcon } from "@phosphor-icons/react";
 
-export default function SettingsModal({ onClose }) {
+export default function SettingsModal() {
   const [user, setUser] = useState(null);
   const [userMeta, setUserMeta] = useState({ username: '', permissions: {} });
   const [newPassword, setNewPassword] = useState('');
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -48,13 +50,9 @@ export default function SettingsModal({ onClose }) {
   if (!user) return null;
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: '#fff', padding: '20px', borderRadius: '8px', width: '400px', maxWidth: '90%'
-      }}>
+    <div>
+      <button onClick={() => setOpen(true)}><GearIcon size={28} weight={"fill"}/></button>
+      {open && <div>
         <h2>Settings</h2>
         <p><strong>Email:</strong> {user.email}</p>
         <p><strong>UID:</strong> {user.uid}</p>
@@ -62,7 +60,7 @@ export default function SettingsModal({ onClose }) {
         <p><strong>Username:</strong> {userMeta.username || 'N/A'}</p>
         <p><strong>Permissions:</strong> {userMeta.permissions ? JSON.stringify(userMeta.permissions) : 'N/A'}</p>
 
-        <div style={{ marginTop: '10px' }}>
+        <div>
           <input
             type="password"
             placeholder="New password"
@@ -72,14 +70,14 @@ export default function SettingsModal({ onClose }) {
           <button onClick={handleChangePassword}>Change Password</button>
         </div>
 
-        <div style={{ marginTop: '10px' }}>
+        <div>
           <Logout />
         </div>
 
-        <div style={{ marginTop: '10px' }}>
-          <button onClick={onClose}>Close</button>
+        <div>
+          <button onClick={() => setOpen(false)}>Close</button>
         </div>
-      </div>
+      </div>}
     </div>
   );
 }
