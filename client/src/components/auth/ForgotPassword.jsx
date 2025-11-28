@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 export default function ForgotPassword({ handleAuthPage }) {
     const [email, setEmail] = useState('')
     const [emailError, setEmailError] = useState('')
-    const [success, setSuccess] = useState(true)
+    const [success, setSuccess] = useState(false)
 
     const checkValid = () => {
         setEmailError('')
