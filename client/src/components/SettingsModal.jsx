@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
-import Logout from './auth/LogoutButton';
+import Logout from './auth/logoutButton';
 
 export default function SettingsModal({ onClose }) {
   const [user, setUser] = useState(null);

@@ -3,6 +3,16 @@ const { execute } = require("./dbFunctions.js");
 const path = require("path");
 const dbPath = path.join(__dirname, "../server/my.db")
 
+// Promise wrapper for db.run so that we can use async/await
+function runAsync(db, sql) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
+
 const main = async () => {
   const db = new sqlite3.Database(dbPath);
   try {
@@ -23,11 +33,26 @@ const main = async () => {
     value REAL
 );`
     );
-  } catch (error) {
+  
+    await execute(
+      db, 
+      `CREATE TABLE IF NOT EXISTS friends (
+        user_id TEXT PRIMARY KEY,
+        friends TEXT,          
+        sent_requests TEXT,    
+        received_requests TEXT 
+      );`
+    );
+
+    console.log("all the tables made right");
+  } 
+  catch (error) {
     console.log(error);
   } finally {
     db.close();
   }
+  
+
 };
 
 main();

@@ -1,11 +1,12 @@
 import EntryList from './diary/EntryList'
 import AddDiaryButton from './diary/AddDiaryButton'
-import Logout from './auth/LogoutButton'
+import Logout from './auth/logoutButton'
 import Filters from './diary/Filters'
 import { auth } from '../firebase';
 import { useEffect, useState } from 'react'
 import SettingsModal from './SettingsModal';
 import { FiSettings } from 'react-icons/fi';
+import FriendModal from "./FriendModal";
 
 export default function Dashboard() {
 
@@ -17,6 +18,8 @@ export default function Dashboard() {
   const [labelFilters, setLabelFilters] = useState([])
   const [priceFilters, setPriceFilters] = useState([])
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [friendModalOpen, setFriendModalOpen] = useState(false);
+  const [viewingFriendId, setViewingFriendId] = useState(null);
 
 
     const fetchDiaries = async () => {
@@ -47,12 +50,32 @@ export default function Dashboard() {
       }
     };
 
+    const fetchFriendDiaries = async (friendId) => {
+      setLoading(true);
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch(`http://localhost:8080/api/diary/${friendId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        // Marking all entries as not owned so that they are read-only
+        const entriesWithOwnership = data.diaryData.map(e => ({ ...e, isOwner: false }));
+        setEntries(entriesWithOwnership);
+      } catch (err) {
+        console.error(err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     useEffect(() => {
       fetchDiaries();
     }, []);
-
+    
     const handleSearch = (e) => {
       setSearch(e)
+      
     }
 
     const handleCuisineFilter = (filter) => {
@@ -66,7 +89,7 @@ export default function Dashboard() {
     const handlePriceFilter = (filter) => {
       setPriceFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
     }
-
+    
     useEffect(() => {
       console.log('cuisine:', cuisineFilters)
     })
@@ -108,6 +131,36 @@ export default function Dashboard() {
 
         {/* Settings Modal */}
         {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+
+        {/* Friend icon in the top right corner*/}
+        <button
+          onClick={() => setFriendModalOpen(true)}
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: '#fff',
+            borderRadius: '50%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+          }}
+        >
+          👤
+        </button>
+    
+        {/* Friend Modal */}
+        {friendModalOpen && (
+          <FriendModal
+            onClose={() => setFriendModalOpen(false)}
+            onSelectFriend={(friendId) => {
+              setViewingFriendId(friendId);
+              setFriendModalOpen(false);
+              fetchFriendDiaries(friendId);
+            }}
+          />
+        )}
 
       </div>
     )
