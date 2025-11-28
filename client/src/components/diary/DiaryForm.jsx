@@ -254,7 +254,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 <div className="flex gap-2">
                     {prices.map((p, i) => (
                         <button 
-                            className={`p-2 rounded-md hover:cursor-pointer ${selectedPrices === p ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
+                            className={`py-1 px-2 rounded-md hover:cursor-pointer ${selectedPrices === p ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
                             key={i} 
                             onClick={() => setSelectedPrices(p)}
                         >
@@ -264,7 +264,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 w-full">
                 <span>cuisines</span>
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
@@ -277,7 +277,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                     )
                     .map((c, i) => (
                         <button 
-                        className={`p-2 rounded-md hover:cursor-pointer ${selectedCuisines.includes(c) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
+                            className={`py-1 px-2 rounded-md hover:cursor-pointer h-auto self-start ${selectedCuisines.includes(c) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
                             key={i} 
                             onClick={() => handleCuisine(c)}
                         >
@@ -287,7 +287,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 w-full">
                 <span>labels</span>
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
@@ -300,7 +300,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                     )
                     .map((l, i) => (
                         <button 
-                        className={`p-2 rounded-md hover:cursor-pointer ${selectedLabels.includes(l) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
+                        className={`py-1 px-2 rounded-md hover:cursor-pointer h-auto self-start ${selectedLabels.includes(l) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
                             key={i} 
                             onClick={() => handleLabel(l)}
                         >
