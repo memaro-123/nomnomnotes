@@ -11,10 +11,9 @@ const main = async () => {
       `CREATE TABLE IF NOT EXISTS diary_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT NOT NULL,
-    name TEXT NOT NULL,
+    title TEXT NOT NULL,
     selected_cuisines TEXT,
-    city TEXT,
-    state TEXT,
+    location TEXT,
     selected_prices TEXT,
     selected_labels TEXT,
     images TEXT,

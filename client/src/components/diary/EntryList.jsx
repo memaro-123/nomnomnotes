@@ -45,12 +45,12 @@ export default function EntryList({ entries, loading, error, search, cuisineFilt
                     return priceFilters.includes(entry.selectedPrices);
                 })
                 .filter(entry =>
-                    entry.name.toLowerCase().includes(search.toLowerCase())
+                    entry.title.toLowerCase().includes(search.toLowerCase())
                 )
                 .map(entry => {
                     return(
                         <div key={entry.id}>
-                            <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry);}}>{entry.name}</button>
+                            <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry);}}>{entry.title}</button>
                             {entry.selectedCuisines.map((cuisine, i) => {
                                 return(<div key={i}>{cuisine}</div>)
                             })}

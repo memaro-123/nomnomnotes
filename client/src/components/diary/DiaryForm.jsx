@@ -1,13 +1,12 @@
 import { MagnifyingGlassIcon, PlusIcon, StarIcon, XIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from 'react';
 import StarRating from './StarRating';
-import { cuisines, labels, prices } from './tags'
-// import styles from './DiaryForm.module.css'
+import LocationAuto from './LocationAuto'
+import { cuisines, labels, prices } from '../../utils/tags'
 
 export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
-    const [name, setName] = useState(entry?.name || '')
-    const [city, setCity] = useState(entry?.city || '')
-    const [state, setState] = useState(entry?.state || '')
+    const [title, setTitle] = useState(entry?.title || '')
+    const [location, setLocation] = useState(entry.location || {})
     const [images, setImages] = useState(entry?.images || [])
     const [notes, setNotes] = useState(entry?.notes || '')
 
@@ -22,7 +21,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
     const [service, setService] = useState(entry?.service || 0)
     const [value, setValue] = useState(entry?.value || 0)
 
-    const [nameError, setNameError] = useState('')
+    const [titleError, setTitleError] = useState('')
     const [ratingError, setRatingError] = useState('')
     const [imageError, setImageError] = useState('')
     const [locationError, setLocationError] = useState('')
@@ -44,13 +43,13 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
 
     const handleValidate = () => {
         let error = false;
-        setNameError('')
+        setTitleError('')
         setRatingError('')
         setImageError('')
         setLocationError('')
 
-        if (!name) {
-            setNameError('required')
+        if (!title) {
+            setTitleError('required')
             error = true;
         }
 
@@ -64,7 +63,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             error = true;
         }
 
-        if(!city || !state) {
+        if(!location) {
             setLocationError('required')
             error = true;
         }
@@ -73,10 +72,9 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
         if (!error) {
             handleSubmit({
                 entryId: entry?.id || null,
-                name, 
+                title, 
                 selectedCuisines, 
-                city, 
-                state, 
+                location,
                 selectedPrices, 
                 selectedLabels,
                 images, 
@@ -88,10 +86,11 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
         }
     }
 
-    useEffect(() => console.log('Selected Cuisines:', selectedCuisines), [selectedCuisines]);
-    useEffect(() => console.log('Selected Price:', selectedPrices), [selectedPrices]);
-    useEffect(() => console.log('Selected Labels:', selectedLabels), [selectedLabels]);
-    useEffect(() => console.log('Taste:', taste), [taste])
+    // useEffect(() => console.log('Selected Cuisines:', selectedCuisines), [selectedCuisines]);
+    // useEffect(() => console.log('Selected Price:', selectedPrices), [selectedPrices]);
+    // useEffect(() => console.log('Selected Labels:', selectedLabels), [selectedLabels]);
+    // useEffect(() => console.log('Taste:', taste), [taste])
+    useEffect(() => console.log('Location:', location), [location])
 
     return (
       <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">
@@ -118,11 +117,10 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             <div className="flex flex-col">
                 <div className="flex justify-between items-center">
                     <div><span className="font-bold">title</span><span className="text-red-500">*</span></div>
-                    {nameError && <span className="text-red-500">{nameError}</span>}
+                    {titleError && <span className="text-red-500">{titleError}</span>}
                 </div>
-                <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
-                    <input className="w-full box-border" value={name} onChange ={e => setName(e.target.value)} type="text" placeholder={'enter the title'}/>
-                </div>
+                <input className="border-1 border-solid rounded-sm w-full p-1 focus:shadow-lg transition-shadow" 
+                    value={title} onChange ={e => setTitle(e.target.value)} type="text" placeholder={'enter the title'}/>
             </div>
 
             {/* location input */}
@@ -131,14 +129,11 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                     <div><span className="font-bold">location</span><span className="text-red-500">*</span></div>
                     {locationError && <span className="text-red-500">{locationError}</span>}
                 </div>
-                <div className="flex flex-col gap-2"> 
-                    <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
-                        <input value={city} onChange ={e => setCity(e.target.value)} type="text" placeholder={'enter the city'}/>
-                    </div>
-                    <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
-                        <input  className="w-full box-border" value={state} onChange ={e => setState(e.target.value)} type="text" placeholder={'enter the state'}/>
-                    </div>
-                </div>
+                <LocationAuto
+                    defaultLocation={location.name || ''}
+                    onPlaceSelected={(place) => {
+                        setLocation(place);
+                }}/>
             </div>
 
             {/* notes input */}

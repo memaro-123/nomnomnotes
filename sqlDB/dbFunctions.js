@@ -3,10 +3,9 @@ const { paramExec, fetchAll, fetchFirst } = require("./helperFunctions.js");
 
 const insertEntry = async ({
   user_id,
-  name,
+  title,
   selectedCuisines,
-  city,
-  state,
+  location,
   selectedPrices,
   selectedLabels,
   images,
@@ -18,16 +17,28 @@ const insertEntry = async ({
   const cuisinesStr = JSON.stringify(selectedCuisines)
   const labelsStr = JSON.stringify(selectedLabels)
   const imagesStr = JSON.stringify(images)
+  const locationStr = JSON.stringify(location)
 
   const db = new sqlite3.Database("my.db");
-  const sql = `INSERT INTO diary_entries(user_id,name,selected_cuisines,city,state,selected_prices,selected_labels,images,notes,taste,service,value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  const sql = `INSERT INTO diary_entries(
+  user_id,
+  title,
+  selected_cuisines,
+  location,
+  selected_prices,
+  selected_labels,
+  images,
+  notes,
+  taste,
+  service,
+  value
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   try {
     await paramExec(db, sql, [
       user_id,
-      name,
+      title,
       cuisinesStr,
-      city,
-      state,
+      locationStr,
       selectedPrices,
       labelsStr,
       imagesStr,
@@ -42,13 +53,13 @@ const insertEntry = async ({
     db.close();
   }
 }
+
 const editEntry = async ({
   id,
   user_id,
-  name,
+  title,
   selectedCuisines,
-  city,
-  state,
+  location,
   selectedPrices,
   selectedLabels,
   images,
@@ -61,15 +72,26 @@ const editEntry = async ({
   const cuisinesStr = JSON.stringify(selectedCuisines)
   const labelsStr = JSON.stringify(selectedLabels)
   const imagesStr = JSON.stringify(images)
-  const sql = `UPDATE diary_entries SET name = ?, selected_cuisines = ?, city = ?, state = ?, 
-        selected_prices = ?, selected_labels = ?, images = ?, 
-        notes = ?, taste = ?, service = ?, value = ? WHERE id = ?`;
+  const locationStr = JSON.stringify(location)
+  console.log('db', locationStr)
+
+  const sql = `UPDATE diary_entries SET 
+  title = ?, 
+  selected_cuisines = ?,
+  location = ?,
+  selected_prices = ?, 
+  selected_labels = ?, 
+  images = ?, 
+  notes = ?, 
+  taste = ?, 
+  service = ?, 
+  value = ?
+  WHERE id = ?`;
   try {
     await paramExec(db, sql,[
-      name,
+      title,
       cuisinesStr,
-      city,
-      state,
+      locationStr,
       selectedPrices,
       labelsStr,
       imagesStr,
@@ -77,7 +99,7 @@ const editEntry = async ({
       taste,
       service,
       value,
-      id      // <-- IMPORTANT
+      id
     ]);
   } catch (err) {
     console.log(err);
@@ -94,6 +116,7 @@ const getEntry = async(entryID) => {
       row.selectedCuisines = JSON.parse(row.selected_cuisines);
       row.selectedLabels = JSON.parse(row.selected_labels);
       row.images = JSON.parse(row.images);
+      row.location = JSON.parse(row.location);
     }
       return row
     }
@@ -119,6 +142,9 @@ const getAllEntries = async(userId) => {
       }
       if (row.images) {
         row.images = JSON.parse(row.images);
+      }
+      if(row.location) {
+        row.location = JSON.parse(row.location);
       }
       return row;
     })
