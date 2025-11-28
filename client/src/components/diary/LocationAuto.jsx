@@ -46,7 +46,7 @@ export default function LocationAuto({ defaultLocation, onPlaceSelected, inputPr
       ref={ref}
       {...inputProps}
       placeholder={inputProps.placeholder ?? "select location"}
-      className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow"
+      className="focus:outline-none"
     />
   );
 }

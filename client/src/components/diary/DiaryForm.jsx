@@ -116,29 +116,36 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             {/* title input */}
             <div className="flex flex-col">
                 <div className="flex justify-between items-center">
-                    <div><span className="font-bold">title</span><span className="text-red-500">*</span></div>
+                    <div><span className="font-semibold">title</span><span className="text-red-500">*</span></div>
                     {titleError && <span className="text-red-500">{titleError}</span>}
                 </div>
-                <input className="border-1 border-solid rounded-sm w-full p-1 focus:shadow-lg transition-shadow" 
-                    value={title} onChange ={e => setTitle(e.target.value)} type="text" placeholder={'enter the title'}/>
+                <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow" >
+                    <input 
+                    className="focus:outline-none"
+                    value={title} 
+                    onChange ={e => setTitle(e.target.value)} 
+                    type="text" placeholder={'enter the title'}/>
+                </div>
             </div>
 
             {/* location input */}
             <div className="flex flex-col">
                 <div className="flex justify-between items-center">
-                    <div><span className="font-bold">location</span><span className="text-red-500">*</span></div>
+                    <div><span className="font-semibold">location</span><span className="text-red-500">*</span></div>
                     {locationError && <span className="text-red-500">{locationError}</span>}
                 </div>
-                <LocationAuto
-                    defaultLocation={location.name || ''}
-                    onPlaceSelected={(place) => {
-                        setLocation(place);
-                }}/>
+                <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow" >
+                    <LocationAuto
+                        defaultLocation={location.name || ''}
+                        onPlaceSelected={(place) => {
+                            setLocation(place);
+                    }}/>
+                </div>
             </div>
 
             {/* notes input */}
             <div className="flex flex-col flex-1">
-                <span className="font-bold">notes</span>
+                <span className="font-semibold">notes</span>
                 <div className="border-1 border-solid rounded-sm w-full h-full p-1 focus-within:shadow-lg transition-shadow">
                     <textarea 
                         className="focus:outline-none resize-none w-full box-border"
@@ -166,7 +173,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                             onChange={handleImageChange} 
                             style={{ display: 'none' }}
                         />
-                        <span className="font-bold">photos </span><span>({images.length}) </span><span className="text-red-500">*</span>
+                        <span className="font-semibold">photos </span><span>({images.length}) </span><span className="text-red-500">*</span>
                     </div>
                     {imageError && <span className="text-red-500">{imageError}</span>}
                 </div>
@@ -192,7 +199,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             {/* rating */}
             <div className="flex flex-col">
                 <div className="flex justify-between items-center">
-                    <div><span className="font-bold">rating</span><span className="text-red-500">*</span></div>
+                    <div><span className="font-semibold">rating</span><span className="text-red-500">*</span></div>
                     {ratingError && <span className="text-red-500">{ratingError}</span>}
                 </div>
 
@@ -200,7 +207,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 <div className="flex h-full w-full items-center justify-center">
                     <div className={`relative flex items-center justify-center ${taste && service && value ? "text-amber-400" : "text-gray-400"}`}>
                         <StarIcon size={150} weight={'fill'}/>
-                        <span className="absolute text-2xl text-center text-white font-bold">
+                        <span className="absolute text-2xl text-center text-white font-semibold">
                             {taste && value && service ? ((taste + value + service) / 3).toFixed(2) : '--'}
                         </span>
                     </div>
@@ -247,7 +254,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
 
         {/* 3rd column: tags and searching thru them */}
         <div className="flex flex-col">
-        <span className="font-bold">tags</span>
+        <span className="font-semibold">tags</span>
         <div className="grid grid-cols-3 gap-6 w-full">
             <div className="flex flex-col gap-1"> {/* this is row */}
                 <span>price</span>
@@ -316,7 +323,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
         {/* Submit Button */}
         <div className="flex items-center justify-end">
             <button
-                className="bg-black text-white flex-end px-4 py-2 rounded-md"
+                className="bg-black text-white px-4 py-2 rounded-md hover:cursor-pointer"
                 onClick={handleValidate}
             >
                 save
