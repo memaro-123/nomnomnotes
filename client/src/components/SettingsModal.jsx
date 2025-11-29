@@ -52,32 +52,39 @@ export default function SettingsModal() {
   return (
     <div>
       <button onClick={() => setOpen(true)} className="flex items-center justify-center"><GearIcon size={28} weight={"fill"}/></button>
-      {open && <div>
-        <h2>Settings</h2>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>UID:</strong> {user.uid}</p>
-        <p><strong>Name:</strong> {user.displayName || 'N/A'}</p>
-        <p><strong>Username:</strong> {userMeta.username || 'N/A'}</p>
-        <p><strong>Permissions:</strong> {userMeta.permissions ? JSON.stringify(userMeta.permissions) : 'N/A'}</p>
+      {open && 
+      <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">
+        <div className="bg-white rounded-2xl flex flex-col p-5 gap-5">
+          <div className="flex items-center justify-start gap-2">
+            <GearIcon size={45} weight={"fill"}/>
+            <span className="font-pacifico text-3xl">settings</span>
+          </div>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>UID:</strong> {user.uid}</p>
+          <p><strong>Name:</strong> {user.displayName || 'N/A'}</p>
+          <p><strong>Username:</strong> {userMeta.username || 'N/A'}</p>
+          <p><strong>Permissions:</strong> {userMeta.permissions ? JSON.stringify(userMeta.permissions) : 'N/A'}</p>
 
-        <div>
-          <input
-            type="password"
-            placeholder="New password"
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-          />
-          <button onClick={handleChangePassword}>Change Password</button>
-        </div>
+          <div>
+            <input
+              type="password"
+              placeholder="New password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+            />
+            <button onClick={handleChangePassword}>Change Password</button>
+          </div>
 
-        <div>
-          <Logout />
-        </div>
+          <div>
+            <Logout />
+          </div>
 
-        <div>
-          <button onClick={() => setOpen(false)}>Close</button>
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+          </div>
         </div>
-      </div>}
+      </div>
+      }
     </div>
   );
 }
