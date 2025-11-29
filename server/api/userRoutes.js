@@ -4,6 +4,12 @@ const { verifyUser } = require('./middleware/verifyUser');
 const sqlite3 = require("sqlite3");
 const { fetchAll, paramExec } = require("../../sqlDB/helperFunctions.js");
 const dbFunctions = require("../../sqlDB/dbFunctions.js");
+const { validateUserInput, sanitizeInput, rateLimit } = require('./middleware/validateInput');
+
+router.use(verifyUser); // Apply user verification middleware to all routes
+router.use(rateLimit()); // Apply rate limiting middleware to all routes
+router.use(sanitizeInput); // Apply input sanitization middleware to all routes
+router.use(validateUserInput); // Apply input validation middleware to all routes
 
 
 // This gets the logged-in use's info
@@ -14,7 +20,7 @@ router.get("/friends", verifyUser, async (req, res) => {
     res.json({ success: true, friends });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "smths wrong fetching friedns" });
+    res.status(500).json({ error: "smths wrong fetching friends" });
   }
 });
 
