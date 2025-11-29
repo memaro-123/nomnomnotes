@@ -148,7 +148,7 @@ export default function Dashboard() {
         <div className="w-screen h-screen flex gap-5 p-5">
 
           {/* friends */}
-          <div className="hidden md:block flex flex-col w-1/4 h-full gap-2">
+          <div className="hidden lg:block lg:flex flex-col w-1/4 h-full gap-2">
             <div className=" flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
               {/* <span className="text-xl">🐠 🥦 🍎</span> */}
               <span className="text-lg font-bold">nomnom notes</span>
@@ -166,6 +166,9 @@ export default function Dashboard() {
             <div className="flex flex-col gap-2 pt-3">
               <div className="w-full flex items-center justify-between">
                 <div className="flex items-center justify-center gap-3">
+                  <div className="lg:hidden">
+                    <SettingsModal/>
+                  </div>
                   <button className="hover:cursor-pointer"><HouseIcon size={28} weight={'fill'}/></button>
                   <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>
                 </div>

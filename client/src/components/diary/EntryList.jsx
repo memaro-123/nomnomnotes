@@ -34,14 +34,14 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
     }
 
     return (
-        <div className="w-full h-[calc(100vh-280px)] overflow-y-auto">
+        <div className="w-full h-[calc(100vh-220px)] overflow-y-auto pl-4" style={{ direction: 'rtl' }}>
             {entries.length <= 0 ? (
-                <div className="flex flex-col gap-2 items-center justify-center h-full">
+                <div className="flex flex-col gap-2 items-center justify-center h-full " style={{ direction: 'ltr' }}>
                     <span className="font-semibold">no entries yet... let's fix that!</span>
                     <AddDiaryButton fetchDiaries={fetchDiaries}/>
                 </div>
             ) : (
-                <div className="w-full h-full flex flex-col gap-2">
+                <div className="w-full h-full flex flex-col gap-2" style={{ direction: 'ltr' }}>
                     {entries
                     .filter(entry => {
                         if (labelFilters.length === 0) return true;
@@ -61,12 +61,13 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
                     .map(entry => {
                         return(
                             <div key={entry.id} className="flex">
-                                <div className={` flex items-start justify-between w-full border-2 h-[135px] rounded-md p-2
+                                {/* this is the main button */}
+                                <div className={` flex items-start justify-between flex-1 border-2 h-[135px] rounded-md p-2 min-w-0 w-full
                                     ${selectedEntry && selectedEntry.id === entry.id ? 'border-black' : 'border-gray-300'}`}>
                                     <button 
                                     key={entry.id} 
                                     onClick={() => handleSelectEntry(entry)}
-                                    className="flex-1 flex items-center justify-start gap-5 w-full h-full overflow-hidden hover:cursor-pointer">
+                                    className="flex-1 flex items-center justify-start gap-5 h-full overflow-hidden hover:cursor-pointer">
                                             <img 
                                             // src={entry.images[0]} this is for when we convert to s3 and can use the images
                                             src="burger.jpg"
@@ -84,9 +85,11 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
                                                                 day: "2-digit",
                                                             }).replace(/\//g, "/")}
                                                         </span>
-                                                        <div className="flex items-center justify-start">
+                                                        <div className="flex items-center justify-start gap-1 min-w-0 shrink">
                                                             <MapPinIcon size={15} weight={'fill'}/>
-                                                            <span className="text-xs text-left truncate overflow-hidden whitespace-nowrap max-w-[200px]">
+                                                            <span 
+                                                            title={entry.location.name}
+                                                            className="text-xs text-left truncate overflow-hidden min-w-0">
                                                                 {entry.location.name}</span>
                                                         </div>
                                                     </div>
@@ -98,12 +101,15 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
                                             </div>
                                     </button>
                                     
+                                    {/* options button */}
                                     {!isReadOnly && (
                                         <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}><DotsThreeVerticalIcon size={20}/></button>
                                     )}
                                 </div>
 
-                                {entry.id === openOptionsId && <div className="w-1/4 flex flex-col px-1 items-center justify-stretch">
+                                {/* options */}
+                                {entry.id === openOptionsId && 
+                                <div className="w-1/4 flex flex-col px-1 items-center justify-stretch shrink-0">
                                     <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries}  />
                                     <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries} />
                                 </div>}

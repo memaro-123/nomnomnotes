@@ -1,19 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { auth } from '../../firebase'
 import { TrashIcon } from "@phosphor-icons/react";
+import { toast } from 'react-hot-toast';
+import { WarningIcon } from "@phosphor-icons/react";
 
 export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiaries }) {
     const [openForm, setOpenForm] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
 
     const handleCloseForm = () => {
         setOpenForm(false)
-        handleCloseOptions()
+        // handleCloseOptions()
     }
 
     const handleDelete = async () => {
-        setLoading(true)
+        setOpenForm(false);
+        const toastId = toast.loading('deleting entry...')
         try {
             const token = await auth.currentUser.getIdToken();
 
@@ -32,23 +33,16 @@ export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiar
             if (!deleteResponse.ok) {
                 throw new Error ('Error deleting diary :/')
             }
-
-        } catch (error) {
-            setError(error.message)
-        } finally {
-            setLoading(false);
-            setOpenForm(false);
-            handleCloseOptions();
+            
+            toast.success('entry deleted successfully!', { id: toastId })
+            handleCloseOptions()
             fetchDiaries()
+        } catch (error) {
+            console.log(error.message)
+            toast.error(error.message || 'Failed to delete entry', { id: toastId })
         }
     };
 
-
-    if (loading) { // the loading state should prob be handled differently but im just going thru stuff quickly to get it to function
-        return(
-            <div>Loading...</div>
-        )
-    }
 
     return(
         <div className="w-full h-full">
@@ -57,13 +51,19 @@ export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiar
             hover:text-white hover:cursor-pointer transition-all"
             onClick={() => setOpenForm(true)}><TrashIcon size={30} weight={'fill'}/></button>
             {openForm && 
-                <div>
-                    Are you sure you want to delete? This is permanent.
-                    <button onClick={handleDelete}>Delete</button>
-                    <button onClick={handleCloseForm}>Cancel</button>
+                <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">
+                    <div className="bg-white border-3 border-red-400 rounded-2xl flex flex-col p-5 gap-5">
+                        <div className="text-red-400 font-bold flex flex-col items-center justify-center gap-2 text-xl text-center">
+                            <WarningIcon size={50} weight="fill"/>
+                            <span>Are you sure you want to delete? <br/> This is permanent.</span>
+                        </div>
+                        <div className="flex items-center justify-around">
+                            <button className="border-2 border-red-400 text-red-400 hover:bg-red-400 hover:text-white px-4 py-2 rounded-md hover:cursor-pointer" onClick={handleDelete}>delete</button>
+                            <button className="border-2 border-black text-black hover:bg-black hover:text-white px-4 py-2 rounded-md hover:cursor-pointer" onClick={handleCloseForm}>cancel</button>
+                        </div>
+                    </div>
                 </div>
             }
-            {error && <div>{error.message}</div>}
         </div>
     )
 }

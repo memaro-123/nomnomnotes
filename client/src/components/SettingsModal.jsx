@@ -51,7 +51,7 @@ export default function SettingsModal() {
 
   return (
     <div>
-      <button onClick={() => setOpen(true)}><GearIcon size={28} weight={"fill"}/></button>
+      <button onClick={() => setOpen(true)} className="flex items-center justify-center"><GearIcon size={28} weight={"fill"}/></button>
       {open && <div>
         <h2>Settings</h2>
         <p><strong>Email:</strong> {user.email}</p>
