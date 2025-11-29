@@ -128,28 +128,42 @@ export default function Dashboard() {
       console.log('price:', priceFilters)
     })
 
+            // <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
+
+          // <div className="h-screen w-screen flex gap-5 p-5">
+
+          // {/* friends */}
+          // <div className="flex flex-col">
+          //   <div className="hidden md:block w-1/4 border-2 border-gray-300 p-5 rounded-md shadow-md">
+          //     <FriendModal/>
+          //   </div>
+          // </div>
+
 
     return (
-      <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
-        {/* header: settings, title, some emojis  */}
-        <div className="flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
-            <span className="text-xl">🐠 🥦 🍎</span>
-            <span className="text-lg font-bold">nomnom notes</span>
-            <SettingsModal/>
-        </div>
+      // <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
+      //   {/* header: settings, title, some emojis  */}
 
-        <div className="w-full h-full max-h-full flex gap-5">
+
+        <div className="w-screen h-screen flex gap-5 p-5">
 
           {/* friends */}
-          <div className="hidden md:block w-1/4 border-2 border-gray-300 p-5 rounded-md shadow-md">
-            <FriendModal/>
+          <div className="hidden md:block flex flex-col w-1/4 h-full gap-2">
+            <div className=" flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
+              {/* <span className="text-xl">🐠 🥦 🍎</span> */}
+              <span className="text-lg font-bold">nomnom notes</span>
+              <SettingsModal/>
+            </div>
+            <div className=" w-full h-full border-2 border-gray-300 p-5 rounded-md shadow-md">
+              <FriendModal/>
+            </div>
           </div>
 
           {/* diary part */}
           <div className="w-full h-full max-h-full flex flex-col gap-3">
 
             {/* diary header */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 pt-3">
               <div className="w-full flex items-center justify-between">
                 <div className="flex items-center justify-center gap-3">
                   <button className="hover:cursor-pointer"><HouseIcon size={28} weight={'fill'}/></button>
@@ -162,7 +176,7 @@ export default function Dashboard() {
 
             <div className="flex items-center justify-center w-full h-full max-h-full gap-4">
 
-              <div className="flex flex-col flex-1 w-full h-full gap-2">
+              <div className="w-full flex flex-col flex-1 md:w-2/5 h-full gap-2">
                 <span className="font-pacifico text-2xl">table of contents</span>
                 {/* searching */}
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-full w-full px-2 py-1 focus-within:shadow-lg transition-shadow">
@@ -185,6 +199,5 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </div>
     )
   }

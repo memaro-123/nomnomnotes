@@ -2,10 +2,10 @@
 
 export default function Entry({ entry }) {
     return ( 
-    <div className="hidden md:block md:w-1/2 md:h-[calc(100vh-170px)] shadow-md flex-shrink-0 relative" >
+    <div className="hidden md:block md:w-3/5 md:h-[calc(100vh-100px)] shadow-md flex-shrink-0 relative" >
         <img className="w-full h-full pointer-events-none z-[-1]"
             src="paper.png" alt="lined paper" />
-        <div className="absolute inset-0 p-6 left-7">
+        <div className="absolute inset-0 p-6 left-[9%] border-1">
             {entry ? (<div>{entry.title}</div>) :(<div>no entries</div>)}
         </div>
     </div>

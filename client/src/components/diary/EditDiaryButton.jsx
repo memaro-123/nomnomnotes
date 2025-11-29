@@ -52,8 +52,8 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
 
     return(
         <div className="w-full h-full">
-            <button onClick={() => setOpenForm(true)} className="w-full h-full border-lime-400 text-lime-400 rounded-t-md flex items-center justify-center border-2 
-            hover:cursor-pointer hover:bg-lime-400 hover:text-white transition-all">
+            <button onClick={() => setOpenForm(true)} className="w-full h-full border-lime-500 text-lime-500 rounded-t-md flex items-center justify-center border-2 
+            hover:cursor-pointer hover:bg-lime-500 hover:text-white transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M8.82 19.79a1 1 0 0 0-1.42 0l-1.29 1.29l-1.29-1.29a1 1 0 0 0-1.35-.06l-3 2.5a1 1 0 0 0-.13 1.41a1 1 0 0 0 1.41.13l2.3-1.92l1.35 1.36a1 1 0 0 0 1.42 0l1.29-1.3l.79.8a1 1 0 0 0 1.42-1.42ZM23.78 
                     3.36a2.9 2.9 0 0 0-1.38-1.72L19.49.07a.51.51 0 0 0-.68.19l-8 14.46a.5.5 0 0 0 0 .38a.52.52 0 0 0 .24.3l2.48 1.37a.5.5 0 0 0 .24.06a.49.49 0 0 0 .44-.26L21.46 3.4a.9.9 0 0 1 .39.52a.87.87 0 0 1-.07.67l-3.64 6.61a1 1 0 0 0 
