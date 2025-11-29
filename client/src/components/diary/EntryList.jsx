@@ -1,23 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DeleteDiaryButton from './DeleteDiaryButton'
 import EditDiaryButton from './EditDiaryButton'
 import AddDiaryButton from './AddDiaryButton'
-import Entry from './Entry'
-import { CircleNotchIcon, BugIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon, BugIcon, MapPinIcon, DotsThreeVerticalIcon } from "@phosphor-icons/react";
 
-export default function EntryList({ entries, loading, error, search, cuisineFilters, priceFilters, labelFilters, fetchDiaries, isReadOnly}) {
-    const [openEntry, setOpenEntry] = useState(false)
-    const [selectedEntry, setSelectedEntry] = useState(null)
+export default function EntryList({ selectedEntry, handleSelectEntry, entries, loading, error, search, cuisineFilters, priceFilters, labelFilters, fetchDiaries, isReadOnly}) {
     const [openOptionsId, setOpenOptionsId] = useState(null)
-
-    const handleCloseEntry = () => {
-        setOpenEntry(prev => !prev)
-        setSelectedEntry(null)
-    }
 
     const handleCloseOptions = () => {
         setOpenOptionsId(null)
     }
+
+    useEffect(() => {
+        console.log('opening options:', { isOpen: selectedEntry?.id === openOptionsId });
+    }, [openOptionsId, selectedEntry]);
 
     if (loading) {
         return(
@@ -38,14 +34,14 @@ export default function EntryList({ entries, loading, error, search, cuisineFilt
     }
 
     return (
-        <div className="w-full md:h-[calc(100vh-280px)] overflow-y-auto">
+        <div className="w-full h-[calc(100vh-280px)] overflow-y-auto">
             {entries.length <= 0 ? (
                 <div className="flex flex-col gap-2 items-center justify-center h-full">
                     <span className="font-semibold">no entries yet... let's fix that!</span>
                     <AddDiaryButton fetchDiaries={fetchDiaries}/>
                 </div>
             ) : (
-                <div className="w-full h-full border-1">
+                <div className="w-full h-full flex flex-col gap-2">
                     {entries
                     .filter(entry => {
                         if (labelFilters.length === 0) return true;
@@ -64,22 +60,54 @@ export default function EntryList({ entries, loading, error, search, cuisineFilt
                     )
                     .map(entry => {
                         return(
-                            <div key={entry.id} className="">
-                                <button key={entry.id} onClick={() => {setOpenEntry(true); setSelectedEntry(entry);}}>
-                                    {entry.title}
-                                </button>
-                                
-                                {!isReadOnly && (
-                                    <>
-                                        <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}>...</button>
-                                        {entry.id === openOptionsId && 
-                                            <div>
-                                                <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries}  />
-                                                <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries} />
+                            <div key={entry.id} className="flex">
+                                <div className={` flex items-start justify-between w-full border-2 h-[135px] rounded-md p-2
+                                    ${selectedEntry && selectedEntry.id === entry.id ? 'border-black' : 'border-gray-300'}`}>
+                                    <button 
+                                    key={entry.id} 
+                                    onClick={() => handleSelectEntry(entry)}
+                                    className="flex-1 flex items-center justify-start gap-5 w-full h-full overflow-hidden hover:cursor-pointer">
+                                            <img 
+                                            // src={entry.images[0]} this is for when we convert to s3 and can use the images
+                                            src="burger.jpg"
+                                            alt="entry thumbnail"
+                                            className="w-[106px] h-[106px] object-cover rounded-md shrink-0"
+                                            />
+                                            <div className="flex flex-col justify-between w-full h-full">
+                                                <div className="flex flex-col items-start justify-center gap-1">
+                                                    <span className="flex-wrap text-left font-semibold text-xl">{entry.title}</span>
+                                                    <div className="flex items-center justify-start gap-2">
+                                                        <span className="md:text-xs">
+                                                            {new Date(entry.date).toLocaleDateString("en-US", {
+                                                                year: "2-digit",
+                                                                month: "2-digit",
+                                                                day: "2-digit",
+                                                            }).replace(/\//g, "/")}
+                                                        </span>
+                                                        <div className="flex items-center justify-start">
+                                                            <MapPinIcon size={15} weight={'fill'}/>
+                                                            <span className="text-xs text-left truncate overflow-hidden whitespace-nowrap max-w-[200px]">
+                                                                {entry.location.name}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <span className='flex w-full items-center justify-end text-3xl font-bold'>
+                                                    {((entry.taste + entry.value + entry.service) / 3).toFixed(2)} / 5
+                                                </span>
                                             </div>
-                                        }
-                                    </>
-                                )}
+                                    </button>
+                                    
+                                    {!isReadOnly && (
+                                        <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}><DotsThreeVerticalIcon size={20}/></button>
+                                    )}
+                                </div>
+
+                                {entry.id === openOptionsId && <div className="w-1/4 flex flex-col px-1 items-center justify-stretch">
+                                    <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries}  />
+                                    <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries} />
+                                </div>}
+                            
                             </div>
                         )
                     })}

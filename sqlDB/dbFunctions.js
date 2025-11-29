@@ -228,7 +228,7 @@ const insertEntry = async ({
   notes,
   taste,
   service,
-  value
+  value,
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   try {
     await paramExec(db, sql, [
@@ -242,7 +242,7 @@ const insertEntry = async ({
       notes,
       taste,
       service,
-      value,
+      value
     ]);
   } catch (err) {
     console.log(err);

@@ -5,7 +5,9 @@ import { auth } from '../firebase';
 import { useEffect, useState } from 'react'
 import SettingsModal from './SettingsModal';
 import FriendModal from "./FriendModal";
-import { HouseIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
+import Entry from './diary/Entry'
+import { HouseIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
+import { toast } from 'react-hot-toast';
 
 export default function Dashboard() {
 
@@ -16,6 +18,7 @@ export default function Dashboard() {
   const [cuisineFilters, setCuisineFilters] = useState([])
   const [labelFilters, setLabelFilters] = useState([])
   const [priceFilters, setPriceFilters] = useState([])
+  const [selectedEntry, setSelectedEntry] = useState(null);
   const [viewingFriendId, setViewingFriendId] = useState(null);
 
 
@@ -46,6 +49,33 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
+
+    useEffect(() => {
+      if (entries.length > 0) {
+        setSelectedEntry(entries?.[0])
+      } else {
+        setSelectedEntry(null)
+      }
+    }, [entries])
+
+    useEffect(() => {
+      if (window.innerWidth < 800) {
+        toast((t) => (
+          <span className="flex items-center justify-center">
+            🍳 expand the window to see your diary entry
+            <button onClick={() => toast.dismiss(t.id)}>
+              <XIcon/>
+            </button>
+          </span>
+        ));
+      }
+    }, [])
+
+    const handleSelectEntry = ( newEntry ) => {
+      setSelectedEntry(newEntry)
+    }
+
+    useEffect(() => {console.log('selected:', selectedEntry)}, [selectedEntry])
 
     const fetchFriendDiaries = async (friendId) => {
       setLoading(true);
@@ -111,7 +141,7 @@ export default function Dashboard() {
         <div className="w-full h-full max-h-full flex gap-5">
 
           {/* friends */}
-          <div className="w-1/4 border-2 border-gray-300 p-5 rounded-md shadow-md">
+          <div className="hidden md:block w-1/4 border-2 border-gray-300 p-5 rounded-md shadow-md">
             <FriendModal/>
           </div>
 
@@ -138,21 +168,20 @@ export default function Dashboard() {
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-full w-full px-2 py-1 focus-within:shadow-lg transition-shadow">
                   <MagnifyingGlassIcon size={16}/>
                   <input 
-                  className="focus:outline-none"
+                  className="focus:outline-none w-full"
                   type="text" placeholder="search entries" value={search} onChange={e => handleSearch(e.target.value)}/>
                 </div>
 
                 {/* filters */}
-                <div className="flex w-full items-center justify-between px-2">
+                <div className="flex w-full items-center justify-between">
                   <span className="text-gray-500">sort by: recent *to do*</span>
                   <Filters handleCuisineFilter={handleCuisineFilter} handleLabelFilter={handleLabelFilter} handlePriceFilter={handlePriceFilter}/>
                 </div>
 
-                <EntryList entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
+                <EntryList selectedEntry={selectedEntry} handleSelectEntry={handleSelectEntry} entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
               </div>
 
-              <img className="hidden md:block md:w-1/2 md:h-[calc(100vh-170px)] rounded-lg shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex-shrink-0" 
-            src="paper.png" alt="lined paper" />
+                <Entry entry={selectedEntry}/>
             </div>
           </div>
         </div>

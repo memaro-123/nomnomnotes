@@ -30,7 +30,8 @@ const main = async () => {
     notes TEXT,
     taste REAL,
     service REAL,
-    value REAL
+    value REAL,
+    date TEXT DEFAULT (DATE('now'))
 );`
     );
   

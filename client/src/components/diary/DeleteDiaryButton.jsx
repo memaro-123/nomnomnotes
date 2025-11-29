@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { auth } from '../../firebase'
+import { TrashIcon } from "@phosphor-icons/react";
 
 export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiaries }) {
     const [openForm, setOpenForm] = useState(false)
@@ -42,9 +43,6 @@ export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiar
         }
     };
 
-    useEffect(() => {
-        console.log({openForm})
-    }, [openForm])
 
     if (loading) { // the loading state should prob be handled differently but im just going thru stuff quickly to get it to function
         return(
@@ -53,8 +51,11 @@ export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiar
     }
 
     return(
-        <div>
-            <button onClick={() => setOpenForm(true)}>delete</button>
+        <div className="w-full h-full">
+            <button 
+            className="border-2 border-red-400 text-red-400 w-full h-full rounded-b-md flex items-center justify-center hover:bg-red-400 
+            hover:text-white hover:cursor-pointer transition-all"
+            onClick={() => setOpenForm(true)}><TrashIcon size={30} weight={'fill'}/></button>
             {openForm && 
                 <div>
                     Are you sure you want to delete? This is permanent.
