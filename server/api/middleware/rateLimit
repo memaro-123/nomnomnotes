@@ -2,16 +2,19 @@ class RateLimiter {
   constructor() {
     this.requests = new Map();
     this.cleanupInterval = null;
-    this.startCleanup();
-  }
 
-  // Define different rate limits for different types of endpoints
-  limits = {
-    auth: { windowMs: 15 * 60 * 1000, max: 5 },      // 5 attempts per 15 min
-    diary: { windowMs: 60 * 1000, max: 30 },         // 30 requests per minute
-    friends: { windowMs: 60 * 1000, max: 20 },       // 20 requests per minute
-    general: { windowMs: 60 * 1000, max: 100 }       // 100 requests per minute
-  };
+    this.limits = {
+      auth: { windowMs: 15 * 60 * 1000, max: 5 },
+      diary: { windowMs: 60 * 1000, max: 30 },
+      friends: { windowMs: 60 * 1000, max: 20 },
+      general: { windowMs: 60 * 1000, max: 100 }    
+    };
+
+    // dont start cleanup in test mode
+    if (process.env.NODE_ENV !== 'test') {
+      this.startCleanup();
+    }
+  }
 
   startCleanup() {
     // Only start cleanup if not already running and not in test mode
@@ -116,9 +119,9 @@ class RateLimiter {
   }
 }
 
-// For testing, export the class
+// For testing purposes
 module.exports.RateLimiter = RateLimiter;
 
-// For production use, export a singleton instance
+// For production use
 const instance = new RateLimiter();
 module.exports = instance;

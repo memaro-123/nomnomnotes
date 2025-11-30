@@ -1,5 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
+  testTimeout: 30000, // in case some tests take longer
   // Don't run tests in node_modules
   testPathIgnorePatterns: ['/node_modules/'],
   // Setup files if needed
