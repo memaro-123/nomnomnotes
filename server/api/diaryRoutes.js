@@ -90,6 +90,7 @@ router.delete("/delete/:entryId", verifyUser, async (req, res) => {
     res.status(500).json({ error: "Failed to delete diary entry" });
   }
 });
+
 router.patch("/sendreq", verifyUser, async (req, res) => {
   
   const { myID, friendID } = req.body;

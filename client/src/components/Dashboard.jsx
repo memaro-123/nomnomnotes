@@ -7,8 +7,9 @@ import SettingsModal from './SettingsModal';
 import SettingsButton from './SettingsButton'
 import FriendModal from "./FriendModal";
 import Entry from './diary/Entry'
-import { HouseIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
+import { GiftIcon, HouseIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
+import Wrapped from './Wrapped';
 
 export default function Dashboard() {
 
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const [priceFilters, setPriceFilters] = useState([])
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [viewingFriendId, setViewingFriendId] = useState(null);
+  const [activeView, setActiveView] = useState('diary'); // or wrapped i think
 
 
     const fetchDiaries = async () => {
@@ -129,6 +131,57 @@ export default function Dashboard() {
       console.log('price:', priceFilters)
     })
 
+    if (activeView === 'wrapped') {
+    return (
+      <div className="w-screen h-screen flex gap-5 p-5">
+        {/* Friends sidebar */}
+        <div className="hidden lg:block lg:flex flex-col w-1/4 h-full gap-2">
+          <div className="flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
+            <span className="text-lg font-bold">nomnom notes</span>
+            <SettingsModal/>
+          </div>
+          <div className="w-full h-full border-2 border-gray-300 p-5 rounded-md shadow-md">
+            <FriendModal/>
+          </div>
+        </div>
+
+        {/* Wrapped content */}
+        <div className="w-full h-full max-h-full flex flex-col gap-3">
+          {/* Header */}
+          <div className="flex flex-col gap-2 pt-3">
+            <div className="w-full flex items-center justify-between">
+              <div className="flex items-center justify-center gap-3">
+                <div className="lg:hidden">
+                  <SettingsModal/>
+                </div>
+                <button 
+                  className="hover:cursor-pointer"
+                  onClick={() => setActiveView('diary')}
+                >
+                  <HouseIcon size={28} weight={'fill'}/>
+                </button>
+                <span className="text-24 font-bold">my wrapped</span>
+              </div>
+              <button
+                onClick={() => setActiveView('diary')}
+                className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer"
+              >
+                Back to Diary
+              </button>
+            </div>
+            <hr className="border-t-3 border-gray-300 border-dotted"/>
+          </div>
+
+          {/* Wrapped Component */}
+          <div className="flex-1 overflow-y-auto">
+            <Wrapped />
+          </div>
+        </div>
+      </div>
+    );
+  }
+    
+
             // <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
 
           // <div className="h-screen w-screen flex gap-5 p-5">
@@ -144,7 +197,6 @@ export default function Dashboard() {
     return (
       // <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
       //   {/* header: settings, title, some emojis  */}
-
 
         <div className="w-screen h-screen flex gap-5 p-5">
 
@@ -172,6 +224,8 @@ export default function Dashboard() {
                   </div>
                   <button className="hover:cursor-pointer"><HouseIcon size={28} weight={'fill'}/></button>
                   <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>
+                  <button onClick={() => setActiveView('wrapped')} className="ml-4 px-4 py-2 bg-black text-white rounded-md text-sm hover:cursor-pointer text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition-all">
+                <GiftIcon size={18} weight="fill" /> BiteBack </button>
                 </div>
                 {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
               </div>

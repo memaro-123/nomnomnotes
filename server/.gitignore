@@ -1,3 +1,4 @@
 # server/.gitignore
 service-account.json
-    
+.env
+*.db
