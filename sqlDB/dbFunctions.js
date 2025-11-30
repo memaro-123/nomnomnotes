@@ -265,9 +265,14 @@ const editEntry = async ({
   value,
 }) => {
   const db = new sqlite3.Database("my.db")
-  const cuisinesStr = JSON.stringify(selectedCuisines)
-  const labelsStr = JSON.stringify(selectedLabels)
-  const imagesStr = JSON.stringify(images)
+  const validateArray = (arr) => {
+    if(!Array.isArray(arr)) throw new Error("Invalid array");
+    return arr.filter(item => typeof item === 'string' && item.length < 100);
+  };
+
+  const cuisinesStr = JSON.stringify(validateArray(selectedCuisines))
+  const labelsStr = JSON.stringify(validateArray(selectedLabels))
+  const imagesStr = JSON.stringify(validateArray(images))
   const locationStr = JSON.stringify(location)
   console.log('db', locationStr)
 
