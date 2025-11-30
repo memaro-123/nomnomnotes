@@ -41,18 +41,22 @@ describe('Rate Limiting Security', () => {
         res.json({ message: 'Login successful' });
       });
 
-      // Make 5 requests (at the limit)
-      for (let i = 0; i < 5; i++) {
-        const response = await request(app).post('/login');
-        expect(response.status).toBe(200);
-      }
+      // Make 6 requests (over the limit)
+    const promises = [];
+    for (let i = 0; i < 6; i++) {
+      promises.push(request(app).post('/login'));
+    }
 
-      // 6th request should be blocked
-      const blockedResponse = await request(app).post('/login');
-      expect(blockedResponse.status).toBe(429);
-      expect(blockedResponse.body.error).toContain('Too many requests');
-    });
+    const responses = await Promise.all(promises);
+    
+    // First 5 should succeed, 6th should be blocked
+    for (let i = 0; i < 5; i++) {
+      expect(responses[i].status).toBe(200);
+    }
+    expect(responses[5].status).toBe(429);
+    expect(responses[5].body.error).toContain('Too many requests');
   });
+});
 
   // TEST 2: Different Limits for Different Endpoints
   describe('Endpoint-Specific Limits', () => {

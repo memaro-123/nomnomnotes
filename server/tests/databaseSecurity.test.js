@@ -4,12 +4,30 @@ const { paramExec, fetchAll } = require('../../sqlDB/helperFunctions');
 describe('Database Security Tests', () => {
   let db;
 
-  beforeAll(() => {
-    db = new sqlite3.Database(':memory:'); // In-memory DB for tests
+  beforeAll(async () => {
+    db = new sqlite3.Database(':memory:');
+    // Set up test tables
+    await paramExec(db, `
+      CREATE TABLE test_users (
+        id INTEGER PRIMARY KEY,
+        username TEXT,
+        uid TEXT
+      )
+    `);
   });
 
-  afterAll(() => {
-    db.close();
+  afterAll((done) => {
+    db.close((err) => {
+      if (err) {
+        console.error('Error closing DB:', err);
+      }
+      done();
+    });
+  });
+
+  beforeEach(async () => {
+    // Clear test data before each test
+    await paramExec(db, 'DELETE FROM test_users');
   });
 
   test('parameterized queries should prevent SQL injection', async () => {
