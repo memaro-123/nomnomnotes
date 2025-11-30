@@ -154,7 +154,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
                         <div><span>email</span><span className="text-red-500">*</span></div>
                         {emailError && <span className="text-red-500">{emailError}</span>}
                     </div>
-                    <div className="border-1 border-solid rounded-sm w-full p-2 focus-within:shadow-lg transition-shadow">
+                    <div className="border-1 border-solid rounded-md w-full p-2 focus-within:shadow-lg transition-shadow">
                         <input 
                         className="focus:outline-none w-full"
                         value={email} 
@@ -170,7 +170,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
                         <div><span>password</span><span className="text-red-500">*</span></div>
                         {passwordError && <span className="text-red-500">{passwordError}</span>}
                     </div>
-                    <div className="border-1 border-solid rounded-sm w-ful p-2 focus-within:shadow-lg transition-shadow flex items-center justify-between overflow-hidden">
+                    <div className="border-1 border-solid rounded-md w-ful p-2 focus-within:shadow-lg transition-shadow flex items-center justify-between overflow-hidden">
                         <input 
                         className="focus:outline-none flex-1 min-w-0 w-full"
                         value={password} 
@@ -190,13 +190,13 @@ export default function EmailAndPassword({ handleAuthPage }) {
 
                         {authMode === 'signUp' && 
                             <button 
-                            className="bg-black text-white px-4 py-1 rounded-sm hover:cursor-pointer"
+                            className="bg-black text-white px-4 py-1 rounded-md hover:cursor-pointer"
                             onClick={handleSignUp}>sign up</button>
                         }
 
                         {authMode === 'login' && 
                             <button 
-                            className="bg-black text-white px-4 py-1 rounded-sm hover:cursor-pointer"
+                            className="bg-black text-white px-4 py-1 rounded-md hover:cursor-pointer"
                             onClick={handleLogin} >login</button>
                         }
                     </div>
@@ -212,7 +212,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
                 {/* google button */}
                 <div className="flex items-center justify-center w-full">
                     <button 
-                    className="flex gap-2 items-center justify-center hover:cursor-pointer bg-black text-white px-4 py-1 rounded-sm"
+                    className="flex gap-2 items-center justify-center hover:cursor-pointer bg-black text-white px-4 py-1 rounded-md"
                     onClick={handleGoogleSignIn}><FcGoogle size={24}/>continue with google</button>
                 </div>
             </div>

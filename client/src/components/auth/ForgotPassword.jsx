@@ -71,7 +71,7 @@ export default function ForgotPassword({ handleAuthPage }) {
                     <div><span>email</span><span className="text-red-500">*</span></div>
                     {emailError && <span className="text-red-500">{emailError}</span>}
                 </div>
-                <div className="border-1 border-solid rounded-sm w-full p-2 focus-within:shadow-lg transition-shadow">
+                <div className="border-1 border-solid rounded-md w-full p-2 focus-within:shadow-lg transition-shadow">
                     <input 
                     className="focus:outline-none w-full"
                     value={email} 
@@ -87,7 +87,7 @@ export default function ForgotPassword({ handleAuthPage }) {
                     className="text-gray-400 hover:underline hover:text-black decoration-dotted decoration-2 underline-offset-2 hover:cursor-pointer transition-all"
                     onClick={() => handleAuthPage('emailAndPassword')} >back to login</button>
                     <button 
-                    className="hover:cursor-pointer bg-black text-white px-4 py-1 rounded-sm"
+                    className="hover:cursor-pointer bg-black text-white px-4 py-1 rounded-md"
                     onClick={handlePasswordReset} >{success ? 'resend' : 'send'}</button>
                 </div>
             </div>

@@ -119,7 +119,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                     <div><span className="font-semibold">title</span><span className="text-red-500">*</span></div>
                     {titleError && <span className="text-red-500">{titleError}</span>}
                 </div>
-                <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow" >
+                <div className="border-1 border-solid rounded-md w-full p-1 focus-within:shadow-lg transition-shadow" >
                     <input 
                     className="focus:outline-none w-full"
                     value={title} 
@@ -134,7 +134,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                     <div><span className="font-semibold">location</span><span className="text-red-500">*</span></div>
                     {locationError && <span className="text-red-500">{locationError}</span>}
                 </div>
-                <div className="border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow" >
+                <div className="border-1 border-solid rounded-md w-full p-1 focus-within:shadow-lg transition-shadow" >
                     <LocationAuto
                         defaultLocation={location.name || ''}
                         onPlaceSelected={(place) => {
@@ -146,7 +146,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             {/* notes input */}
             <div className="flex flex-col flex-1">
                 <span className="font-semibold">notes</span>
-                <div className="border-1 border-solid rounded-sm w-full h-full p-1 focus-within:shadow-lg transition-shadow">
+                <div className="border-1 border-solid rounded-md w-full h-full p-1 focus-within:shadow-lg transition-shadow">
                     <textarea 
                         className="focus:outline-none resize-none w-full box-border"
                         placeholder="ex. i love fooooooooooooooood"
@@ -179,7 +179,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                 </div>
 
                 {images.length > 0 ? (
-                    <div className="flex flex-wrap gap-2 border-1 border-solid rounded-sm w-full h-[150px] overflow-y-auto p-2">
+                    <div className="flex flex-wrap gap-2 border-1 border-solid rounded-md w-full h-[150px] overflow-y-auto p-2">
                             {images.map((image, i) => (
                             <div key={i} className="flex items-start gap-1">
                                 <img className="h-32 w-auto" src={image} alt={`Preview ${i + 1}`} />
@@ -190,7 +190,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                         ))}
                     </div>
                 ) : (
-                    <div className="border-1 border-solid rounded-sm w-full h-[150px] flex items-center justify-center">
+                    <div className="border-1 border-solid rounded-md w-full h-[150px] flex items-center justify-center">
                         <label htmlFor="fileInput" className="text-gray-400 hover:underline hover:text-black hover:cursor-pointer decoration-2 decoration-dotted transition-all">add photos</label>
                     </div>
                 )}
@@ -273,7 +273,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
 
             <div className="flex flex-col gap-1 w-full">
                 <span>cuisines</span>
-                <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
+                <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-md w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
                     <input 
                     className="focus:outline-none"
@@ -298,7 +298,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
 
             <div className="flex flex-col gap-1 w-full">
                 <span>labels</span>
-                <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-sm w-full p-1 focus-within:shadow-lg transition-shadow">
+                <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-md w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
                     <input 
                     className="focus:outline-none"

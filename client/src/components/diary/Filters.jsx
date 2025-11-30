@@ -11,7 +11,7 @@ export default function Filters({ handleCuisineFilter, handleLabelFilter, handle
     return(
         <div>
             <button 
-            className="bg-black text-white p-1 rounded-sm hover:cursor-pointer"
+            className="bg-black text-white p-1 rounded-md hover:cursor-pointer"
             onClick={() => setOpen(true)}><SlidersHorizontalIcon size={16}/></button>
             {open && 
                 <div>

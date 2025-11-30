@@ -8,6 +8,6 @@ export default function Logout(){
   }
     }
     return(
-        <button onClick={logout}>Logout</button>
+        <button className="bg-black text-white hover:cursor-pointer p-2 rounded-md" onClick={logout}>Logout</button>
     )
 }
