@@ -83,7 +83,7 @@ router.get("/friends/requests", verifyUser, async (req, res) => {
 
 
 // This handles accepting or rejecting a friend request
-router.patch("/friends/:friendI d", verifyUser, async (req, res) => {
+router.patch("/friends/:friendId", verifyUser, async (req, res) => {
   const uid = req.user.uid;
   const { friendId } = req.params;
   const { action } = req.body; // should be 'accept' or 'reject'
