@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import SettingsModal from './SettingsModal';
 import FriendModal from "./FriendModal";
 import Entry from './diary/Entry'
-import { HouseIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
+import { GiftIcon, HouseIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
 import Wrapped from './Wrapped';
 
@@ -223,6 +223,8 @@ export default function Dashboard() {
                   </div>
                   <button className="hover:cursor-pointer"><HouseIcon size={28} weight={'fill'}/></button>
                   <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>
+                  <button onClick={() => setActiveView('wrapped')} className="ml-4 px-4 py-2 bg-black text-white rounded-md text-sm hover:cursor-pointer text-white rounded-lg hover:opacity-90 flex items-center gap-2 transition-all">
+                <GiftIcon size={18} weight="fill" /> BiteBack </button>
                 </div>
                 {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
               </div>
