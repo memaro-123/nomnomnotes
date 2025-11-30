@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const diaryRoutes = require("./api/diaryRoutes");
 const userRoutes = require('./api/userRoutes');
+const analyticsRoutes = require('./api/analyticsRoutes');
 
 dotenv.config();
 const app = express();
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/diary", diaryRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 
 app.get("/", (req, res) => {
