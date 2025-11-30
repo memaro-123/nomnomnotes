@@ -138,7 +138,7 @@ export default function Dashboard() {
         <div className="hidden lg:block lg:flex flex-col w-1/4 h-full gap-2">
           <div className="flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
             <span className="text-lg font-bold">nomnom notes</span>
-            <SettingsModal/>
+            <SettingsButton/>
           </div>
           <div className="w-full h-full border-2 border-gray-300 p-5 rounded-md shadow-md">
             <FriendModal/>
@@ -152,7 +152,7 @@ export default function Dashboard() {
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center justify-center gap-3">
                 <div className="lg:hidden">
-                  <SettingsModal/>
+                  <SettingsButton/>
                 </div>
                 <button 
                   className="hover:cursor-pointer"

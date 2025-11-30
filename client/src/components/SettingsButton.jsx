@@ -5,10 +5,15 @@ import SettingsModal from './SettingsModal';
 export default function SettingsButton() {
     const [open, setOpen] = useState(false);
 
+    const handleClose = () => {
+        console.log('close button clicked')
+        setOpen(false)
+    }
+
     return (
         <div>
             <button onClick={() => setOpen(true)} className="flex items-center justify-center"><GearIcon size={28} weight={"fill"}/></button>
-            {open && <SettingsModal handleClose={() => setOpen(false)} />}
+            {open && <SettingsModal handleClose={handleClose} />}
         </div>
 
     )
