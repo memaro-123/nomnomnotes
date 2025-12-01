@@ -79,11 +79,12 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
                                                     <span className="flex-wrap text-left font-semibold text-xl">{entry.title}</span>
                                                     <div className="flex items-center justify-start gap-2">
                                                         <span className="md:text-xs">
-                                                            {new Date(entry.date).toLocaleDateString("en-US", {
+                                                            {entry.date && !isNaN(new Date(entry.date).getTime())
+                                                            ? new Date(entry.date).toLocaleDateString("en-US", {
                                                                 year: "2-digit",
                                                                 month: "2-digit",
                                                                 day: "2-digit",
-                                                            }).replace(/\//g, "/")}
+                                                            }).replace(/\//g, "/") : "No date"}
                                                         </span>
                                                         <div className="flex items-center justify-start gap-1 min-w-0 shrink">
                                                             <MapPinIcon size={15} weight={'fill'}/>
