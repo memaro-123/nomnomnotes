@@ -126,7 +126,7 @@ async function generateBiteBackData(userId, year, db) {
         }
         
         // Generate analytics using the optimized function below
-        const analytics = generateOptimizedAnalytics(parsedEntries);
+        const analytics = generateAnalytics(parsedEntries);
         
         return {
             year,
@@ -140,8 +140,8 @@ async function generateBiteBackData(userId, year, db) {
     }
 }
 
-// OPTIMIZED analytics generation
-function generateOptimizedAnalytics(entries) {
+//analytics generation
+function generateAnalytics(entries) {
     const analytics = {
         totalEntries: entries.length,
         timePeriod: {

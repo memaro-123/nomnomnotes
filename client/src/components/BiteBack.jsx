@@ -172,7 +172,7 @@ function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center h-64">
       <div className="test-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2border-black mx-auto"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
       <p className="mt-4">Cooking up your BiteBack...</p>
     </div>
     </div>

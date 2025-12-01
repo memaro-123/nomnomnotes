@@ -2,19 +2,20 @@
 // realized that generating the report live would maybe strain the database since it is a bunch of queries, so perhaps it is better if this is something that happens once a set time period for all users and saves the data into a new 
 //  that way when the user wants their report, the api endpoint can simply fetch the precalculated data and make it load faster
 const { fetchAll } = require('../sqlDB/helperFunctions');
-const db = require('../sqlDB/index').db;
+const getDB = require('../getDB').db;
 
 /**
  * Generates comprehensive "BiteBack" analytics for a user's food diary
  * @param {string} userId - Firebase UID
- * @param {number} year - Year to analyze (e.g., 2024)
- * @returns {object} Structured analytics data
+ * @param {number} year - Year to analyze 
+ * @returns {object} analytics
  */
 const getBiteBackData = async (userId, year = new Date().getFullYear()) => {
+    const db = getDB();
     // Calculate date range for the specified year
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
-    const params = [userId, startDate, endDate];
+    const params = [userId, startDate, endDate]; 
 
     try {
         // Execute all analytics queries in parallel
@@ -160,7 +161,7 @@ const getBiteBackData = async (userId, year = new Date().getFullYear()) => {
                 LIMIT 5`,
                 params)
         ]);
-
+        db.close();
         // 9. Format and structure the response
         return {
             year,
@@ -217,7 +218,6 @@ const getBiteBackData = async (userId, year = new Date().getFullYear()) => {
                 ).month
             }
         };
-
     } catch (error) {
         console.error('Error generating BiteBack data:', error);
         throw error;
