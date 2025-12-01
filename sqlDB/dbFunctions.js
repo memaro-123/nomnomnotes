@@ -333,7 +333,9 @@ const getAllEntries = async (userId) => {
   const sql = `SELECT * FROM diary_entries WHERE user_id = ?`;
   try {
     const rows = await fetchAll(db, sql, [userId]);
+    console.log('raw rows dom db:', rows); //debugging
     const parsedRows = rows.map((row) => {
+    console.log('Entry date:', row.date, 'Type:', typeof row.date); //debugging
       if (row.selected_cuisines) {
         row.selectedCuisines = JSON.parse(row.selected_cuisines);
       }
@@ -506,5 +508,6 @@ module.exports = {
   getUserByUID,
   getFirstRow,
   getFriends,
-  getRecieved
+  getRecieved,
+  fetchAll,
 };

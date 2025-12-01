@@ -12,7 +12,6 @@ router.use(sanitizeInput); // Apply input sanitization middleware to all routes
 router.use(validateUserInput); // Apply input validation middleware to all routes
 
 
-// This gets the logged-in use's info
 router.get("/friends", verifyUser, async (req, res) => {
   const uid = req.user.uid;
   try {
@@ -24,30 +23,6 @@ router.get("/friends", verifyUser, async (req, res) => {
   }
 });
 
-
-// This gets all of the accepted friends
-router.get("/friends", verifyUser, async (req, res) => {
-  const uid = req.user.uid;
-  const db = new sqlite3.Database("my.db");
-  const sql = `
-    SELECT 
-      CASE WHEN f.requester_id = ? THEN f.receiver_id ELSE f.requester_id END AS friend_id,
-      u.username
-    FROM friends f
-    JOIN users u ON u.uid = CASE WHEN f.requester_id = ? THEN f.receiver_id ELSE f.requester_id END
-    WHERE (f.requester_id = ? OR f.receiver_id = ?)
-      AND f.status = 'accepted'
-  `;
-  try {
-    const friends = await fetchAll(db, sql, [uid, uid, uid, uid]);
-    res.json({ success: true, friends });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch friends" });
-  } finally {
-    db.close();
-  }
-});
 /*
 // Handles sending a friend request
 router.post("/friends/request", verifyUser, async (req, res) => {

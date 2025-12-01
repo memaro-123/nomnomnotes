@@ -2,142 +2,315 @@
 const express = require('express');
 const router = express.Router();
 const { verifyUser } = require('./middleware/verifyUser');
-const { getAllEntries } = require("../../sqlDB/dbFunctions.js");
+const { getAllEntries, fetchAll } = require("../../sqlDB/dbFunctions.js");
+const getDB = require('../getDB');
 
-router.get('/wrapped/:year', verifyUser, async (req, res) => {
-  try {
-    const uid = req.user.uid;
+// hybrid method of getting/making report
+router.get('/biteback/:year', verifyUser, async (req, res) => {
     const { year } = req.params;
-    const allEntries = await getAllEntries(uid);
+    const uid = req.user.uid;
     
-    // Filter entries for the specified year
-    const yearEntries = allEntries.filter(entry => {
-      const entryYear = new Date(entry.date).getFullYear();
-      return entryYear === parseInt(year);
-    });
-
-    if (yearEntries.length === 0) {
-      return res.json({ 
-        success: true, 
-        message: "No entries found for this period",
-        hasData: false 
-      });
+    // Validate year input
+    const yearNum = parseInt(year);
+    const currentYear = new Date().getFullYear();
+    
+    if (isNaN(yearNum) || yearNum < 2020 || yearNum > currentYear) {
+        return res.status(400).json({ 
+            error: 'Invalid year. Please provide a year between 2020 and current year.' 
+        });
     }
-
-    const analytics = generateWrappedAnalytics(yearEntries);
-    res.json({ success: true, hasData: true, data: analytics });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to generate wrapped analytics" });
-  }
+    
+    const db = getDB(); // Get database connection
+    
+    try {
+        // 1. Ensure the cache table exists (run once, could move to startup)
+        await fetchAll(db, `
+            CREATE TABLE IF NOT EXISTS biteback_cache (
+                user_id TEXT,
+                year INTEGER,
+                data TEXT,
+                generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, year)
+            )
+        `);
+        
+        // 2. Check for fresh cached data (within 1 day for more up-to-date results)
+        const cached = await fetchAll(db, `
+            SELECT data, generated_at 
+            FROM biteback_cache 
+            WHERE user_id = ? AND year = ?
+            AND generated_at > datetime('now', '-1 day')
+        `, [uid, yearNum]);
+        
+        if (cached.length > 0) {
+            console.log(`✅ Serving cached BiteBack for ${uid} (${year})`);
+            return res.json({
+                success: true,
+                cached: true,
+                generatedAt: cached[0].generated_at,
+                data: JSON.parse(cached[0].data)
+            });
+        }
+        
+        // 3. Generate fresh data if not cached or stale
+        console.log(`🔄 Generating fresh BiteBack for ${uid} (${year})`);
+        const freshData = await generateBiteBackData(uid, yearNum, db); // Pass db here
+        
+        // 4. Cache the fresh result for future requests
+        try {
+            await fetchAll(db, `
+                INSERT OR REPLACE INTO biteback_cache (user_id, year, data)
+                VALUES (?, ?, ?)
+            `, [uid, yearNum, JSON.stringify(freshData)]);
+        } catch (cacheError) {
+            console.warn('Failed to cache BiteBack data:', cacheError);
+            // Continue anyway - prolly shouldn't fail the request
+        }
+        
+        return res.json({
+            success: true,
+            cached: false,
+            data: freshData
+        });
+        
+    } catch (error) {
+        console.error('Error in BiteBack endpoint:', error);
+        res.status(500).json({ 
+            error: 'Failed to generate your BiteBack report',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    } finally {
+        // Close the database connection!!
+        if (db) db.close();
+    }
 });
 
-function generateWrappedAnalytics(entries) {
-  const analytics = {
-    totalEntries: entries.length,
-    timePeriod: {
-      start: entries[entries.length - 1]?.date,
-      end: entries[0]?.date
-    }
-  };
-
-  // Most visited restaurant
-  const restaurantCounts = {};
-  entries.forEach(entry => {
-    const restaurant = entry.location?.name || 'Unknown';
-    restaurantCounts[restaurant] = (restaurantCounts[restaurant] || 0) + 1;
-  });
-  analytics.topRestaurants = Object.entries(restaurantCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([name, count]) => ({ name, count }));
-
-  // Favorite cuisine analysis
-  const cuisineCounts = {};
-  entries.forEach(entry => {
-    const cuisines = entry.selectedCuisines || [];
-    cuisines.forEach(cuisine => {
-      cuisineCounts[cuisine] = (cuisineCounts[cuisine] || 0) + 1;
-    });
-  });
-  analytics.topCuisines = Object.entries(cuisineCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([cuisine, count]) => ({ cuisine, count }));
-
-  // Price range analysis
-  const priceCounts = {};
-  entries.forEach(entry => {
-    const price = entry.selectedPrices || 'Unknown';
-    priceCounts[price] = (priceCounts[price] || 0) + 1;
-  });
-  analytics.priceDistribution = Object.entries(priceCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([price, count]) => ({ price, count }));
-
-  // Rating analysis
-  const avgRatings = entries.reduce((acc, entry) => {
-    const overall = (entry.taste + entry.service + entry.value) / 3;
-    acc.total += overall;
-    acc.highest = Math.max(acc.highest, overall);
-    return acc;
-  }, { total: 0, highest: 0 });
-  
-  analytics.ratingStats = {
-    averageRating: (avgRatings.total / entries.length).toFixed(2),
-    highestRatedEntry: avgRatings.highest.toFixed(2),
-    totalRatingsGiven: entries.length
-  };
-
-  // Most used labels/tags
-  const labelCounts = {};
-  entries.forEach(entry => {
-    const labels = entry.selectedLabels || [];
-    labels.forEach(label => {
-      labelCounts[label] = (labelCounts[label] || 0) + 1;
-    });
-  });
-  analytics.topLabels = Object.entries(labelCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([label, count]) => ({ label, count }));
-
-  // Monthly distribution
-  const monthlyData = {};
-  entries.forEach(entry => {
-    const month = new Date(entry.date).toLocaleString('default', { month: 'long' });
-    monthlyData[month] = (monthlyData[month] || 0) + 1;
-  });
-  analytics.monthlyDistribution = monthlyData;
-
-  // Best rated restaurant (min 2 visits)
-  const restaurantRatings = {};
-  const restaurantVisits = {};
-  
-  entries.forEach(entry => {
-    const restaurant = entry.location?.name || 'Unknown';
-    const rating = (entry.taste + entry.service + entry.value) / 3;
+async function generateBiteBackData(userId, year, db) {
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
+    const params = [userId, startDate, endDate];
     
-    if (!restaurantRatings[restaurant]) {
-      restaurantRatings[restaurant] = 0;
-      restaurantVisits[restaurant] = 0;
+    try {
+        // Use the passed db connection instead of creating a new one
+        const entries = await fetchAll(db, `
+            SELECT * FROM diary_entries 
+            WHERE user_id = ? 
+            AND date BETWEEN ? AND ?
+            ORDER BY date DESC
+        `, params);
+        
+        // Parse JSON fields
+        const parsedEntries = entries.map(entry => {
+            if (entry.selected_cuisines) {
+                entry.selectedCuisines = JSON.parse(entry.selected_cuisines);
+            }
+            if (entry.selected_labels) {
+                entry.selectedLabels = JSON.parse(entry.selected_labels);
+            }
+            if (entry.images) {
+                entry.images = JSON.parse(entry.images);
+            }
+            if (entry.location) {
+                entry.location = JSON.parse(entry.location);
+            }
+            return entry;
+        });
+        
+        if (parsedEntries.length === 0) {
+            return { 
+                year,
+                message: "No entries found for this year",
+                hasData: false,
+                summary: { totalEntries: 0 }
+            };
+        }
+        
+        // Generate analytics using the optimized function below
+        const analytics = generateAnalytics(parsedEntries);
+        
+        return {
+            year,
+            hasData: true,
+            ...analytics
+        };
+        
+    } catch (error) {
+        console.error('Error generating BiteBack data:', error);
+        throw error;
     }
-    
-    restaurantRatings[restaurant] += rating;
-    restaurantVisits[restaurant]++;
-  });
-
-  analytics.bestRatedRestaurants = Object.entries(restaurantRatings)
-    .filter(([restaurant]) => restaurantVisits[restaurant] >= 2)
-    .map(([restaurant, totalRating]) => ({
-      restaurant,
-      averageRating: (totalRating / restaurantVisits[restaurant]).toFixed(2),
-      visits: restaurantVisits[restaurant]
-    }))
-    .sort((a, b) => b.averageRating - a.averageRating)
-    .slice(0, 3);
-
-  return analytics;
 }
+
+//analytics generation
+function generateAnalytics(entries) {
+    const analytics = {
+        totalEntries: entries.length,
+        timePeriod: {
+            start: entries[entries.length - 1]?.date,
+            end: entries[0]?.date
+        }
+    };
+
+    // 1. Restaurant Analysis
+    const restaurantCounts = {};
+    const restaurantRatings = {};
+    
+    entries.forEach(entry => {
+        const restaurant = entry.location?.name || 'Unknown';
+        const rating = (entry.taste + entry.service + entry.value) / 3;
+        
+        // Count visits
+        restaurantCounts[restaurant] = (restaurantCounts[restaurant] || 0) + 1;
+        
+        // Accumulate ratings for average
+        if (!restaurantRatings[restaurant]) {
+            restaurantRatings[restaurant] = { total: 0, count: 0 };
+        }
+        restaurantRatings[restaurant].total += rating;
+        restaurantRatings[restaurant].count += 1;
+    });
+    
+    analytics.topRestaurants = Object.entries(restaurantCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, count]) => ({ 
+            name, 
+            count,
+            avgRating: (restaurantRatings[name].total / restaurantRatings[name].count).toFixed(2)
+        }));
+
+    // 2. Cuisine Analysis
+    const cuisineCounts = {};
+    entries.forEach(entry => {
+        const cuisines = entry.selectedCuisines || [];
+        cuisines.forEach(cuisine => {
+            cuisineCounts[cuisine] = (cuisineCounts[cuisine] || 0) + 1;
+        });
+    });
+    
+    analytics.topCuisines = Object.entries(cuisineCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([cuisine, count]) => ({ cuisine, count }));
+
+    // 3. Price Analysis
+    const priceCounts = {};
+    entries.forEach(entry => {
+        const price = entry.selectedPrices || 'Unknown';
+        priceCounts[price] = (priceCounts[price] || 0) + 1;
+    });
+    
+    analytics.priceDistribution = Object.entries(priceCounts)
+        .sort((a, b) => {
+            // Sort by price level: $, $$, $$$, $$$$
+            const priceOrder = { '$': 1, '$$': 2, '$$$': 3, '$$$$': 4 };
+            return (priceOrder[a[0]] || 5) - (priceOrder[b[0]] || 6);
+        })
+        .map(([price, count]) => ({ price, count }));
+
+    // 4. Rating Statistics
+    const ratingStats = entries.reduce((acc, entry) => {
+        const overall = (entry.taste + entry.service + entry.value) / 3;
+        acc.total += overall;
+        acc.highest = Math.max(acc.highest, overall);
+        acc.lowest = Math.min(acc.lowest, overall);
+        
+        // Count high ratings
+        if (overall >= 4) acc.highOverall++;
+        if (entry.taste >= 4) acc.highTaste++;
+        if (entry.value >= 4) acc.highValue++;
+        
+        return acc;
+    }, { 
+        total: 0, 
+        highest: 0, 
+        lowest: 5, 
+        highOverall: 0,
+        highTaste: 0,
+        highValue: 0 
+    });
+    
+    analytics.ratingStats = {
+        averageRating: (ratingStats.total / entries.length).toFixed(2),
+        highestRating: ratingStats.highest.toFixed(2),
+        lowestRating: ratingStats.lowest.toFixed(2),
+        highOverallCount: ratingStats.highOverall,
+        highTasteCount: ratingStats.highTaste,
+        highValueCount: ratingStats.highValue
+    };
+
+    // 5. Label/Tag Analysis
+    const labelCounts = {};
+    entries.forEach(entry => {
+        const labels = entry.selectedLabels || [];
+        labels.forEach(label => {
+            labelCounts[label] = (labelCounts[label] || 0) + 1;
+        });
+    });
+    
+    analytics.topLabels = Object.entries(labelCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([label, count]) => ({ label, count }));
+
+    // 6. Monthly Distribution
+    const monthlyData = {};
+    entries.forEach(entry => {
+        const month = new Date(entry.date).toLocaleString('default', { month: 'short' });
+        monthlyData[month] = (monthlyData[month] || 0) + 1;
+    });
+    
+    analytics.monthlyDistribution = monthlyData;
+
+    // 7. Best Rated Restaurants (min 2 visits)
+    analytics.bestRatedRestaurants = Object.entries(restaurantRatings)
+        .filter(([name]) => restaurantRatings[name].count >= 2)
+        .map(([name, data]) => ({
+            name,
+            averageRating: (data.total / data.count).toFixed(2),
+            visits: data.count
+        }))
+        .sort((a, b) => b.averageRating - a.averageRating)
+        .slice(0, 3);
+
+    return analytics;
+}
+
+// Keep existing wrapped endpoint for backward compatibility
+router.get('/wrapped/:year', verifyUser, async (req, res) => {
+    const db = getDB();
+    try {
+        const uid = req.user.uid;
+        const { year } = req.params;
+        const yearNum = parseInt(year);
+        
+        // Use the new optimized function for consistency
+        const data = await generateBiteBackData(uid, yearNum, db);
+        
+        // match old response format
+        if (!data.hasData) {
+            return res.json({ 
+                success: true, 
+                message: data.message || "No entries found for this period",
+                hasData: false 
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            hasData: true, 
+            data: {
+                ...data,
+                // Keep old property names for compatibility if needed
+                totalEntries: data.summary?.totalEntries || 0,
+                // ... other mappings
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to generate wrapped analytics" });
+    } finally {
+        if (db) db.close();
+    }
+});
 
 module.exports = router;
