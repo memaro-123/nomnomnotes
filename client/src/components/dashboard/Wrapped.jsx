@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
-import { auth } from '../firebase';
-import { toast } from 'react-hot-toast';
-import { 
-  TrophyIcon, 
-  ForkKnifeIcon, 
-  CurrencyDollarIcon,
-  StarIcon,
+import {
   CalendarIcon,
+  ChartBarIcon,
+  CurrencyDollarIcon,
+  ForkKnifeIcon,
+  StarIcon,
   TagIcon,
-  ChartBarIcon
+  TrophyIcon
 } from "@phosphor-icons/react";
+import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { auth } from '../../firebase';
 
 export default function Wrapped() {
   const [analytics, setAnalytics] = useState(null);

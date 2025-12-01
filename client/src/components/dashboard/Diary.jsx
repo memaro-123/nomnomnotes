@@ -11,6 +11,7 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
     const [labelFilters, setLabelFilters] = useState([])
     const [priceFilters, setPriceFilters] = useState([])
     const [search, setSearch] = useState('')
+    const [sortBy, setSortBy] = useState('recent')
 
     useEffect(() => {
         if (window.innerWidth < 800) {
@@ -23,9 +24,21 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
             </span>
           ));
         }
-      }, [])
+    }, [])
 
-      useEffect(() => {fetchDiaries()})
+
+    useEffect(() => {
+      fetchDiaries()
+    }, [])
+
+    const sortedEntries = [...entries].sort((a, b) => {
+      console.log('sorting')
+      if (sortBy === 'recent') {
+        return new Date(b.timestamp) - new Date(a.timestamp);
+      } else {
+        return (b.rating || 0) - (a.rating || 0);
+      }
+    });
 
       useEffect(() => {
         if (entries.length > 0) {
@@ -66,7 +79,17 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
 
   {/* filters */}
   <div className="flex w-full items-center justify-between">
-    <span className="text-gray-500">sort by: recent *to do*</span>
+    <div>
+      <span className="text-gray-500">sort by:</span>
+      <select
+      id='sort'
+      value={sortBy}
+      onChange={(e) => setSortBy(e.target.value)}
+      >
+        <option value='recent'>most recent</option>
+        <option value='rating'>highest rating</option>
+      </select>
+    </div>
     <Filters 
       handleCuisineFilter={handleCuisineFilter} 
       handleLabelFilter={handleLabelFilter} 
@@ -77,7 +100,7 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
       />
   </div>
 
-  <EntryList selectedEntry={selectedEntry} handleSelectEntry={handleSelectEntry} entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
+  <EntryList selectedEntry={selectedEntry} handleSelectEntry={handleSelectEntry} entries={sortedEntries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
 </div>
 
   <Entry entry={selectedEntry}/>

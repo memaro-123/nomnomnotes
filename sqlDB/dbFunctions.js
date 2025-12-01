@@ -210,6 +210,7 @@ const insertEntry = async ({
   taste,
   service,
   value,
+  date = new Date().toISOString().split('T')[0]
 }) => {
   const cuisinesStr = JSON.stringify(selectedCuisines)
   const labelsStr = JSON.stringify(selectedLabels)

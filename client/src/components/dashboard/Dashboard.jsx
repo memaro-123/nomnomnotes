@@ -1,11 +1,11 @@
-import { GiftIcon, HouseIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
-import { useEffect, useState } from 'react';
+import { HouseIcon } from "@phosphor-icons/react";
+import { useState, useCallback, useEffect } from 'react';
 import { auth } from '../../firebase';
 import AddDiaryButton from '../diary/AddDiaryButton';
 import FriendModal from "../FriendModal";
+import Diary from './Diary';
 import SettingsButton from './SettingsButton';
-import Wrapped from '../Wrapped';
-import Diary from './Diary'
+import Wrapped from './Wrapped';
 
 export default function Dashboard() {
 
@@ -17,11 +17,16 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState('diary'); // or wrapped i think
 
 
-    const fetchDiaries = async () => {
+    const fetchDiaries = useCallback(async () => {
       setLoading(true)
       try {
-        auth.onAuthStateChanged(async (user) => { 
             //change this later so that you can pass the uid into the entrylist to change who's list ur viewing!!
+            const user = auth.currentUser;
+
+            if (!user) {
+              throw new Error('No user logged in');
+            }
+
             const token = await user.getIdToken();
 
             const fetchResponse = await fetch("http://localhost:8080/api/diary", {
@@ -37,13 +42,12 @@ export default function Dashboard() {
             const diaryData = await fetchResponse.json()
             console.log(diaryData)
             setEntries(diaryData.diaryData)
-        })
       } catch (error) {
         setError(error)
       } finally {
         setLoading(false);
       }
-    };
+    }, [setLoading, setEntries, setError]);
 
 
     const fetchFriendDiaries = async (friendId) => {
@@ -99,7 +103,7 @@ export default function Dashboard() {
                   <button 
                   onClick={() => setActiveView('wrapped')} 
                   className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer">
-                   bite back </button>
+                   wrapped </button>
                   {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
                 </div>
 
