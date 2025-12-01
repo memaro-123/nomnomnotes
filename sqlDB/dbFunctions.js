@@ -505,5 +505,6 @@ module.exports = {
   getUserByUID,
   getFirstRow,
   getFriends,
-  getRecieved
+  getRecieved,
+  fetchAll,
 };

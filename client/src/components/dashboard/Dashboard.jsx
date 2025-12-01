@@ -4,7 +4,7 @@ import { auth } from '../../firebase';
 import AddDiaryButton from '../diary/AddDiaryButton';
 import FriendModal from "../FriendModal";
 import SettingsButton from './SettingsButton';
-import Wrapped from '../Wrapped';
+import BiteBack from '../BiteBack';
 import Diary from './Diary'
 
 export default function Dashboard() {
@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [entries, setEntries] = useState([])
 
   const [viewingFriendId, setViewingFriendId] = useState(null);
-  const [activeView, setActiveView] = useState('diary'); // or wrapped i think
+  const [activeView, setActiveView] = useState('diary'); // or biteback i think
 
 
     const fetchDiaries = async () => {
@@ -107,9 +107,8 @@ export default function Dashboard() {
               <hr className="border-t-3 border-gray-300 border-dotted"/>
             </div>
 
-            {activeView === 'wrapped' ? (
-            <Wrapped/>
-            ) : ( 
+            {activeView === 'biteback' ? ( <BiteBack /> ) :
+            activeView === 'wrapped' ? ( <Wrapped /> ) : ( 
             <Diary entries={entries} fetchDiaries={fetchDiaries} loading={loading} error={error}/>
             )}
             </div>
