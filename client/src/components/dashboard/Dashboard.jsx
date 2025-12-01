@@ -1,15 +1,14 @@
-import EntryList from './diary/EntryList'
-import AddDiaryButton from './diary/AddDiaryButton'
-import Filters from './Filters'
-import { auth } from '../firebase';
-import { useEffect, useState } from 'react'
-import SettingsModal from './SettingsModal';
-import SettingsButton from './SettingsButton'
-import FriendModal from "./FriendModal";
-import Entry from './diary/Entry'
 import { GiftIcon, HouseIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import Wrapped from './Wrapped';
+import { auth } from '../../firebase';
+import AddDiaryButton from '../diary/AddDiaryButton';
+import Entry from '../diary/Entry';
+import EntryList from '../diary/EntryList';
+import FriendModal from "../FriendModal";
+import SettingsButton from '../SettingsButton';
+import Wrapped from '../Wrapped';
+import Filters from './Filters';
 
 export default function Dashboard() {
 

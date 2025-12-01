@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { auth } from '../firebase';
-import Logout from './auth/logoutButton';
+import { auth } from '../../firebase';
+import Logout from '../auth/logoutButton';
 import { GearIcon, XIcon, EyeIcon, EyeSlashIcon} from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider} from 'firebase/auth';

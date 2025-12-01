@@ -2,7 +2,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import MainAuth from './components/auth/MainAuth';
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/dashboard/Dashboard';
 import { auth } from './firebase';
 
 export default function App() {

@@ -1,6 +1,6 @@
-import { SlidersHorizontalIcon, XIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, SlidersHorizontalIcon, XIcon } from "@phosphor-icons/react";
 import { useState } from 'react';
-import { cuisines, labels, prices } from '../utils/tags';
+import { cuisines, labels, prices } from '../../utils/tags';
 
 export default function Filters({ 
     handleCuisineFilter, handleLabelFilter, handlePriceFilter,
