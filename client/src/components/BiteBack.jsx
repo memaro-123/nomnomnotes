@@ -167,3 +167,101 @@ function RestaurantCard({ rank, name, visits, rating, isMostVisited }) {
     </div>
   );
 }
+
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <div className="test-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2border-black mx-auto"></div>
+      <p className="mt-4">Cooking up your BiteBack...</p>
+    </div>
+    </div>
+  );
+}
+
+function EmptyState({ year, setSelectedYear }) {
+  return (
+    <div className="text-center py-12">
+      <TrophyIcon size={64} className="mx-auto text-gray-400 mb-4" />
+      <h2 className="text-2xl font-bold mb-2">No Data Yet!</h2>
+      <p className="text-gray-600 mb-4">
+        Start adding diary entries to unlock your personalized BiteBack for {year}
+      </p>
+      <div className="flex justify-center gap-2">
+        {[2025, 2024, 2023, 2022, 2021].map(prevYear => (
+          <button
+            key={prevYear}
+            onClick={() => setSelectedYear(prevYear)}
+            className={`px-4 py-2 rounded-lg ${
+              year === prevYear 
+                ? 'bg-black text-white' 
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            {prevYear}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BiteBackHeader({ year, onYearChange, cached, generatedAt }) {
+  return (
+    <div className="text-center">
+      <h1 className="font-pacifico text-4xl mb-2">
+        Your {year} BiteBack
+      </h1>
+      <p className="text-gray-600 mb-4">
+        A delicious recap of your food journey this year
+        {cached && generatedAt && (
+          <span className="text-sm text-gray-400 block mt-1">
+            Last updated: {new Date(generatedAt).toLocaleDateString()}
+          </span>
+        )}
+      </p>
+      <div className="flex justify-center gap-2">
+        {[2024, 2023, 2022].map(yr => (
+          <button
+            key={yr}
+            onClick={() => onYearChange(yr)}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              year === yr 
+                ? 'bg-black text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            {yr}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SummaryCard({ icon, title, value, subtitle, color }) {
+  return (
+    <div className="bg-white rounded-xl p-6 shadow-sm border text-center">
+      <div className={`w-16 h-16 rounded-full ${color} flex items-center justify-center mx-auto mb-4`}>
+        {icon}
+      </div>
+      <h3 className="text-lg font-semibold mb-1">{title}</h3>
+      <div className="text-3xl font-bold mb-1">{value}</div>
+      <p className="text-gray-600 text-sm">{subtitle}</p>
+    </div>
+  );
+}
+
+function SectionCard({ title, icon, children }) {
+  return (
+    <div className="bg-gray-50 rounded-xl p-6">
+      <div className="flex items-center space-x-2 mb-4">
+        {icon}
+        <h2 className="text-xl font-semibold">{title}</h2>
+      </div>
+      <div className="space-y-3">
+        {children}
+      </div>
+    </div>
+  );
+}
