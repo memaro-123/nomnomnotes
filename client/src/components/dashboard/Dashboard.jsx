@@ -96,8 +96,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button 
-                  onClick={() => setActiveView('wrapped')} 
+                  <button onClick={() => setActiveView('biteback')} 
                   className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer">
                    bite back </button>
                   {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
@@ -107,11 +106,13 @@ export default function Dashboard() {
               <hr className="border-t-3 border-gray-300 border-dotted"/>
             </div>
 
-            {activeView === 'biteback' ? ( <BiteBack /> ) :
-            activeView === 'wrapped' ? ( <Wrapped /> ) : ( 
-            <Diary entries={entries} fetchDiaries={fetchDiaries} loading={loading} error={error}/>
+            {/* only diary or biteback */}
+            {activeView === 'biteback' ? (
+              <BiteBack />
+            ) : ( 
+              <Diary entries={entries} fetchDiaries={fetchDiaries} loading={loading} error={error}/>
             )}
-            </div>
+          </div>
         </div>
     )
   }
