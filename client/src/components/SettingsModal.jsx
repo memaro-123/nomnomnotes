@@ -96,6 +96,7 @@ export default function SettingsModal({ handleClose }) {
   return (
       <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">
         <div className="bg-white rounded-2xl flex flex-col p-8 gap-5 items-start justify-center">
+          
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center justify-start gap-2">
               <GearIcon size={45} weight={"fill"}/>

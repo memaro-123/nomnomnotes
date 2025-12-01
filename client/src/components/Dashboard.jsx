@@ -1,6 +1,6 @@
 import EntryList from './diary/EntryList'
 import AddDiaryButton from './diary/AddDiaryButton'
-import Filters from './diary/Filters'
+import Filters from './Filters'
 import { auth } from '../firebase';
 import { useEffect, useState } from 'react'
 import SettingsModal from './SettingsModal';
@@ -17,9 +17,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState()
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
+
   const [cuisineFilters, setCuisineFilters] = useState([])
   const [labelFilters, setLabelFilters] = useState([])
   const [priceFilters, setPriceFilters] = useState([])
+
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [viewingFriendId, setViewingFriendId] = useState(null);
   const [activeView, setActiveView] = useState('diary'); // or wrapped i think
@@ -181,23 +183,7 @@ export default function Dashboard() {
     );
   }
     
-
-            // <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
-
-          // <div className="h-screen w-screen flex gap-5 p-5">
-
-          // {/* friends */}
-          // <div className="flex flex-col">
-          //   <div className="hidden md:block w-1/4 border-2 border-gray-300 p-5 rounded-md shadow-md">
-          //     <FriendModal/>
-          //   </div>
-          // </div>
-
-
     return (
-      // <div className="flex flex-col items-center justify-center w-screen h-screen p-5 gap-5">
-      //   {/* header: settings, title, some emojis  */}
-
         <div className="w-screen h-screen flex gap-5 p-5">
 
           {/* friends */}
@@ -232,6 +218,8 @@ export default function Dashboard() {
               <hr className="border-t-3 border-gray-300 border-dotted"/>
             </div>
 
+
+
             <div className="flex items-center justify-center w-full h-full max-h-full gap-4">
 
               <div className="w-full flex flex-col flex-1 md:w-2/5 h-full gap-2">
@@ -247,7 +235,14 @@ export default function Dashboard() {
                 {/* filters */}
                 <div className="flex w-full items-center justify-between">
                   <span className="text-gray-500">sort by: recent *to do*</span>
-                  <Filters handleCuisineFilter={handleCuisineFilter} handleLabelFilter={handleLabelFilter} handlePriceFilter={handlePriceFilter}/>
+                  <Filters 
+                    handleCuisineFilter={handleCuisineFilter} 
+                    handleLabelFilter={handleLabelFilter} 
+                    handlePriceFilter={handlePriceFilter}
+                    cuisineFilters={cuisineFilters}
+                    labelFilters={labelFilters}
+                    priceFilters={priceFilters}
+                    />
                 </div>
 
                 <EntryList selectedEntry={selectedEntry} handleSelectEntry={handleSelectEntry} entries={entries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
