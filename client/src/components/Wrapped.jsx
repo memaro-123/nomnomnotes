@@ -80,6 +80,7 @@ export default function Wrapped() {
   }
 
   return (
+    <div className="flex-1 overflow-y-auto">
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       {/* Header */}
       <div className="text-center">
@@ -222,6 +223,7 @@ export default function Wrapped() {
           </button>
         ))}
       </div>
+    </div>
     </div>
   );
 }

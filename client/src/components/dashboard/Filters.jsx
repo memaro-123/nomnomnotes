@@ -21,7 +21,7 @@ export default function Filters({
                         <div className="flex items-center justify-between w-full">
                             <div className="flex items-center justify-start gap-2">
                                 <SlidersHorizontalIcon size={45}/>
-                                <span className="font-pacifico text-3xl">all filters</span>
+                                <span className="font-pacifico text-3xl">filters</span>
                             </div>
                             <button onClick={() => setOpen(false)}><XIcon/></button>
                         </div>
@@ -90,7 +90,6 @@ export default function Filters({
                                 ))}
                             </div>
                         </div>
-
                     </div>
                 </div>
             }
