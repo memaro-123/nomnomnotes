@@ -12,7 +12,7 @@ export default function SettingsButton() {
 
     return (
         <div>
-            <button onClick={() => setOpen(true)} className="flex items-center justify-center"><GearIcon size={28} weight={"fill"}/></button>
+            <button onClick={() => setOpen(true)} className="flex items-center justify-center hover:cursor-pointer"><GearIcon size={28} weight={"fill"}/></button>
             {open && <SettingsModal handleClose={handleClose} />}
         </div>
 

@@ -6,7 +6,7 @@ import AddDiaryButton from '../diary/AddDiaryButton';
 import Entry from '../diary/Entry';
 import EntryList from '../diary/EntryList';
 import FriendModal from "../FriendModal";
-import SettingsButton from '../SettingsButton';
+import SettingsButton from './SettingsButton';
 import Wrapped from '../Wrapped';
 import Filters from './Filters';
 
