@@ -16,6 +16,8 @@ const {
 const express = require("express");
 const { db, admin } = require("../firebase.js");
 const { verifyUser } = require("./middleware/verifyUser.js");
+const uploadBuffer = require('./middleware/uploadBuffer.js');
+const uploadToS3 = require('./utils/uploadToS3.js')
 const router = express.Router();
 
 router.get( "/", verifyUser, async (req, res) => {
@@ -31,11 +33,29 @@ router.get( "/", verifyUser, async (req, res) => {
   }
 } )
 
-router.post( "/create", verifyUser, async (req, res)=> {
+router.post( "/create", verifyUser, uploadBuffer.array('images', 10), async (req, res)=> {
   const uid = req.user.uid
+  console.log('touched create api')
 
   try{
-    const entryData = { ...req.body, user_id: uid }
+    //upload imgs to s3
+    console.log('uploading imgs to s3')
+    const imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const url = await uploadToS3(file, uid);
+        imageUrls.push(url);
+      }
+    }
+
+    console.log('upload to s3 success')
+    const entryData = { 
+      ...req.body, 
+      user_id: uid,
+      images: imageUrls,
+    }
+     
+    console.log('uploading to db')
     await insertEntry(entryData)
     res.json({ success: true })
   } catch (err) {

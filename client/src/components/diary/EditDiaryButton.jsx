@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { auth } from '../../firebase';
 import DiaryForm from './DiaryForm';
@@ -18,6 +18,19 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
             if (!entryData.entryId) {
                 throw new Error("Entry ID is required for editing");
             }
+
+                // Add new images as files
+                // images.forEach((img) => {
+                //     if (img.type === 'new') {
+                //         formData.append('images', img.file);
+                //     }
+                // });
+                
+                // // Send existing S3 URLs to keep
+                // const existingUrls = images
+                //     .filter(img => img.type === 's3')
+                //     .map(img => img.url);
+                // formData.append('existingImages', JSON.stringify(existingUrls));
 
             const editResponse = await fetch("http://localhost:8080/api/diary/edit", {
                 method: "PATCH",

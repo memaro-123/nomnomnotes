@@ -13,15 +13,51 @@ export default function AddDiaryButton({ fetchDiaries }) {
   const handleSubmit = async (entryData) => {
     const saveDiaryEntry = async () => {
       const token = await auth.currentUser.getIdToken();
+
+      console.log('add diary, starting to add to formdata')
+
+      const formData = new FormData();
+
+      formData.append('title', entryData.title);
+      formData.append('notes', entryData.notes);
+      formData.append('taste', entryData.taste);
+      formData.append('service', entryData.service);
+      formData.append('value', entryData.value);
+      formData.append('selectedPrices', entryData.selectedPrices);
+      formData.append('selectedCuisines', JSON.stringify(entryData.selectedCuisines));
+      formData.append('selectedLabels', JSON.stringify(entryData.selectedLabels));
+      formData.append('location', JSON.stringify(entryData.location));
+
+      if (entryData.images && entryData.images.length > 0) {
+        entryData.images.forEach((image) => {
+          formData.append('images', image.file);
+        });
+      }
+
+      console.log('FormData contents:');
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(key, {
+            name: value.name,
+            size: value.size,
+            type: value.type,
+            lastModified: value.lastModified
+          });
+        } else {
+          console.log(key, value);
+        }
+      }
+
+      console.log('calling api')
+
       const writeResponse = await fetch(
         "http://localhost:8080/api/diary/create",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           },
-          body: JSON.stringify(entryData),
+          body: formData,
         }
       )
       if (!writeResponse.ok) {

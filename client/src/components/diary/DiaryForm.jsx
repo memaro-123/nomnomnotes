@@ -36,7 +36,13 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0]; 
-        if (file) setImages(prev => [...prev, URL.createObjectURL(file)]);
+        if (file) {
+            setImages(prev => [...prev, {
+                type: 'new',
+                url: URL.createObjectURL(file),
+                file: file
+            }]);
+        }
     };
 
     const deleteImage = (index) => setImages(prev => prev.filter((_, i) => i !== index));
@@ -91,6 +97,17 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
     // useEffect(() => console.log('Selected Labels:', selectedLabels), [selectedLabels]);
     // useEffect(() => console.log('Taste:', taste), [taste])
     useEffect(() => console.log('Location:', location), [location])
+
+    useEffect(() => {
+        if(entry.images) {
+            const existingImages = entry.images.map((url) => ({
+                type: 's3',
+                url: url,
+                file: null
+            }));
+            setImages(existingImages);
+        }
+    }, [])
 
     return (
       <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">
@@ -182,7 +199,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
                     <div className="flex flex-wrap gap-2 border-1 border-solid rounded-md w-full h-[150px] overflow-y-auto p-2">
                             {images.map((image, i) => (
                             <div key={i} className="flex items-start gap-1">
-                                <img className="h-32 w-auto" src={image} alt={`Preview ${i + 1}`} />
+                                <img className="h-32 w-auto" src={image.url} alt={`Preview ${i + 1}`} />
                                 <button
                                     onClick={() => deleteImage(i)}
                                 ><XIcon/></button>

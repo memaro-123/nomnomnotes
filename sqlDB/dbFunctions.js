@@ -198,24 +198,36 @@ const userExists = async ({ id }) => {
     db.close();
   }
 };
-const insertEntry = async ({
-  user_id,
-  title,
-  selectedCuisines,
-  location,
-  selectedPrices,
-  selectedLabels,
-  images,
-  notes,
-  taste,
-  service,
-  value,
-  date = new Date().toISOString().split('T')[0]
-}) => {
+const insertEntry = async (entryData) => {
+  const {
+    user_id,
+    title,
+    selectedCuisines,
+    location,
+    selectedPrices,
+    selectedLabels,
+    images,
+    notes,
+    taste,
+    service,
+    value
+  } = entryData;
+  
   const cuisinesStr = JSON.stringify(selectedCuisines)
   const labelsStr = JSON.stringify(selectedLabels)
   const imagesStr = JSON.stringify(images)
   const locationStr = JSON.stringify(location)
+
+  const getPSTDateString = () => {
+    const now = new Date();
+    const pstDate = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
+    const month = String(pstDate.getMonth() + 1).padStart(2, '0');
+    const day = String(pstDate.getDate()).padStart(2, '0');
+    const year = pstDate.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
+  const date = getPSTDateString();
 
   const db = new sqlite3.Database("my.db");
   const sql = `INSERT INTO diary_entries(
@@ -229,8 +241,9 @@ const insertEntry = async ({
   notes,
   taste,
   service,
-  value
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  value,
+  date
+ ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   try {
     await paramExec(db, sql, [
       user_id,
@@ -243,7 +256,8 @@ const insertEntry = async ({
       notes,
       taste,
       service,
-      value
+      value,
+      date
     ]);
   } catch (err) {
     console.log(err);
@@ -328,16 +342,15 @@ const getEntry = async (entryID) => {
     db.close();
   }
 };
+
 const getAllEntries = async (userId) => {
   const db = new sqlite3.Database("my.db");
   const sql = `SELECT * FROM diary_entries WHERE user_id = ?`;
   try {
     const rows = await fetchAll(db, sql, [userId]);
-    console.log('raw rows dom db:', rows); //debugging
     const parsedRows = rows.map((row) => {
-    console.log('Entry date:', row.date, 'Type:', typeof row.date); //debugging
       if (row.selected_cuisines) {
-        row.selectedCuisines = JSON.parse(row.selected_cuisines);
+        row.selected_cuisines = JSON.parse(row.selected_cuisines);
       }
       if (row.selected_labels) {
         row.selectedLabels = JSON.parse(row.selected_labels);
@@ -350,6 +363,8 @@ const getAllEntries = async (userId) => {
       }
       return row;
     });
+
+    console.log(parsedRows)
     return parsedRows;
   } catch (err) {
     console.error(err);
