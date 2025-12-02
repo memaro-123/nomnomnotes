@@ -32,21 +32,50 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
     }, [])
 
     const sortedEntries = [...entries].sort((a, b) => {
-      console.log('sorting')
+      console.log('sorting by:', sortBy);
+      
       if (sortBy === 'recent') {
-        return new Date(b.timestamp) - new Date(a.timestamp);
-      } else {
-        return (b.rating || 0) - (a.rating || 0);
+        const parseDate = (dateString) => {
+          if (!dateString) return new Date(0);
+          
+          if (dateString.includes('/')) {
+            const [month, day, year] = dateString.split('/');
+            return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+          }
+          
+          return new Date(dateString);
+        };
+        
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+        
+        console.log('dateA:', a.date, '→', dateA);
+        console.log('dateB:', b.date, '→', dateB);
+        
+        return dateB - dateA;
+      } else if (sortBy === 'rating') {
+        const getRating = (entry) => {
+          const taste = entry.taste || 0;
+          const service = entry.service || 0;
+          const value = entry.value || 0;
+          return (taste + service + value) / 3;
+        };
+        
+        const ratingA = getRating(a);
+        const ratingB = getRating(b);
+        return ratingB - ratingA;
       }
+      
+      return 0;
     });
 
-      useEffect(() => {
-        if (entries.length > 0) {
-          setSelectedEntry(entries?.[0])
-        } else {
-          setSelectedEntry(null)
-        }
-      }, [entries])
+    useEffect(() => {
+      if (entries.length > 0) {
+        setSelectedEntry(entries?.[0])
+      } else {
+        setSelectedEntry(null)
+      }
+    }, [entries])
 
     const handleSelectEntry = ( newEntry ) => {
     setSelectedEntry(newEntry)
@@ -79,12 +108,13 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
 
   {/* filters */}
   <div className="flex w-full items-center justify-between">
-    <div>
-      <span className="text-gray-500">sort by:</span>
+    <div className="flex items-center justify-center gap-2 text-gray-500">
+      <span>sort by:</span>
       <select
       id='sort'
       value={sortBy}
       onChange={(e) => setSortBy(e.target.value)}
+      className="focus:outline-none"
       >
         <option value='recent'>most recent</option>
         <option value='rating'>highest rating</option>
