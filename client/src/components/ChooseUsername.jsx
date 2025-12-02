@@ -17,7 +17,7 @@ export default function ChooseUsername({ onClose }) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // verifyUser middleware
+          Authorization: `Bearer ${token}`, 
         },
         body: JSON.stringify({ myID, newName: name }),
       });

@@ -25,28 +25,31 @@ export default function SettingsModal({ handleClose }) {
   }, []);
 
   // Fetches the SQLite metadata
-  useEffect(() => {
-    const fetchUserMeta = async () => {
-      if (!user) return;
-      try {
-        const token = await user.getIdToken();
-        const res = await fetch('http://localhost:8080/api/user/info', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) throw new Error('Failed to fetch user metadata');
-        const data = await res.json();
-        const parsedPermissions = typeof data.permissions === 'string'
-          ? JSON.parse(data.permissions)
-          : data.permissions;
+useEffect(() => {
+  const fetchUserMeta = async () => {
+    if (!user) return;
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`http://localhost:8080/api/user/info?id=${user.uid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch user metadata');
+      const data = await res.json();
 
-        setPermissions(parsedPermissions)
-        setName(data.username || 'N/A');
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchUserMeta();
-  }, [user]);
+      const parsedPermissions = typeof data.permissions === 'string'
+        ? JSON.parse(data.permissions)
+        : data.permissions;
+
+      setPermissions(parsedPermissions);
+      setName(data.username || 'N/A');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchUserMeta();
+}, [user]);
+
 
   const handleCopyUid = async () => {
     try {
@@ -88,8 +91,35 @@ export default function SettingsModal({ handleClose }) {
       }
     }
   }
+  const handleNameChange = async () => {
+    if (!name) {
+      return;
+    }
 
-  useEffect(() => {setName('text name cuz i dont think the metadata thing is working')}, [])
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const myID = auth.currentUser.uid;
+      const res = await fetch("http://localhost:8080/api/user/updateUsername", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, 
+        },
+        body: JSON.stringify({ myID, newName: name }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return;
+      }
+      else{
+        setName("")
+        alert("username updated sucessfully")
+      }
+    } catch (err) {
+      console.error("Error updating username:", err);
+    }
+  
+  }
 
   if (!user) return null;
 
@@ -124,7 +154,7 @@ export default function SettingsModal({ handleClose }) {
                   onChange={e => setName(e.target.value)} 
                   type={'text'} placeholder={'enter your name'}/>
               </div>
-              <button className="bg-black text-white hover:cursor-pointer px-2 py-1 text-sm rounded-md">change name</button>
+              <button onClick={handleNameChange} className="bg-black text-white hover:cursor-pointer px-2 py-1 text-sm rounded-md">change name</button>
             </div>
           </div>
 
