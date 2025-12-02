@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [entries, setEntries] = useState([])
 
   const [viewingFriendId, setViewingFriendId] = useState(null);
-  const [activeView, setActiveView] = useState('diary'); // or biteback i think
+  const [activeView, setActiveView] = useState('diary'); 
 
 
     const fetchDiaries = useCallback(async () => {
@@ -80,6 +80,7 @@ export default function Dashboard() {
               <SettingsButton/>
             </div>
             <div className=" w-full h-full border-2 border-gray-300 p-5 rounded-md shadow-md">
+
               <FriendModal/>
             </div>
           </div>

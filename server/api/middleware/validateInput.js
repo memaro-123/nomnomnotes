@@ -1,5 +1,6 @@
 
 const validateUserInput = (req, res, next) => {
+    if (!req.body || typeof req.body !== 'object') return next()
   const { uid, username, friendId, myID, newName } = req.body;
   
   // Validate UID format (Firebase UIDs are 28 characters)
@@ -45,7 +46,7 @@ const validateUserInput = (req, res, next) => {
 };
 
 const sanitizeInput = (req, res, next) => {
-  // Basic sanitization for all string fields
+  if (!req.body || typeof req.body !== "object") return next()
   Object.keys(req.body).forEach(key => {
     if (typeof req.body[key] === 'string') {
       // Trim and limit length
