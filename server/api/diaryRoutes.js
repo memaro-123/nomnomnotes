@@ -24,7 +24,6 @@ router.get( "/", verifyUser, async (req, res) => {
   try{
     const uid = req.user.uid
     const entries = await getAllEntries(uid) 
-    console.log('entries fetched:', entries)
 
     res.json({ success: true, diaryData: entries })
   }

@@ -32,7 +32,6 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
     }, [])
 
     const sortedEntries = [...entries].sort((a, b) => {
-      console.log('sorting by:', sortBy);
       
       if (sortBy === 'recent') {
         const parseDate = (dateString) => {
@@ -48,9 +47,6 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
         
         const dateA = parseDate(a.date);
         const dateB = parseDate(b.date);
-        
-        console.log('dateA:', a.date, '→', dateA);
-        console.log('dateB:', b.date, '→', dateB);
         
         return dateB - dateA;
       } else if (sortBy === 'rating') {
@@ -133,7 +129,7 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
   <EntryList selectedEntry={selectedEntry} handleSelectEntry={handleSelectEntry} entries={sortedEntries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
 </div>
 
-  <Entry entry={selectedEntry}/>
+  {selectedEntry && <Entry entry={selectedEntry}/>}
 </div>
     )
 }

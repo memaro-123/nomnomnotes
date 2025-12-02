@@ -43,6 +43,21 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
             });
 
             formData.append('existingImages', JSON.stringify(existingImages));
+
+            console.log('=== FormData Debug ===');
+            console.log('entryData.images:', entryData.images);
+            console.log('existingImages array:', existingImages);
+
+            // Log all FormData contents
+            console.log('FormData contents:');
+            for (let [key, value] of formData.entries()) {
+                if (value instanceof File) {
+                    console.log(`${key}: [File] ${value.name} (${value.size} bytes, ${value.type})`);
+                } else {
+                    console.log(`${key}:`, value);
+                }
+            }
+            console.log('=== End FormData Debug ===');
         
             const editResponse = await fetch("http://localhost:8080/api/diary/edit", {
                 method: "PATCH",

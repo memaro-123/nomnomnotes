@@ -281,12 +281,13 @@ const editEntry = async (entryData) => {
   } = entryData;
 
   const db = new sqlite3.Database("my.db")
-  const validateArray = (arr) => {
-    if(!Array.isArray(arr)) throw new Error("Invalid array");
-    return arr.filter(item => typeof item === 'string' && item.length < 100);
-  };
+  // const validateArray = (arr) => {
+  //   if(!Array.isArray(arr)) throw new Error("Invalid array");
+  //   return arr.filter(item => typeof item === 'string' && item.length < 100);
+  // }; this is getting rid of images just cuz the length of the string is over 100 ... which is not good
 
-  const imagesStr = JSON.stringify(validateArray(images))
+  const imagesStr = JSON.stringify(images)
+  console.log('imagesStr in edit entry:', imagesStr)
 
   const sql = `UPDATE diary_entries SET 
   title = ?, 
@@ -364,8 +365,6 @@ const getAllEntries = async (userId) => {
         date: row.date,
       }
     });
-
-    console.log('parsedRows:', parsedRows)
 
     return parsedRows;
   } catch (err) {
