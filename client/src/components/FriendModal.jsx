@@ -9,6 +9,7 @@ export default function FriendModal({ onClose, onSelectFriend }) {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [newFriendUID, setNewFriendUID] = useState("");
   const [myUsername, setMyUsername] = useState("");
+  const [initUsername, setInitUsername] = useState(false)
   
 useEffect(() => {
   const fetchMyUsername = async () => {
@@ -24,6 +25,7 @@ useEffect(() => {
 
       const data = await res.json();
       setMyUsername(data.username);
+      if (data.username === "defaultUsername") setInitUsername(true)
     } catch (err) {
       console.error("Failed to fetch my username", err);
       setMyUsername(null);
@@ -124,8 +126,8 @@ useEffect(() => {
       console.error("Failed to update request", err);
     }
   };
-  if (myUsername ==="defaultUsername"){
-    return(<ChooseUsername onClose ={onClose}></ChooseUsername>)
+  if (initUsername){
+    return(<ChooseUsername onClose ={() => setInitUsername(false)}></ChooseUsername>)
     
   }
   else{

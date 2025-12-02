@@ -76,42 +76,56 @@ export default function EmailAndPassword({ handleAuthPage }) {
     
     
     const handleSignUp = () => {
-        if (!checkValid()) {
-            return;
-        }
+    if (!checkValid()) {
+        return;
+    }
 
-        const toastId = toast.loading('signing in...')
-    
-        createUserWithEmailAndPassword(auth, email, password)
+    const toastId = toast.loading('signing in...');
+
+    createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          const user = userCredential.user
-          console.log(user)
-          setEmail("")
-          setPassword("") 
-          toast.dismiss(toastId);
+            const user = userCredential.user;
+            console.log(user);
+
+            return user.getIdToken().then((token) => {
+                return fetch("http://localhost:8080/api/diary/initfriend", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ myID: user.uid }),
+                });
+            });
+        })
+        .then((response) => {
+            if (!response.ok) {
+                console.error("Failed to init user in DB");
+            } else {
+                console.log("User initialized in DB");
+            }
+            setEmail("");
+            setPassword("");
+            toast.dismiss(toastId);
         })
         .catch((error) => {
             switch (error.code) {
-                case 'auth/invalid-credential':
-                    console.log(error.message)
-                    toast.error("invalid email or password", {
-                        id: toastId,
-                    });
+                case "auth/invalid-credential":
+                    console.log(error.message);
+                    toast.error("invalid email or password", { id: toastId });
                     break;
-                case 'auth/email-already-in-use':
-                    console.log(error.message)
-                    toast.error("this email is already being used", {
-                        id: toastId,
-                    });
+                case "auth/email-already-in-use":
+                    console.log(error.message);
+                    toast.error("this email is already being used", { id: toastId });
                     break;
                 default:
-                    toast.error("an error occurred. please try again.", {
-                        id: toastId,
-                    });
-                    console.log(error.message)
+                    console.log(error.message);
+                    toast.error("an error occurred. please try again.", { id: toastId });
             }
         })
-    }
+        
+};
+
 
 
     const handleGoogleSignIn = async () => {
