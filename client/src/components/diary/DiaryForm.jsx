@@ -96,7 +96,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
     // useEffect(() => console.log('Selected Price:', selectedPrices), [selectedPrices]);
     // useEffect(() => console.log('Selected Labels:', selectedLabels), [selectedLabels]);
     // useEffect(() => console.log('Taste:', taste), [taste])
-    useEffect(() => console.log('Location:', location), [location])
+    // useEffect(() => console.log('Location:', location), [location])
 
     useEffect(() => {
         if(entry.images) {
@@ -108,6 +108,8 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             setImages(existingImages);
         }
     }, [])
+
+    useEffect(() => {console.log('images', images)}, [images])
 
     return (
       <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">

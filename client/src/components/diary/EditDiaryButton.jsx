@@ -19,35 +19,44 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
                 throw new Error("Entry ID is required for editing");
             }
 
-                // Add new images as files
-                // images.forEach((img) => {
-                //     if (img.type === 'new') {
-                //         formData.append('images', img.file);
-                //     }
-                // });
-                
-                // // Send existing S3 URLs to keep
-                // const existingUrls = images
-                //     .filter(img => img.type === 's3')
-                //     .map(img => img.url);
-                // formData.append('existingImages', JSON.stringify(existingUrls));
+            const formData = new FormData();
+            
+            formData.append('entryId', entryData.entryId)
+            formData.append('title', entryData.title);
+            formData.append('notes', entryData.notes);
+            formData.append('taste', entryData.taste);
+            formData.append('service', entryData.service);
+            formData.append('value', entryData.value);
+            formData.append('selectedPrices', entryData.selectedPrices);
+            formData.append('selectedCuisines', JSON.stringify(entryData.selectedCuisines));
+            formData.append('selectedLabels', JSON.stringify(entryData.selectedLabels));
+            formData.append('location', JSON.stringify(entryData.location));
 
+            let existingImages = [];
+            
+            entryData.images.forEach((img) => {
+                if (img.type === 'new') {
+                    formData.append('images', img.file);
+                } else if (img.type === 's3') {
+                    existingImages.push(img.url)
+                }
+            });
+
+            formData.append('existingImages', JSON.stringify(existingImages));
+        
             const editResponse = await fetch("http://localhost:8080/api/diary/edit", {
                 method: "PATCH",
                 headers: {
-                  "Content-Type": "application/json",
                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(entryData),
+                body: formData,
             });
 
             if (!editResponse.ok) {
                 throw new Error ('error writing diary')
             }
 
-            if (fetchDiaries) {
-                await fetchDiaries();
-            }
+            await fetchDiaries();
         }
 
         toast.promise(

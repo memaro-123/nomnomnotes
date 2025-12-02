@@ -24,6 +24,7 @@ router.get( "/", verifyUser, async (req, res) => {
   try{
     const uid = req.user.uid
     const entries = await getAllEntries(uid) 
+    console.log('entries fetched:', entries)
 
     res.json({ success: true, diaryData: entries })
   }
@@ -52,10 +53,10 @@ router.post( "/create", verifyUser, uploadBuffer.array('images', 10), async (req
     const entryData = { 
       ...req.body, 
       user_id: uid,
-      images: imageUrls,
+      images: JSON.stringify(imageUrls),
     }
      
-    console.log('uploading to db')
+    console.log('sending data to add:', entryData)
     await insertEntry(entryData)
     res.json({ success: true })
   } catch (err) {
@@ -64,29 +65,59 @@ router.post( "/create", verifyUser, uploadBuffer.array('images', 10), async (req
   }
 })
 
-router.patch("/edit", verifyUser, async (req, res) => {
-  const uid = req.user.uid
-  const { entryId, title, selectedCuisines, location, 
-    selectedPrices, selectedLabels, images, notes, taste, 
-    service, value } = req.body;
+router.patch("/edit", verifyUser, uploadBuffer.array('images', 10), async (req, res) => {
+  console.log('passed middleware, in edit api')
+  const uid = req.user.uid;
+  const entryId = req.body.entryId;
+  const {
+    title,
+    selectedCuisines,
+    location,
+    selectedPrices,
+    selectedLabels,
+    notes,
+    taste,
+    service,
+    value,
+  } = req.body;
+
   if (!entryId) {
   return res.status(400).json({ error: "Missing entryId" });
 }
   try {
-    await editEntry({
+    const existingImages = JSON.parse(req.body.existingImages || []);
+    console.log('Existing images parsed:', existingImages.length);
+
+    console.log('uploading imgs to s3')
+    const newImageUrls = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const url = await uploadToS3(file, uid);
+        newImageUrls.push(url);
+      }
+    }
+    console.log('done uploading to s3')
+
+    const allImages = [...existingImages, ...newImageUrls];
+
+    const entryData = {
       id: entryId,
       user_id: uid,
-      title,
-      selectedCuisines,
-      location,
-      selectedPrices,
-      selectedLabels,
-      images,
-      notes,
-      taste,
-      service,
-      value,
-    });
+      title: title,
+      selectedCuisines: selectedCuisines,
+      location: location,
+      selectedPrices: selectedPrices,
+      selectedLabels: selectedLabels,
+      images: allImages,
+      notes: notes,
+      taste: taste,
+      service: service,
+      value: value,
+    }
+
+    console.log('sending entry data:',entryData)
+
+    await editEntry(entryData);
     console.log("editentry jsut ran type shit");
 
     res.json({ success: true });

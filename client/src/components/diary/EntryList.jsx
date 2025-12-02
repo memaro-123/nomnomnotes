@@ -69,8 +69,8 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
                                     onClick={() => handleSelectEntry(entry)}
                                     className="flex-1 flex items-center justify-start gap-5 h-full overflow-hidden hover:cursor-pointer">
                                             <img 
-                                            // src={entry.images[0]} this is for when we convert to s3 and can use the images
-                                            src="burger.jpg"
+                                            src={entry.images[0]}
+                                            // src="burger.jpg"
                                             alt="entry thumbnail"
                                             className="w-[106px] h-[106px] object-cover rounded-md shrink-0"
                                             />

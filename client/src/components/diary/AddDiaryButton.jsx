@@ -28,25 +28,9 @@ export default function AddDiaryButton({ fetchDiaries }) {
       formData.append('selectedLabels', JSON.stringify(entryData.selectedLabels));
       formData.append('location', JSON.stringify(entryData.location));
 
-      if (entryData.images && entryData.images.length > 0) {
-        entryData.images.forEach((image) => {
-          formData.append('images', image.file);
-        });
-      }
-
-      console.log('FormData contents:');
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(key, {
-            name: value.name,
-            size: value.size,
-            type: value.type,
-            lastModified: value.lastModified
-          });
-        } else {
-          console.log(key, value);
-        }
-      }
+      entryData.images.forEach((image) => {
+        formData.append('images', image.file);
+      });
 
       console.log('calling api')
 

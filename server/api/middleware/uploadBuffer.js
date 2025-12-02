@@ -7,10 +7,19 @@ const uploadBuffer = multer({
     },
     fileFilter: (req, file, cb) => {
       console.log('Processing file upload:', file.originalname);
-      if (file.mimetype.startsWith('image/')) {
-        cb(null, true);
-      } else {
-        cb(new Error('Only image files are allowed!'), false);
+      console.log('File mimetype:', file.mimetype);
+      
+      try {
+        if (file.mimetype && file.mimetype.startsWith('image/')) {
+          console.log('File accepted:', file.originalname);
+          cb(null, true);
+        } else {
+          console.log('File rejected - not an image:', file.originalname);
+          cb(new Error('Only image files are allowed!'), false);
+        }
+      } catch (error) {
+        console.error('Error in fileFilter:', error);
+        cb(error, false);
       }
     }
   });

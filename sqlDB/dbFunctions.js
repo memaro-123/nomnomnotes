@@ -199,6 +199,8 @@ const userExists = async ({ id }) => {
   }
 };
 const insertEntry = async (entryData) => {
+
+  console.log('received data', entryData)
   const {
     user_id,
     title,
@@ -212,11 +214,6 @@ const insertEntry = async (entryData) => {
     service,
     value
   } = entryData;
-  
-  const cuisinesStr = JSON.stringify(selectedCuisines)
-  const labelsStr = JSON.stringify(selectedLabels)
-  const imagesStr = JSON.stringify(images)
-  const locationStr = JSON.stringify(location)
 
   const getPSTDateString = () => {
     const now = new Date();
@@ -248,11 +245,11 @@ const insertEntry = async (entryData) => {
     await paramExec(db, sql, [
       user_id,
       title,
-      cuisinesStr,
-      locationStr,
+      selectedCuisines,
+      location,
       selectedPrices,
-      labelsStr,
-      imagesStr,
+      selectedLabels,
+      images,
       notes,
       taste,
       service,
@@ -265,31 +262,31 @@ const insertEntry = async (entryData) => {
     db.close();
   }
 };
-const editEntry = async ({
-  id,
-  user_id,
-  title,
-  selectedCuisines,
-  location,
-  selectedPrices,
-  selectedLabels,
-  images,
-  notes,
-  taste,
-  service,
-  value,
-}) => {
+const editEntry = async (entryData) => {
+  console.log('recieved edit entry data',entryData)
+
+  const {
+    user_id,
+    id,
+    title,
+    selectedCuisines,
+    location,
+    selectedPrices,
+    selectedLabels,
+    images,
+    notes,
+    taste,
+    service,
+    value
+  } = entryData;
+
   const db = new sqlite3.Database("my.db")
   const validateArray = (arr) => {
     if(!Array.isArray(arr)) throw new Error("Invalid array");
     return arr.filter(item => typeof item === 'string' && item.length < 100);
   };
 
-  const cuisinesStr = JSON.stringify(validateArray(selectedCuisines))
-  const labelsStr = JSON.stringify(validateArray(selectedLabels))
   const imagesStr = JSON.stringify(validateArray(images))
-  const locationStr = JSON.stringify(location)
-  console.log('db', locationStr)
 
   const sql = `UPDATE diary_entries SET 
   title = ?, 
@@ -306,10 +303,10 @@ const editEntry = async ({
   try {
     await paramExec(db, sql,[
       title,
-      cuisinesStr,
-      locationStr,
+      selectedCuisines,
+      location,
       selectedPrices,
-      labelsStr,
+      selectedLabels,
       imagesStr,
       notes,
       taste,
@@ -323,6 +320,7 @@ const editEntry = async ({
     db.close();
   }
 };
+
 const getEntry = async (entryID) => {
   const db = new sqlite3.Database("my.db");
   const sql = `SELECT * FROM diary_entries WHERE id = ?`;
@@ -346,25 +344,29 @@ const getEntry = async (entryID) => {
 const getAllEntries = async (userId) => {
   const db = new sqlite3.Database("my.db");
   const sql = `SELECT * FROM diary_entries WHERE user_id = ?`;
+
   try {
     const rows = await fetchAll(db, sql, [userId]);
     const parsedRows = rows.map((row) => {
-      if (row.selected_cuisines) {
-        row.selected_cuisines = JSON.parse(row.selected_cuisines);
+      return {
+        id: row.id,
+        user_id: row.user_id,
+        title: row.title,
+        selectedCuisines: JSON.parse(row.selected_cuisines || "[]"),
+        selectedLabels: JSON.parse(row.selected_labels || "[]"),
+        selectedPrices: row.selected_prices,
+        location: JSON.parse(row.location),
+        images: JSON.parse(row.images),
+        notes: row.notes,
+        taste: row.taste,
+        service: row.service,
+        value: row.value,
+        date: row.date,
       }
-      if (row.selected_labels) {
-        row.selectedLabels = JSON.parse(row.selected_labels);
-      }
-      if (row.images) {
-        row.images = JSON.parse(row.images);
-      }
-      if(row.location) {
-        row.location = JSON.parse(row.location);
-      }
-      return row;
     });
 
-    console.log(parsedRows)
+    console.log('parsedRows:', parsedRows)
+
     return parsedRows;
   } catch (err) {
     console.error(err);
