@@ -213,6 +213,101 @@ async function generateBiteBackData(userId, year) {
         throw error;
     }
 }
+function generateAnalytics(entries) {
+  if (!entries || entries.length === 0) {
+    return {
+      summary: { totalEntries: 0 },
+      hasData: false
+    };
+  }
+  
+  // Calculate total entries
+  const totalEntries = entries.length;
+  
+  // Calculate average ratings
+  const totalTaste = entries.reduce((sum, e) => sum + (e.taste || 0), 0);
+  const totalService = entries.reduce((sum, e) => sum + (e.service || 0), 0);
+  const totalValue = entries.reduce((sum, e) => sum + (e.value || 0), 0);
+  const averageRating = ((totalTaste + totalService + totalValue) / (3 * totalEntries)).toFixed(2);
+  
+  // Group by restaurant
+  const restaurantMap = {};
+  entries.forEach(entry => {
+    const name = entry.location?.name || 'Unknown';
+    if (!restaurantMap[name]) {
+      restaurantMap[name] = {
+        count: 0,
+        totalRating: 0,
+        entries: []
+      };
+    }
+    restaurantMap[name].count++;
+    restaurantMap[name].totalRating += (entry.taste + entry.service + entry.value) / 3;
+    restaurantMap[name].entries.push(entry);
+  });
+  
+  // Calculate top restaurants
+  const topRestaurants = Object.entries(restaurantMap)
+    .map(([name, data]) => ({
+      name,
+      count: data.count,
+      avgRating: (data.totalRating / data.count).toFixed(2)
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+    
+  // Calculate best rated restaurants (min 2 visits)
+  const bestRatedRestaurants = Object.entries(restaurantMap)
+    .filter(([_, data]) => data.count >= 2)
+    .map(([name, data]) => ({
+      name,
+      visits: data.count,
+      averageRating: (data.totalRating / data.count).toFixed(2)
+    }))
+    .sort((a, b) => b.averageRating - a.averageRating)
+    .slice(0, 5);
+    
+  // Calculate cuisine distribution
+  const cuisineCount = {};
+  entries.forEach(entry => {
+    const cuisines = entry.selectedCuisines || [];
+    cuisines.forEach(cuisine => {
+      cuisineCount[cuisine] = (cuisineCount[cuisine] || 0) + 1;
+    });
+  });
+  
+  const topCuisines = Object.entries(cuisineCount)
+    .map(([cuisine, count]) => ({ cuisine, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+    
+  // Calculate monthly distribution
+  const monthlyDistribution = {};
+  entries.forEach(entry => {
+    if (entry.date) {
+      const date = new Date(entry.date);
+      const month = date.toLocaleString('default', { month: 'long' });
+      monthlyDistribution[month] = (monthlyDistribution[month] || 0) + 1;
+    }
+  });
+  
+  return {
+    summary: {
+      totalEntries,
+      averageRating
+    },
+    ratingStats: {
+      averageRating,
+      highest: Math.max(...entries.map(e => (e.taste + e.service + e.value) / 3)).toFixed(2),
+      lowest: Math.min(...entries.map(e => (e.taste + e.service + e.value) / 3)).toFixed(2)
+    },
+    topRestaurants,
+    bestRatedRestaurants,
+    topCuisines,
+    monthlyDistribution,
+    hasData: true
+  };
+}
 
 // Keep the existing generateAnalytics function as is
 // Keep existing wrapped endpoint for backward compatibility
