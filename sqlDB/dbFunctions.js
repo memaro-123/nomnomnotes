@@ -48,30 +48,63 @@ const insertSentCode = async ({ myID, sentID }) => {
 const autoAcc = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
   try{
-  
   const row = await getFirstRow(
     db,
     "SELECT received_requests FROM friends WHERE user_id = ?",
     [myID]
   )
-  const receivedRequests = row?.received_requests
+  if (!row) {
+    console.log(`User with ID ${myID} not found in friends table.`);
+    return false;
+  }
+
+  const receivedRequests = row.received_requests
     ? JSON.parse(row.received_requests)
     : []
 
   if (receivedRequests.includes(friendID)) {
-    await insertNewFriend({ myID, friendID })
+    const myFriendsRow = await getFirstRow(
+      db,
+      "SELECT friends FROM friends WHERE user_id = ?",
+      [myID]
+    );
+
+    const myFriends = myFriendsRow?.friends ? JSON.parse(myFriendsRow.friends) : [];
+    if (myFriends.includes(friendID)) {
+      console.log(`Users ${myID} and ${friendID} are already friends. Removing from received requests. `);
+      await removeFromReceivedRequests({db, myID, friendID });
+      return false;
+    }
+    await insertNewFriend({ myID, friendID });
     return true
   }
-  else {
-    return false
-  }
+  return false;
   } catch (err) {
     console.error("Error in auto accepting:", err);
     throw err
   } finally{
     db.close()
   }
-}
+};
+
+const removeFromReceivedRequests = async ({db, myID, friendID}) => {
+  const row = await getFirstRow(
+        db,
+        "SELECT received_requests FROM friends WHERE user_id = ?",
+        [userId]
+    );
+    
+    if (!row || !row.received_requests) return;
+    
+    let receivedRequests = JSON.parse(row.received_requests);
+    receivedRequests = receivedRequests.filter(id => id !== friendId);
+    
+    await paramExec(
+        db,
+        "UPDATE friends SET received_requests = ? WHERE user_id = ?",
+        [JSON.stringify(receivedRequests), userId]
+    );
+};
 
 const alreadySentOrFriended = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
