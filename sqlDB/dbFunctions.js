@@ -1,9 +1,8 @@
 const sqlite3 = require("sqlite3");
 const { paramExec, fetchAll } = require("./helperFunctions.js");
 
-
 const intializeUser = async ({ myID, username = "defaultUsername" }) => {
-  console.log("this shits going don")
+  console.log("Initializing user");
   const db = new sqlite3.Database("my.db");
   try {
     await paramExec(
@@ -11,7 +10,7 @@ const intializeUser = async ({ myID, username = "defaultUsername" }) => {
       "INSERT OR IGNORE INTO friends (user_id, sent_requests, received_requests, friends, username) VALUES (?, ?, ?, ?, ?)",
       [myID, JSON.stringify([]), JSON.stringify([]), JSON.stringify([]), username]
     );
-    console.log("we just added that shit on everything")
+    console.log("User initialized successfully");
   } catch (err) {
     console.error(err);
     throw err;
@@ -43,96 +42,101 @@ const insertSentCode = async ({ myID, sentID }) => {
   } finally {
     db.close();
   }
-}
+};
 
 const autoAcc = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
-  try{
-  const row = await getFirstRow(
-    db,
-    "SELECT received_requests FROM friends WHERE user_id = ?",
-    [myID]
-  )
-  if (!row) {
-    console.log(`User with ID ${myID} not found in friends table.`);
-    return false;
-  }
-
-  const receivedRequests = row.received_requests
-    ? JSON.parse(row.received_requests)
-    : []
-
-  if (receivedRequests.includes(friendID)) {
-    const myFriendsRow = await getFirstRow(
+  try {
+    const row = await getFirstRow(
       db,
-      "SELECT friends FROM friends WHERE user_id = ?",
+      "SELECT received_requests FROM friends WHERE user_id = ?",
       [myID]
     );
-
-    const myFriends = myFriendsRow?.friends ? JSON.parse(myFriendsRow.friends) : [];
-    if (myFriends.includes(friendID)) {
-      console.log(`Users ${myID} and ${friendID} are already friends. Removing from received requests. `);
-      await removeFromReceivedRequests({db, myID, friendID });
+    
+    if (!row) {
+      console.log(`User with ID ${myID} not found in friends table.`);
       return false;
     }
-    await insertNewFriend({ myID, friendID });
-    return true
-  }
-  return false;
+
+    const receivedRequests = row.received_requests
+      ? JSON.parse(row.received_requests)
+      : [];
+
+    if (receivedRequests.includes(friendID)) {
+      const myFriendsRow = await getFirstRow(
+        db,
+        "SELECT friends FROM friends WHERE user_id = ?",
+        [myID]
+      );
+
+      const myFriends = myFriendsRow?.friends ? JSON.parse(myFriendsRow.friends) : [];
+      if (myFriends.includes(friendID)) {
+        console.log(`Users ${myID} and ${friendID} are already friends. Removing from received requests.`);
+        await removeFromReceivedRequests({ db, userId: myID, friendId: friendID });
+        return false;
+      }
+      await insertNewFriend({ myID, friendID });
+      return true;
+    }
+    return false;
   } catch (err) {
     console.error("Error in auto accepting:", err);
-    throw err
-  } finally{
-    db.close()
+    throw err;
+  } finally {
+    db.close();
   }
 };
 
-const removeFromReceivedRequests = async ({db, myID, friendID}) => {
+const removeFromReceivedRequests = async ({ db, userId, friendId }) => {
   const row = await getFirstRow(
-        db,
-        "SELECT received_requests FROM friends WHERE user_id = ?",
-        [userId]
-    );
-    
-    if (!row || !row.received_requests) return;
-    
-    let receivedRequests = JSON.parse(row.received_requests);
-    receivedRequests = receivedRequests.filter(id => id !== friendId);
-    
-    await paramExec(
-        db,
-        "UPDATE friends SET received_requests = ? WHERE user_id = ?",
-        [JSON.stringify(receivedRequests), userId]
-    );
+    db,
+    "SELECT received_requests FROM friends WHERE user_id = ?",
+    [userId]
+  );
+  
+  if (!row || !row.received_requests) return;
+  
+  let receivedRequests = JSON.parse(row.received_requests);
+  receivedRequests = receivedRequests.filter(id => id !== friendId);
+  
+  await paramExec(
+    db,
+    "UPDATE friends SET received_requests = ? WHERE user_id = ?",
+    [JSON.stringify(receivedRequests), userId]
+  );
 };
 
 const alreadySentOrFriended = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
-  try{
-    //transaction might be overkill here but wtv just in case for consistency
-    await paramExec(db, "Begin transaction")
+  try {
+    // Use transaction for consistency
+    await paramExec(db, "BEGIN TRANSACTION");
+    
     const row = await getFirstRow(
       db,
       "SELECT friends, sent_requests FROM friends WHERE user_id = ?",
       [myID]
     );
+    
     if (!row) {
-      await paramExec(db, "rollback")
+      await paramExec(db, "ROLLBACK");
       return false;
     }
+    
     const friendsRow = row.friends ? JSON.parse(row.friends) : [];
     const sentRow = row.sent_requests ? JSON.parse(row.sent_requests) : [];
 
-    await paramExec(db, "Commit")
+    await paramExec(db, "COMMIT");
     return friendsRow.includes(friendID) || sentRow.includes(friendID);
+    
   } catch (err) {
-    await paramExec(db, "rollback");
-    console.error("error checking already sent or friended:", err);
+    await paramExec(db, "ROLLBACK");
+    console.error("Error checking already sent or friended:", err);
     throw err;
   } finally {
     db.close();
   }
-}
+};
 
 const insertRecievedCode = async ({ myID, recievedID }) => {
   const db = new sqlite3.Database("my.db");
@@ -142,16 +146,16 @@ const insertRecievedCode = async ({ myID, recievedID }) => {
       "SELECT received_requests FROM friends WHERE user_id = ?",
       [myID]
     );
-    let recievedReqs = row?.received_requests
+    let receivedReqs = row?.received_requests
       ? JSON.parse(row.received_requests)
       : [];
-    if (!recievedReqs.includes(recievedID)) {
-      recievedReqs.push(recievedID);
+    if (!receivedReqs.includes(recievedID)) {
+      receivedReqs.push(recievedID);
     }
     await paramExec(
       db,
       "UPDATE friends SET received_requests = ? WHERE user_id = ?",
-      [JSON.stringify(recievedReqs), myID]
+      [JSON.stringify(receivedReqs), myID]
     );
   } catch (err) {
     console.error(err);
@@ -162,56 +166,67 @@ const insertRecievedCode = async ({ myID, recievedID }) => {
 };
 
 const insertNewFriend = async ({ myID, friendID }) => {
-  //this function operates under the assumption that this is an accepted request from a stranger
   const db = new sqlite3.Database("my.db");
   try {
-    const myRow = await getFirstRow(
-      db,
-      "SELECT friends FROM friends WHERE user_id = ?",
-      [myID]
-    );
-    let myFriends = myRow?.friends ? JSON.parse(myRow.friends) : [];
-    let myRecievedReqs = myRow?.received_requests
-      ? JSON.parse(myRow.received_requests)
-      : [];
-    if (myRecievedReqs.includes(friendID)) {
-      myRecievedReqs = myRecievedReqs.filter((id) => id !== friendID);
+    await paramExec(db, "BEGIN TRANSACTION");
+    
+    // Get current state for both users
+    const [myRow, friendRow] = await Promise.all([
+      getFirstRow(db, "SELECT friends, received_requests FROM friends WHERE user_id = ?", [myID]),
+      getFirstRow(db, "SELECT friends, sent_requests FROM friends WHERE user_id = ?", [friendID])
+    ]);
+    
+    if (!myRow || !friendRow) {
+      await paramExec(db, "ROLLBACK");
+      throw new Error("One or both users not found");
     }
-
+    
+    // Process my user
+    let myFriends = myRow.friends ? JSON.parse(myRow.friends) : [];
+    let myReceivedRequests = myRow.received_requests ? JSON.parse(myRow.received_requests) : [];
+    
+    // Remove from received requests if present
+    myReceivedRequests = myReceivedRequests.filter(id => id !== friendID);
+    
+    // Add to friends if not already
     if (!myFriends.includes(friendID)) {
       myFriends.push(friendID);
     }
-
-    await paramExec(
-      db,
-      "UPDATE friends SET friends = ?, received_requests = ? WHERE user_id = ?",
-      [JSON.stringify(myFriends), JSON.stringify(myRecievedReqs), myID]
-    );
-
-    const friendsRow = await getFirstRow(
-      db,
-      "SELECT friends, sent_requests FROM friends WHERE user_id = ?",
-      [friendID]
-    );
-    let theirFriends = friendsRow?.friends
-      ? JSON.parse(friendsRow.friends)
-      : [];
+    
+    // Process friend user
+    let theirFriends = friendRow.friends ? JSON.parse(friendRow.friends) : [];
+    let theirSentRequests = friendRow.sent_requests ? JSON.parse(friendRow.sent_requests) : [];
+    
+    // Remove from sent requests if present
+    theirSentRequests = theirSentRequests.filter(id => id !== myID);
+    
+    // Add to friends if not already
     if (!theirFriends.includes(myID)) {
       theirFriends.push(myID);
     }
-    let theirSentReqs = friendsRow?.sent_requests
-      ? JSON.parse(friendsRow.sent_requests)
-      : [];
-    if (theirSentReqs.includes(myID)) {
-      theirSentReqs = theirSentReqs.filter((id) => id !== myID);
-    }
-    await paramExec(
-      db,
-      "UPDATE friends SET friends = ? , sent_requests = ? WHERE user_id = ?",
-      [JSON.stringify(theirFriends), JSON.stringify(theirSentReqs), friendID]
-    );
+    
+    // Update both users atomically
+    await Promise.all([
+      paramExec(db, 
+        "UPDATE friends SET friends = ?, received_requests = ? WHERE user_id = ?",
+        [JSON.stringify(myFriends), JSON.stringify(myReceivedRequests), myID]
+      ),
+      paramExec(db,
+        "UPDATE friends SET friends = ?, sent_requests = ? WHERE user_id = ?",
+        [JSON.stringify(theirFriends), JSON.stringify(theirSentRequests), friendID]
+      )
+    ]);
+    
+    await paramExec(db, "COMMIT");
+    console.log(`Successfully added friendship between ${myID} and ${friendID}`);
+    
   } catch (err) {
-    console.error(err);
+    // Rollback on error
+    await paramExec(db, "ROLLBACK").catch(rollbackErr => {
+      console.error("Failed to rollback transaction:", rollbackErr);
+    });
+    
+    console.error("Error in insertNewFriend:", err);
     throw err;
   } finally {
     db.close();
@@ -226,11 +241,7 @@ const userExists = async ({ id }) => {
       "SELECT user_id FROM friends WHERE user_id = ?",
       [id]
     );
-    if (!row) {
-      return false;
-    } else {
-      return true;
-    }
+    return !!row;
   } catch (err) {
     console.error(err);
     throw err;
@@ -238,6 +249,46 @@ const userExists = async ({ id }) => {
     db.close();
   }
 };
+
+const sendFriendRequest = async ({ myID, friendID }) => {
+  const db = new sqlite3.Database("my.db");
+  
+  try {
+    // Validate users exist
+    const [userExists1, userExists2] = await Promise.all([
+      userExists({ id: myID }),
+      userExists({ id: friendID })
+    ]);
+    
+    if (!userExists1 || !userExists2) {
+      throw new Error("One or both users do not exist");
+    }
+    
+    // Check if already friends or request sent
+    const alreadyConnected = await alreadySentOrFriended({ myID, friendID });
+    if (alreadyConnected) {
+      throw new Error("Already connected or request pending");
+    }
+    
+    // Check for auto-accept
+    const shouldAutoAccept = await autoAcc({ myID, friendID });
+    if (shouldAutoAccept) {
+      return { success: true, autoAccepted: true };
+    }
+    
+    // Send request
+    await insertSentCode({ myID, sentID: friendID });
+    await insertRecievedCode({ myID: friendID, recievedID: myID });
+    
+    return { success: true, autoAccepted: false };
+    
+  } catch (err) {
+    console.error("Error sending friend request:", err);
+    throw err;
+  } finally {
+    db.close();
+  }
+}
 
 const insertEntry = async (entryData) => {
 
@@ -728,5 +779,7 @@ module.exports = {
   insertWishlist,
   getWishlistByUser,
   deleteWishlistEntry,
-  getVisitedPlaceIds
+  getVisitedPlaceIds, 
+  sendFriendRequest,
+  removeFromReceivedRequests
 };
