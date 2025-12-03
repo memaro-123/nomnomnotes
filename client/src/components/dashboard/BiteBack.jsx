@@ -191,7 +191,7 @@ function EmptyState({ year, setSelectedYear }) {
         Start adding diary entries to unlock your personalized BiteBack for {year}
       </p>
       <div className="flex justify-center gap-2">
-        {[2025, 2024, 2023, 2022, 2021].map(prevYear => (
+        {[2025, 2024, 2023].map(prevYear => (
           <button
             key={prevYear}
             onClick={() => setSelectedYear(prevYear)}
@@ -224,7 +224,7 @@ function BiteBackHeader({ year, onYearChange, cached, generatedAt }) {
         )}
       </p>
       <div className="flex justify-center gap-2">
-        {[2024, 2023, 2022].map(yr => (
+        {[2025, 2024, 2023].map(yr => (
           <button
             key={yr}
             onClick={() => onYearChange(yr)}

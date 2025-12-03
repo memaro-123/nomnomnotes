@@ -7,3 +7,4 @@ function getDB() {
 }
 
 module.exports = getDB;
+module.exports.db = getDB;
