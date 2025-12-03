@@ -14,7 +14,7 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
     const handleSubmit = async (entryData) => {
         const saveDiaryEntry = async() => {
             const token = await auth.currentUser.getIdToken();
-            entryData.entryId = entry.id
+            //entryData.entryId = entry.id idk what this is for so commenting out temporarily
             if (!entryData.entryId) {
                 throw new Error("Entry ID is required for editing");
             }
@@ -30,35 +30,42 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
             formData.append('selectedPrices', entryData.selectedPrices);
             formData.append('selectedCuisines', JSON.stringify(entryData.selectedCuisines));
             formData.append('selectedLabels', JSON.stringify(entryData.selectedLabels));
-            formData.append('location', JSON.stringify(entryData.location));
+            // formData.append('location', JSON.stringify(entryData.location)); i think doesn't handly location right
+            if (entryData.location) {
+                formData.append('location', JSON.stringify(entryData.location));
+                if (entryData.location.placeId) {
+                    formData.append('placeId', entryData.location.placeId);
+                }
+                if (entryData.location.lat && entryData.location.lng) {
+                    formData.append('lat', entryData.location.lat);
+                    formData.append('lng', entryData.location.lng);
+                }
+            }
 
-            let existingImages = [];
-            
+            // handle images but better since can separate between new and old for editing function
+            const existingImages = [];
+            const newImages = [];
+
             entryData.images.forEach((img) => {
-                if (img.type === 'new') {
-                    formData.append('images', img.file);
-                } else if (img.type === 's3') {
-                    existingImages.push(img.url)
+                if (img.type === 's3' && img.url) {
+                    existingImages.push(img.url);
+                } else if (img.file instanceof File) {
+                    newImages.push(img.file);
                 }
             });
 
             formData.append('existingImages', JSON.stringify(existingImages));
+            newImages.forEach((file) => {
+                formData.append('images', file);
+            });
 
-            console.log('=== FormData Debug ===');
-            console.log('entryData.images:', entryData.images);
-            console.log('existingImages array:', existingImages);
+            console.log('=== EDIT FORM DATA DEBUG ===');
+            console.log('Entry ID:', entryData.entryId);
+            console.log('Existing images count:', existingImageUrls.length);
+            console.log('New images count:', newImageFiles.length);
+            console.log('Total images after edit:', existingImageUrls.length + newImageFiles.length);
+            console.log('=== END DEBUG ===');
 
-            // Log all FormData contents
-            console.log('FormData contents:');
-            for (let [key, value] of formData.entries()) {
-                if (value instanceof File) {
-                    console.log(`${key}: [File] ${value.name} (${value.size} bytes, ${value.type})`);
-                } else {
-                    console.log(`${key}:`, value);
-                }
-            }
-            console.log('=== End FormData Debug ===');
-        
             const editResponse = await fetch("http://localhost:8080/api/diary/edit", {
                 method: "PATCH",
                 headers: {
@@ -66,11 +73,10 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
                 },
                 body: formData,
             });
-
             if (!editResponse.ok) {
-                throw new Error ('error writing diary')
+                const errorText = await editResponse.text();
+                throw new Error (`Failed to edit diary: ${errorText}`);
             }
-
             await fetchDiaries();
         }
 
@@ -80,9 +86,12 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
               loading: 'editing diary entry...',
               success: () => {
                 handleCloseForm()
-                return <span>diary entry edited successfully!</span>}
-              ,
-              error: (err) => <span>{err.message || 'faliled to edit diary entry'}</span>,
+                return <span>diary entry edited successfully!</span>
+            },
+            error: (err) => {
+                console.error('Error editing diary entry:', err);
+                return <span>{err.message || 'failed to edit diary entry'}</span>
+            },
             }
         )
     };
