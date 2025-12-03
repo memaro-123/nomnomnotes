@@ -25,6 +25,8 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
     const [ratingError, setRatingError] = useState('')
     const [imageError, setImageError] = useState('')
     const [locationError, setLocationError] = useState('')
+    const [priceError, setPriceError] = useState('')
+    const [cuisineError, setCuisineError] = useState('')
 
     const handleCuisine = (cuisine) => {
         setSelectedCuisines(prev => prev.includes(cuisine) ? prev.filter(c => c !== cuisine) : [...prev, cuisine]);
@@ -53,6 +55,8 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
         setRatingError('')
         setImageError('')
         setLocationError('')
+        setPriceError('')
+        setCuisineError('')
 
         if (!title) {
             setTitleError('required')
@@ -64,13 +68,23 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             error = true;
         }
 
-        if (images.length === 0) {
-            setImageError('required')
+        if (images.length > 10) {
+            setImageError('only 10 images')
             error = true;
         }
 
-        if(!location) {
+        if(!location || !location.name) {
             setLocationError('required')
+            error = true;
+        }
+
+        if (!selectedCuisines || selectedCuisines.length === 0) {
+            setCuisineError('required')
+            error = true;
+        }
+
+        if (!selectedPrices || selectedPrices.trim() === '') {
+            setPriceError('required')
             error = true;
         }
 
@@ -184,15 +198,15 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
 
                 <div className="flex justify-between items-center">
                     <div className="flex gap-1 items-center justify-center">
-                        <label htmlFor="fileInput" className="hover:cursor-pointer"><PlusIcon size={12}/></label>
+                        {images.length < 10 && <div><label htmlFor="fileInput" className="hover:cursor-pointer"><PlusIcon size={12}/></label>
                         <input 
                             id="fileInput" 
                             type="file" 
                             accept="image/*" 
                             onChange={handleImageChange} 
                             style={{ display: 'none' }}
-                        />
-                        <span className="font-semibold">photos </span><span>({images.length}) </span><span className="text-red-500">*</span>
+                        /></div>}
+                        <span className="font-semibold">photos </span><span>({images.length} / 10) </span>
                     </div>
                     {imageError && <span className="text-red-500">{imageError}</span>}
                 </div>
@@ -276,7 +290,10 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
         <span className="font-semibold">tags</span>
         <div className="grid grid-cols-3 gap-6 w-full">
             <div className="flex flex-col gap-1"> {/* this is row */}
-                <span>price</span>
+                <div className="flex justify-between items-center">
+                    <div><span>price</span><span className="text-red-500">*</span></div>
+                    {priceError && <span className="text-red-500">{priceError}</span>}
+                </div>
                 <div className="flex gap-2">
                     {prices.map((p, i) => (
                         <button 
@@ -291,7 +308,10 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             </div>
 
             <div className="flex flex-col gap-1 w-full">
-                <span>cuisines</span>
+            <div className="flex justify-between items-center">
+                <div><span>cuisine</span><span className="text-red-500">*</span></div>
+                    {cuisineError && <span className="text-red-500">{cuisineError}</span>}
+                </div>
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-md w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
                     <input 
@@ -316,7 +336,9 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             </div>
 
             <div className="flex flex-col gap-1 w-full">
+            <div className="flex justify-between items-center">
                 <span>labels</span>
+                </div>
                 <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-md w-full p-1 focus-within:shadow-lg transition-shadow">
                     <MagnifyingGlassIcon size={16}/>
                     <input 
