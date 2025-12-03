@@ -2,7 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const { verifyUser } = require('./middleware/verifyUser');
-const { getAllEntries, fetchAll } = require("../../sqlDB/dbFunctions.js");
+const { getAllEntries } = require("../../sqlDB/dbFunctions.js");
+const { fetchAll } = require("../../sqlDB/helperFunctions.js");
 const getDB = require('../getDB');
 
 // hybrid method of getting/making report
@@ -14,27 +15,28 @@ router.get('/biteback/:year', verifyUser, async (req, res) => {
     const yearNum = parseInt(year);
     const currentYear = new Date().getFullYear();
     
-    if (isNaN(yearNum) || yearNum < 2020 || yearNum > currentYear) {
+    if (isNaN(yearNum) || yearNum < 2023 || yearNum > currentYear) {
         return res.status(400).json({ 
-            error: 'Invalid year. Please provide a year between 2020 and current year.' 
+            error: 'Invalid year. Please provide a year between 2023 and current year.' 
         });
     }
     
-    const db = getDB(); // Get database connection
-    
-    try {
-        // 1. Ensure the cache table exists (run once, could move to startup)
+    let db;
+    try{
+        db = getDB(); // Get DB connection
+
+        // ensure cache table exists
         await fetchAll(db, `
             CREATE TABLE IF NOT EXISTS biteback_cache (
-                user_id TEXT,
-                year INTEGER,
-                data TEXT,
-                generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (user_id, year)
+            user_id TEXT,
+            year INTEGER,
+            data TEXT,
+            generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, year)
             )
         `);
         
-        // 2. Check for fresh cached data (within 1 day for more up-to-date results)
+        // 2. Check for cached data within a day
         const cached = await fetchAll(db, `
             SELECT data, generated_at 
             FROM biteback_cache 
@@ -52,9 +54,9 @@ router.get('/biteback/:year', verifyUser, async (req, res) => {
             });
         }
         
-        // 3. Generate fresh data if not cached or stale
+        // 3. Generate fresh data if not cached
         console.log(`🔄 Generating fresh BiteBack for ${uid} (${year})`);
-        const freshData = await generateBiteBackData(uid, yearNum, db); // Pass db here
+        const freshData = await generateBiteBackData(uid, yearNum, db);
         
         // 4. Cache the fresh result for future requests
         try {
@@ -81,63 +83,86 @@ router.get('/biteback/:year', verifyUser, async (req, res) => {
         });
     } finally {
         // Close the database connection!!
-        if (db) db.close();
+        if (db){
+            db.close((err) => {
+                if (err) {
+                    console.error('Error closing DB connection:', err.message);
+                }
+            });
+        }
     }
 });
 
 async function generateBiteBackData(userId, year, db) {
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
-    const params = [userId, startDate, endDate];
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+  const params = [userId, startDate, endDate];
+  
+  try {
+    // Get entries for the year
+    const entries = await fetchAll(db, `
+        SELECT * FROM diary_entries 
+        WHERE user_id = ? 
+        AND date BETWEEN ? AND ?
+        ORDER BY date DESC
+    `, params);
     
-    try {
-        // Use the passed db connection instead of creating a new one
-        const entries = await fetchAll(db, `
-            SELECT * FROM diary_entries 
-            WHERE user_id = ? 
-            AND date BETWEEN ? AND ?
-            ORDER BY date DESC
-        `, params);
-        
-        // Parse JSON fields
-        const parsedEntries = entries.map(entry => {
-            if (entry.selected_cuisines) {
-                entry.selectedCuisines = JSON.parse(entry.selected_cuisines);
-            }
-            if (entry.selected_labels) {
-                entry.selectedLabels = JSON.parse(entry.selected_labels);
-            }
-            if (entry.images) {
-                entry.images = JSON.parse(entry.images);
-            }
-            if (entry.location) {
-                entry.location = JSON.parse(entry.location);
-            }
-            return entry;
-        });
-        
-        if (parsedEntries.length === 0) {
-            return { 
-                year,
-                message: "No entries found for this year",
-                hasData: false,
-                summary: { totalEntries: 0 }
-            };
-        }
-        
-        // Generate analytics using the optimized function below
-        const analytics = generateAnalytics(parsedEntries);
-        
-        return {
-            year,
-            hasData: true,
-            ...analytics
-        };
-        
-    } catch (error) {
-        console.error('Error generating BiteBack data:', error);
-        throw error;
+    if (entries.length === 0) {
+      return { 
+        year,
+        message: "No entries found for this year",
+        hasData: false,
+        summary: { totalEntries: 0 }
+      };
     }
+    
+    // Parse JSON fields
+    const parsedEntries = entries.map(entry => {
+      // Parse JSON strings to objects
+      if (entry.selected_cuisines) {
+        try {
+          entry.selectedCuisines = JSON.parse(entry.selected_cuisines);
+        } catch (e) {
+          entry.selectedCuisines = [];
+        }
+      }
+      if (entry.selected_labels) {
+        try {
+          entry.selectedLabels = JSON.parse(entry.selected_labels);
+        } catch (e) {
+          entry.selectedLabels = [];
+        }
+      }
+      if (entry.images) {
+        try {
+          entry.images = JSON.parse(entry.images);
+        } catch (e) {
+          entry.images = [];
+        }
+      }
+      if (entry.location) {
+        try {
+          entry.location = JSON.parse(entry.location);
+        } catch (e) {
+          entry.location = {};
+        }
+      }
+      return entry;
+    });
+    
+    // Generate analytics
+    const analytics = generateAnalytics(parsedEntries);
+    
+    return {
+      year,
+      hasData: true,
+      ...analytics
+    };
+    
+  } catch (error) {
+    console.error('Error generating BiteBack data:', error);
+    throw error;
+  }
 }
 
 //analytics generation
