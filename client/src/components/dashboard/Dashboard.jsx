@@ -79,10 +79,7 @@ export default function Dashboard() {
               <span className="text-lg font-bold">nomnom notes</span>
               <SettingsButton/>
             </div>
-            <div className=" w-full h-full border-2 border-gray-300 p-5 rounded-md shadow-md">
-
               <FriendModal/>
-            </div>
           </div>
 
           {/* diary part */}

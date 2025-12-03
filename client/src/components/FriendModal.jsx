@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
-import FriendFinder from '/src/components/friendFinder/friendSearch.jsx'
 import PendingReqs from "./PendingReqs.jsx"
 import FriendList from "./FriendList.jsx"
 import ChooseUsername from "./ChooseUsername.jsx"
+
 export default function FriendModal({ onClose, onSelectFriend }) {
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -112,45 +112,27 @@ useEffect(() => {
       if (response.ok) {
         setPendingRequests(prev => prev.filter(r => r !== requesterId));
         await refreshFriends();
-
-      }
-      
-      }
+      }}
       else if (action === "reject") {
       setPendingRequests(prev => prev.filter(r => r !== requesterId));
     }
-      
-
       
     } catch (err) {
       console.error("Failed to update request", err);
     }
   };
+
   if (initUsername){
     return(<ChooseUsername onClose ={() => setInitUsername(false)}></ChooseUsername>)
-    
   }
+
   else{
     return (
-    <div>
-      <div>
+      <div className="flex flex-col w-full h-[calc(100vh-90px)] border-2 border-gray-300 p-5 rounded-md shadow-md">
         <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
 
         <FriendList friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
-
-        {/* Place to add a new friend using UID */}
-        <h2>Add Friend by UID</h2>
-        <div>
-          <FriendFinder></FriendFinder>
-        </div>
-
-        <button 
-          onClick={onClose} 
-        >
-          Close
-        </button>
       </div>
-    </div>
   );
   }
   

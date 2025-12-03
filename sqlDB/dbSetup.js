@@ -19,29 +19,49 @@ const main = async () => {
     await execute(
       db,
       `CREATE TABLE IF NOT EXISTS diary_entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    title TEXT NOT NULL,
-    selected_cuisines TEXT,
-    location TEXT,
-    selected_prices TEXT,
-    selected_labels TEXT,
-    images TEXT,
-    notes TEXT,
-    taste REAL,
-    service REAL,
-    value REAL,
-    date TEXT DEFAULT (DATE('now'))
-);`
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        selected_cuisines TEXT,
+        location TEXT,
+        selected_prices TEXT,
+        selected_labels TEXT,
+        images TEXT,
+        notes TEXT,
+        taste REAL,
+        service REAL,
+        value REAL,
+        date TEXT DEFAULT (DATE('now'))
+      );`
     );
   
+  await execute(
+    db, 
+    `CREATE TABLE IF NOT EXISTS friends (
+      user_id TEXT PRIMARY KEY,
+      friends TEXT,          
+      sent_requests TEXT,    
+      received_requests TEXT,
+      username TEXT
+    );`
+  );
+
+
     await execute(
-      db, 
-      `CREATE TABLE IF NOT EXISTS friends (
-        user_id TEXT PRIMARY KEY,
-        friends TEXT,          
-        sent_requests TEXT,    
-        received_requests TEXT 
+      db,
+      `CREATE TABLE IF NOT EXISTS wishlist (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        place_id TEXT NOT NULL,
+        name TEXT,
+        rating REAL,
+        price_level INTEGER,
+        types TEXT,
+        location TEXT,
+        photo_reference TEXT,
+        distance REAL,
+        created_at DATETIME DEFAULT (DATETIME('now')), 
+        UNIQUE(user_id, place_id)
       );`
     );
 

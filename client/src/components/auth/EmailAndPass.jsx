@@ -85,7 +85,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
-            console.log(user);
+            console.log('calling init friend from frontend')
 
             return user.getIdToken().then((token) => {
                 return fetch("http://localhost:8080/api/diary/initfriend", {
