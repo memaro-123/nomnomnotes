@@ -7,7 +7,7 @@ const dbFunctions = require("../../sqlDB/dbFunctions.js");
 const { validateUserInput, sanitizeInput, rateLimit } = require('./middleware/validateInput');
 
 router.use(verifyUser); // Apply user verification middleware to all routes
-//router.use(rateLimit()); // Apply rate limiting middleware to all routes
+router.use(rateLimit()); // Apply rate limiting middleware to all routes
 router.use(sanitizeInput); // Apply input sanitization middleware to all routes
 router.use(validateUserInput); // Apply input validation middleware to all routes
 

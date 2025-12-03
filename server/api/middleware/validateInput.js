@@ -81,11 +81,11 @@ const rateLimit = (windowMs = 900000, maxRequests = 100) => { // 15 minutes
     }
     
     // Check rate limit
-    // if (requests.length >= maxRequests) {
-    //   return res.status(429).json({ 
-    //     error: 'Too many requests, please try again later' 
-    //   });
-    // }
+    if (requests.length >= maxRequests) {
+      return res.status(429).json({ 
+        error: 'Too many requests, please try again later' 
+      });
+    }
     
     // Add current request
     requests.push(now);
