@@ -213,7 +213,8 @@ async function generateBiteBackData(userId, year) {
         throw error;
     }
 }
-function generateAnalytics(entries) {
+
+function generateAnalytics(entries, year) {
   if (!entries || entries.length === 0) {
     return {
       summary: { totalEntries: 0 },
@@ -229,6 +230,16 @@ function generateAnalytics(entries) {
   const totalService = entries.reduce((sum, e) => sum + (e.service || 0), 0);
   const totalValue = entries.reduce((sum, e) => sum + (e.value || 0), 0);
   const averageRating = ((totalTaste + totalService + totalValue) / (3 * totalEntries)).toFixed(2);
+  
+  // Calculate individual averages for display
+  const avgTaste = (totalTaste / totalEntries).toFixed(2);
+  const avgService = (totalService / totalEntries).toFixed(2);
+  const avgValue = (totalValue / totalEntries).toFixed(2);
+  
+  // Get highest and lowest ratings
+  const allRatings = entries.map(e => (e.taste + e.service + e.value) / 3);
+  const highestRating = Math.max(...allRatings).toFixed(2);
+  const lowestRating = Math.min(...allRatings).toFixed(2);
   
   // Group by restaurant
   const restaurantMap = {};
@@ -246,7 +257,7 @@ function generateAnalytics(entries) {
     restaurantMap[name].entries.push(entry);
   });
   
-  // Calculate top restaurants
+  // Calculate top restaurants by visit count
   const topRestaurants = Object.entries(restaurantMap)
     .map(([name, data]) => ({
       name,
@@ -281,15 +292,47 @@ function generateAnalytics(entries) {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
     
+  // Calculate price distribution
+  const priceDistribution = {};
+  entries.forEach(entry => {
+    const price = entry.selected_prices || 'Unknown';
+    priceDistribution[price] = (priceDistribution[price] || 0) + 1;
+  });
+  
+  // Calculate label distribution
+  const labelCount = {};
+  entries.forEach(entry => {
+    const labels = entry.selectedLabels || [];
+    labels.forEach(label => {
+      labelCount[label] = (labelCount[label] || 0) + 1;
+    });
+  });
+  
+  const topLabels = Object.entries(labelCount)
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+    
   // Calculate monthly distribution
   const monthlyDistribution = {};
   entries.forEach(entry => {
     if (entry.date) {
-      const date = new Date(entry.date);
-      const month = date.toLocaleString('default', { month: 'long' });
-      monthlyDistribution[month] = (monthlyDistribution[month] || 0) + 1;
+      try {
+        // Parse MM/DD/YYYY format
+        const [month, day, year] = entry.date.split('/');
+        const date = new Date(year, month - 1, day);
+        const monthName = date.toLocaleString('default', { month: 'long' });
+        monthlyDistribution[monthName] = (monthlyDistribution[monthName] || 0) + 1;
+      } catch (e) {
+        console.error('Error parsing date:', entry.date, e);
+      }
     }
   });
+  
+  // busiest month calc
+  const busiestMonth = Object.entries(monthlyDistribution)
+    .reduce((max, [month, count]) => count > max.count ? { month, count } : max, 
+            { month: 'None', count: 0 }).month;
   
   return {
     summary: {
@@ -298,13 +341,19 @@ function generateAnalytics(entries) {
     },
     ratingStats: {
       averageRating,
-      highest: Math.max(...entries.map(e => (e.taste + e.service + e.value) / 3)).toFixed(2),
-      lowest: Math.min(...entries.map(e => (e.taste + e.service + e.value) / 3)).toFixed(2)
+      taste: avgTaste,
+      service: avgService,
+      value: avgValue,
+      highest: highestRating,
+      lowest: lowestRating
     },
     topRestaurants,
     bestRatedRestaurants,
     topCuisines,
+    priceDistribution,
+    topLabels,
     monthlyDistribution,
+    busiestMonth,
     hasData: true
   };
 }
