@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../../firebase';
 import Logout from '../auth/logoutButton';
-import { GearIcon, XIcon, EyeIcon, EyeSlashIcon} from "@phosphor-icons/react";
+import { GearIcon, XIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider} from 'firebase/auth';
 
@@ -107,7 +107,6 @@ useEffect(() => {
         },
         body: JSON.stringify({ myID, newName: name }),
       });
-      const data = await res.json();
       if (!res.ok) {
         return;
       }
