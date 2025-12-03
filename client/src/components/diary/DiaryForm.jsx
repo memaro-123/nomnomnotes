@@ -35,15 +35,16 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
     }
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0]; 
-        if (file) {
-            setImages(prev => [...prev, {
-                type: 'new',
-                url: URL.createObjectURL(file),
-                file: file
-            }]);
-        }
+    const file = e.target.files[0]; 
+    if (file) {
+        setImages(prev => [...prev, {
+            type: 'new',
+            url: URL.createObjectURL(file),
+            file: file
+        }]);
+    }
     };
+
 
     const deleteImage = (index) => setImages(prev => prev.filter((_, i) => i !== index));
 
@@ -99,15 +100,15 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
     // useEffect(() => console.log('Location:', location), [location])
 
     useEffect(() => {
-        if(entry.images) {
-            const existingImages = entry.images.map((url) => ({
-                type: 's3',
-                url: url,
-                file: null
-            }));
-            setImages(existingImages);
-        }
-    }, [])
+    if(entry && entry.images) {
+        const existingImages = entry.images.map((url) => ({
+            type: 's3',
+            url: url,
+            file: null
+        }));
+        setImages(existingImages);
+    }
+    }, [entry]);
 
     useEffect(() => {console.log('images', images)}, [images])
 
