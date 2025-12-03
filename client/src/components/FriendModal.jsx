@@ -2,38 +2,12 @@ import { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import PendingReqs from "./PendingReqs.jsx"
 import FriendList from "./FriendList.jsx"
-import ChooseUsername from "./ChooseUsername.jsx"
 
-export default function FriendModal({ onClose, onSelectFriend }) {
+export default function FriendModal({ onSelectFriend }) {
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [newFriendUID, setNewFriendUID] = useState("");
-  const [myUsername, setMyUsername] = useState("");
-  const [initUsername, setInitUsername] = useState(false)
   
-useEffect(() => {
-  const fetchMyUsername = async () => {
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const uid = auth.currentUser.uid;
-
-      const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${uid}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("Failed to fetch username");
-
-      const data = await res.json();
-      setMyUsername(data.username);
-      if (data.username === "defaultUsername") setInitUsername(true)
-    } catch (err) {
-      console.error("Failed to fetch my username", err);
-      setMyUsername(null);
-    }
-  };
-
-  fetchMyUsername();
-}, []);
 
   const refreshFriends = async () => {
   const token = await auth.currentUser.getIdToken();
@@ -44,6 +18,7 @@ useEffect(() => {
   const data = await friendsRes.json();
   setFriends(data.friends || []);
 };
+
   const getUsername= async (id) =>{
     const token = await auth.currentUser.getIdToken();
     try{
@@ -122,11 +97,6 @@ useEffect(() => {
     }
   };
 
-  if (initUsername){
-    return(<ChooseUsername onClose ={() => setInitUsername(false)}></ChooseUsername>)
-  }
-
-  else{
     return (
       <div className="flex flex-col w-full h-[calc(100vh-90px)] border-2 border-gray-300 p-5 rounded-md shadow-md">
         <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
@@ -136,4 +106,3 @@ useEffect(() => {
   );
   }
   
-}

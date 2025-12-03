@@ -74,41 +74,39 @@ export default function EmailAndPassword({ handleAuthPage }) {
         })
     }
     
+    const handleSignUp = async () => {
+        if (!checkValid()) {
+            return;
+        }
     
-    const handleSignUp = () => {
-    if (!checkValid()) {
-        return;
-    }
-
-    const toastId = toast.loading('signing in...');
-
-    createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+        const toastId = toast.loading('signing up...');
+    
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            console.log('calling init friend from frontend')
-
-            return user.getIdToken().then((token) => {
-                return fetch("http://localhost:8080/api/diary/initfriend", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ myID: user.uid }),
-                });
+    
+            const token = await user.getIdToken();
+            const response = await fetch("http://localhost:8080/api/diary/initfriend", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ myID: user.uid }),
             });
-        })
-        .then((response) => {
+    
             if (!response.ok) {
                 console.error("Failed to init user in DB");
-            } else {
-                console.log("User initialized in DB");
+                await auth.signOut();
+                throw new Error('account creation failed. please try again.');
             }
+    
+            console.log("User initialized in DB");
             setEmail("");
             setPassword("");
-            toast.dismiss(toastId);
-        })
-        .catch((error) => {
+            toast.success("account created successfully!", { id: toastId });
+    
+        } catch (error) {
             switch (error.code) {
                 case "auth/invalid-credential":
                     console.log(error.message);
@@ -120,23 +118,40 @@ export default function EmailAndPassword({ handleAuthPage }) {
                     break;
                 default:
                     console.log(error.message);
-                    toast.error("an error occurred. please try again.", { id: toastId });
+                    toast.error(error.message || "an error occurred. please try again.", { id: toastId });
             }
-        })
-        
-};
-
-
+        }
+    };
 
     const handleGoogleSignIn = async () => {
         const provider = new GoogleAuthProvider();
+        const toastId = toast.loading('signing in with Google...');
+        
         try {
-          const result = await signInWithPopup(auth, provider);
-          const user = result.user;
-          console.log("Google sign-in successful:", user);
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+    
+            const token = await user.getIdToken();
+            const response = await fetch("http://localhost:8080/api/diary/initfriend", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ myID: user.uid }),
+            });
+    
+            if (!response.ok) {
+                console.error('Failed to init Google user in DB');
+                await auth.signOut();
+                toast.error('account creation failed. please try again.', { id: toastId });
+            } else {
+                console.log('Google user init success');
+                toast.success('signed in successfully!', { id: toastId });
+            }
         } catch (error) {
-            toast.error("an error occurred. please try again.");
-            console.log(error.message)
+            console.log(error.message);
+            toast.error(error.message || "an error occurred. please try again.", { id: toastId });
         }
     }
 

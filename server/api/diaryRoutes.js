@@ -186,6 +186,14 @@ router.post("/initfriend", verifyUser, async (req, res) => {
   }
 
   try {
+    const userAlreadyExists = await userExists(myID);
+
+    if (userAlreadyExists) {
+      console.log("User already exists, skipping initialization:", myID);
+      return res.json({ success: true, message: "User already exists" });
+    }
+
+    console.log("Initializing new user:", myID);
     await intializeUser({ myID });
 
     res.json({ success: true });

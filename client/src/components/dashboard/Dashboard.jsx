@@ -6,6 +6,8 @@ import FriendModal from "../FriendModal";
 import BiteBack from './BiteBack';
 import Diary from './Diary';
 import SettingsButton from './SettingsButton';
+import ChooseUsername from "../ChooseUsername";
+import { useEffect } from 'react';
 
 export default function Dashboard() {
 
@@ -15,6 +17,12 @@ export default function Dashboard() {
 
   const [viewingFriendId, setViewingFriendId] = useState(null);
   const [activeView, setActiveView] = useState('diary'); 
+  const [myUsername, setMyUsername] = useState("");
+
+
+  const handleUsername = (newUsername) => {
+    setMyUsername(newUsername)
+  }
 
 
     const fetchDiaries = useCallback(async () => {
@@ -49,6 +57,27 @@ export default function Dashboard() {
       }
     }, [setLoading, setEntries, setError]);
 
+    const fetchMyUsername = async () => {
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const uid = auth.currentUser.uid;
+  
+        const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${uid}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (!res.ok) throw new Error("Failed to fetch username");
+  
+        const data = await res.json();
+        setMyUsername(data.username);
+      } catch (err) {
+        console.error("Failed to fetch my username", err);
+        setMyUsername(null);
+      }
+    };
+
+    useEffect(() => {fetchMyUsername()}, [])
+
 
     const fetchFriendDiaries = async (friendId) => {
       setLoading(true);
@@ -71,6 +100,8 @@ export default function Dashboard() {
     
     return (
         <div className="w-screen h-screen flex gap-5 p-5">
+
+          {myUsername === 'defaultUsername' && <ChooseUsername handleUsername={handleUsername}/>}
 
           {/* friends */}
           <div className="hidden lg:block lg:flex flex-col w-1/4 h-full gap-2">

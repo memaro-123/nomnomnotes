@@ -124,7 +124,7 @@ router.patch("/updateUsername", verifyUser, async (req, res) => {
   const { myID, newName } = req.body;
   let exists=true
   try {
-     exists = await dbFunctions.usernameExists(newName);
+    exists = await dbFunctions.usernameExists(newName);
   }catch (err) {
     console.error(err);
     return res.status(500).json({ error: "check existance" });
@@ -145,7 +145,7 @@ router.patch("/updateUsername", verifyUser, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to change usrname" });
+    res.status(500).json({ error: "Failed to change username" });
   }
 });
 router.get("/getUsername", verifyUser, async (req, res) => {
