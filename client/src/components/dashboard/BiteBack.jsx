@@ -15,28 +15,36 @@ export default function BiteBack() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
+  
   const fetchBiteBackData = async (year) => {
     try {
       const token = await auth.currentUser.getIdToken();
-      // Use the new endpoint
       const res = await fetch(`http://localhost:8080/api/analytics/biteback/${year}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`Server error: ${res.status}`);
+      }
       
       const data = await res.json();
       if (data.success) {
         setAnalytics(data.data);
       } else {
         setAnalytics(null);
+        toast.error(data.error || 'Failed to load BiteBack');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching BiteBack:', err);
       toast.error('Failed to load your BiteBack');
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }
-  };
+};
+
 
   useEffect(() => {
     fetchBiteBackData(selectedYear);
