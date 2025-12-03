@@ -1,5 +1,7 @@
 const sqlite3 = require("sqlite3");
 const { paramExec, fetchAll } = require("./helperFunctions.js");
+
+
 const intializeUser = async ({ myID, username = "defaultUsername" }) => {
   console.log("this shits going don")
   const db = new sqlite3.Database("my.db");
@@ -42,6 +44,7 @@ const insertSentCode = async ({ myID, sentID }) => {
     db.close();
   }
 }
+
 const autoAcc = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
   try{
@@ -69,6 +72,7 @@ const autoAcc = async ({ myID, friendID }) => {
     db.close()
   }
 }
+
 const alreadySentOrFriended = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
   try{
@@ -96,6 +100,7 @@ const alreadySentOrFriended = async ({ myID, friendID }) => {
     db.close()
   }
 }
+
 const insertRecievedCode = async ({ myID, recievedID }) => {
   const db = new sqlite3.Database("my.db");
   try {
@@ -122,6 +127,7 @@ const insertRecievedCode = async ({ myID, recievedID }) => {
     db.close();
   }
 };
+
 const insertNewFriend = async ({ myID, friendID }) => {
   //this function operates under the assumption that this is an accepted request from a stranger
   const db = new sqlite3.Database("my.db");
@@ -178,6 +184,7 @@ const insertNewFriend = async ({ myID, friendID }) => {
     db.close();
   }
 };
+
 const userExists = async ({ id }) => {
   const db = new sqlite3.Database("my.db");
   try {
@@ -198,6 +205,7 @@ const userExists = async ({ id }) => {
     db.close();
   }
 };
+
 const insertEntry = async (entryData) => {
 
   console.log('received data', entryData)
@@ -206,6 +214,9 @@ const insertEntry = async (entryData) => {
     title,
     selectedCuisines,
     location,
+    place_id,
+    lat,
+    lng,
     selectedPrices,
     selectedLabels,
     images,
@@ -232,6 +243,9 @@ const insertEntry = async (entryData) => {
   title,
   selected_cuisines,
   location,
+  place_id,
+  lat,
+  lng,
   selected_prices,
   selected_labels,
   images,
@@ -240,13 +254,16 @@ const insertEntry = async (entryData) => {
   service,
   value,
   date
- ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+ ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   try {
     await paramExec(db, sql, [
       user_id,
       title,
       selectedCuisines,
       location,
+      place_id,
+      lat,
+      lng,
       selectedPrices,
       selectedLabels,
       images,
@@ -262,6 +279,7 @@ const insertEntry = async (entryData) => {
     db.close();
   }
 };
+
 const editEntry = async (entryData) => {
   console.log('recieved edit entry data',entryData)
 
@@ -271,6 +289,9 @@ const editEntry = async (entryData) => {
     title,
     selectedCuisines,
     location,
+    place_id,
+    lat,
+    lng,
     selectedPrices,
     selectedLabels,
     images,
@@ -293,6 +314,9 @@ const editEntry = async (entryData) => {
   title = ?, 
   selected_cuisines = ?,
   location = ?,
+  place_id = ?,
+  lat = ?,
+  lng = ?,
   selected_prices = ?, 
   selected_labels = ?, 
   images = ?, 
@@ -306,6 +330,9 @@ const editEntry = async (entryData) => {
       title,
       selectedCuisines,
       location,
+      place_id,
+      lat,
+      lng,
       selectedPrices,
       selectedLabels,
       imagesStr,
@@ -357,6 +384,9 @@ const getAllEntries = async (userId) => {
         selectedLabels: JSON.parse(row.selected_labels || "[]"),
         selectedPrices: row.selected_prices,
         location: JSON.parse(row.location),
+        place_id: row.place_id,
+        lat: row.lat,
+        lng: row.lng,
         images: JSON.parse(row.images),
         notes: row.notes,
         taste: row.taste,
@@ -374,6 +404,7 @@ const getAllEntries = async (userId) => {
     db.close();
   }
 };
+
 const deleteEntry = async (id, userId) => {
   const db = new sqlite3.Database("my.db");
   const sql = `DELETE FROM diary_entries WHERE id = ? AND user_id = ?`;
@@ -386,6 +417,7 @@ const deleteEntry = async (id, userId) => {
     db.close();
   }
 }
+
 const getUserByUID = async (uid) => {
   const db = new sqlite3.Database("my.db");
   const sql = `SELECT username, permissions FROM users WHERE uid = ?`;
@@ -399,6 +431,7 @@ const getUserByUID = async (uid) => {
     db.close();
   }
 }
+
 function execute(db, sql, params = []) {
   return new Promise((resolve, reject) => {
     db.run(sql, params, function(err) {
@@ -407,6 +440,7 @@ function execute(db, sql, params = []) {
     });
   });
 }
+
 const getFriends = async (myID) => {
   const db = new sqlite3.Database("my.db");
   try{
@@ -428,6 +462,7 @@ const getFriends = async (myID) => {
     db.close();
   }
 }
+
 const getRecieved = async (myID) => {
   const db = new sqlite3.Database("my.db");
   try{
@@ -458,6 +493,7 @@ const getFirstRow = (db, sql, params = []) => {
     });
   });
 };
+
 const updateUsername = async ({ myID, newName }) => {
   const db = new sqlite3.Database("my.db");
   try {
@@ -474,6 +510,7 @@ const updateUsername = async ({ myID, newName }) => {
     db.close();
   }
 };
+
 const getUsername = async (id ) => {
   const db = new sqlite3.Database("my.db");
   try {
@@ -486,6 +523,7 @@ const getUsername = async (id ) => {
     db.close();
   }
 };
+
 const usernameExists = async (username) => {
   const db = new sqlite3.Database("my.db");
   try {
@@ -498,6 +536,134 @@ const usernameExists = async (username) => {
   } catch (err) {
     console.error("error checking username exists:", err);
     throw err;
+  } finally {
+    db.close();
+  }
+};
+
+const insertWishlist = async (wishlistData) => {
+  const {
+    user_id,
+    name,
+    location,
+    vicinity,
+    distance,
+    cuisine,
+    price_level,
+    labels,
+    notes,
+    taste,
+    service,
+    value,
+    images
+  } = wishlistData;
+
+  const getPSTDateString = () => {
+    const now = new Date();
+    const pstDate = new Date(
+      now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" })
+    );
+    const month = String(pstDate.getMonth() + 1).padStart(2, '0');
+    const day = String(pstDate.getDate()).padStart(2, '0');
+    const year = pstDate.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
+  const date = getPSTDateString();
+
+  const db = new sqlite3.Database("my.db");
+  const sql = `
+    INSERT INTO wishlist (
+      user_id,
+      name,
+      location,
+      vicinity,
+      distance,
+      cuisine,
+      price_level,
+      labels,
+      notes,
+      taste,
+      service,
+      value,
+      images,
+      date
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  try {
+    await paramExec(db, sql, [
+      user_id,
+      name,
+      location,
+      vicinity,
+      distance,
+      cuisine,
+      price_level,
+      labels,
+      notes,
+      taste,
+      service,
+      value,
+      images,
+      date
+    ]);
+  } catch (err) {
+    console.log(err);
+  } finally {
+    db.close();
+  }
+};
+
+const getWishlistByUser = async (userId) => {
+  const db = new sqlite3.Database("my.db");
+  const sql = `
+    SELECT *
+    FROM wishlist
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+  `;
+
+  try {
+    const rows = await fetchAll(db, sql, [userId]);
+    return rows.map(r => {
+      if (r.types) r.types = JSON.parse(r.types);
+      return r;
+    });
+  } catch (err) {
+    console.log("getWishlistByUser error:", err);
+    throw err;
+  } finally {
+    db.close();
+  }
+};
+
+
+const deleteWishlistEntry = async (id, userId) => {
+  const db = new sqlite3.Database("my.db");
+  const sql = `DELETE FROM wishlist WHERE id = ? AND user_id = ?`;
+
+  try {
+    await paramExec(db, sql, [id, userId]);
+  } catch (err) {
+    console.log("deleteWishlistEntry error:", err);
+    throw err;
+  } finally {
+    db.close();
+  }
+};
+
+const getVisitedPlaceIds = async (userId) => {
+  const db = new sqlite3.Database("my.db");
+  const sql = `SELECT place_id FROM diary_entries WHERE user_id = ?`;
+
+  try {
+    const rows = await fetchAll(db, sql, [userId]);
+    return rows.map(r => r.place_id);
+  } catch (err) {
+    console.log("getVisitedPlaceIds error:", err);
+    return [];
   } finally {
     db.close();
   }
@@ -526,4 +692,8 @@ module.exports = {
   getFriends,
   getRecieved,
   fetchAll,
+  insertWishlist,
+  getWishlistByUser,
+  deleteWishlistEntry,
+  getVisitedPlaceIds
 };
