@@ -109,28 +109,28 @@ const removeFromReceivedRequests = async ({db, myID, friendID}) => {
 const alreadySentOrFriended = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
   try{
-  const row = await getFirstRow(
-    db,
-    "SELECT friends, sent_requests FROM friends WHERE user_id = ?",
-    [myID]
-  )
-  const friendsRow =row?.friends? JSON.parse(row.friends): []
-  const sentRow =row?.sent_requests? JSON.parse(row.sent_requests): []
+    //transaction might be overkill here but wtv just in case for consistency
+    await paramExec(db, "Begin transaction")
+    const row = await getFirstRow(
+      db,
+      "SELECT friends, sent_requests FROM friends WHERE user_id = ?",
+      [myID]
+    );
+    if (!row) {
+      await paramExec(db, "rollback")
+      return false;
+    }
+    const friendsRow = row.friends ? JSON.parse(row.friends) : [];
+    const sentRow = row.sent_requests ? JSON.parse(row.sent_requests) : [];
 
-  if (friendsRow.includes(friendID)) {
-    return true
-  }
-  if (sentRow.includes(friendID)) {
-    return true
-  }
-  
-    return false
-  
+    await paramExec(db, "Commit")
+    return friendsRow.includes(friendID) || sentRow.includes(friendID);
   } catch (err) {
-    console.error("Error in checking alreadySentOrFriended typeshit:", err);
-    throw err
-  } finally{
-    db.close()
+    await paramExec(db, "rollback");
+    console.error("error checking already sent or friended:", err);
+    throw err;
+  } finally {
+    db.close();
   }
 }
 
