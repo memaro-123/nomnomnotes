@@ -128,7 +128,6 @@ export default function Entry({ entry }) {
                         </div>
                     </div>
                 }
-
         </div>
         </div>
     </div>
