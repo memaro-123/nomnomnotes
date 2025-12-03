@@ -24,6 +24,9 @@ const main = async () => {
         title TEXT NOT NULL,
         selected_cuisines TEXT,
         location TEXT,
+        place_id TEXT,
+        lat REAL,
+        lng REAL,
         selected_prices TEXT,
         selected_labels TEXT,
         images TEXT,
@@ -35,17 +38,15 @@ const main = async () => {
       );`
     );
   
-  await execute(
-    db, 
-    `CREATE TABLE IF NOT EXISTS friends (
-      user_id TEXT PRIMARY KEY,
-      friends TEXT,          
-      sent_requests TEXT,    
-      received_requests TEXT,
-      username TEXT
-    );`
-  );
-
+    await execute(
+      db, 
+      `CREATE TABLE IF NOT EXISTS friends (
+        user_id TEXT PRIMARY KEY,
+        friends TEXT,          
+        sent_requests TEXT,    
+        received_requests TEXT 
+      );`
+    );
 
     await execute(
       db,
@@ -72,7 +73,6 @@ const main = async () => {
   } finally {
     db.close();
   }
-  
 
 };
 
