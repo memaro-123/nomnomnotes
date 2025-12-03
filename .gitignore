@@ -12,6 +12,7 @@ client/node_modules/
 # Environment variables
 .env
 *.env
+server/.env
 
 # Firebase secrets
 service-account.json
