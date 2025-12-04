@@ -25,7 +25,13 @@ export default function Dashboard() {
   const [wishlist, setWishlist] = useState([]);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
-
+  const [friendUsername, setFriendUsername] = useState("");
+  
+  const onSelectFriend = ( friendID) => {
+    setViewingFriendId(friendID)
+    console.log(`LOOKING AT ${friendID}`)
+    fetchFriendDiaries(friendID)
+  }
   const handleUsername = (newUsername) => {
     setMyUsername(newUsername)
   }
@@ -34,7 +40,7 @@ export default function Dashboard() {
     const fetchDiaries = useCallback(async () => {
       setLoading(true)
       try {
-            //change this later so that you can pass the uid into the entrylist to change who's list ur viewing!!
+            
             const user = auth.currentUser;
 
             if (!user) {
@@ -56,6 +62,7 @@ export default function Dashboard() {
             const diaryData = await fetchResponse.json()
             console.log(diaryData)
             setEntries(diaryData.diaryData)
+            setViewingFriendId("")
       } catch (error) {
         setError(error)
       } finally {
@@ -63,39 +70,47 @@ export default function Dashboard() {
       }
     }, [setLoading, setEntries, setError]);
 
-    const fetchMyUsername = async () => {
+    const fetchUsername = async (stateSetter,id) => {
       try {
         const token = await auth.currentUser.getIdToken();
-        const uid = auth.currentUser.uid;
-  
-        const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${uid}`, {
+        const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
         if (!res.ok) throw new Error("Failed to fetch username");
   
         const data = await res.json();
-        setMyUsername(data.username);
+        stateSetter(data.username);
       } catch (err) {
         console.error("Failed to fetch my username", err);
-        setMyUsername(null);
+        stateSetter(null);
       }
     };
+    useEffect(() => {
+  if (!viewingFriendId) {
+    setFriendUsername("")
+    return
+  }
+  fetchUsername(setFriendUsername, viewingFriendId);
+}, [viewingFriendId]);
 
-    useEffect(() => {fetchMyUsername()}, [])
+    useEffect(() => {
+      const id =auth.currentUser.uid
+      fetchUsername(setMyUsername, id)
+    }, [])
 
 
     const fetchFriendDiaries = async (friendId) => {
       setLoading(true);
       try {
         const token = await auth.currentUser.getIdToken();
-        const res = await fetch(`http://localhost:8080/api/diary/${friendId}`, {
+        const res = await fetch(`http://localhost:8080/api/diary/friend/${friendId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         // Marking all entries as not owned so that they are read-only
         const entriesWithOwnership = data.diaryData.map(e => ({ ...e, isOwner: false }));
-        setEntries(prevEntries => [...prevEntries,...entriesWithOwnership]);
+        setEntries(entriesWithOwnership);
       } catch (err) {
         console.error(err);
         setError(err);
@@ -116,7 +131,7 @@ export default function Dashboard() {
               <span className="text-lg font-bold">nomnom notes</span>
               <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
             </div>
-              <FriendModal/>
+              <FriendModal onSelectFriend ={onSelectFriend}/>
           </div>
 
           {/* diary part */}
@@ -130,8 +145,8 @@ export default function Dashboard() {
                   <div className="lg:hidden">
                     <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
                   </div>
-                  <button className="hover:cursor-pointer" onClick={() => setActiveView('diary')}><HouseIcon size={28} weight={'fill'}/></button>
-                  <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>
+                  <button className="hover:cursor-pointer" onClick={() => {setActiveView('diary'); fetchDiaries()}}><HouseIcon size={28} weight={'fill'}/></button>
+                  <span className="text-24 font-bold">{viewingFriendId ? `${friendUsername}\'s diary` : 'my diary'}</span>
                 </div>
 
                 <div className="flex gap-3">
@@ -159,7 +174,7 @@ export default function Dashboard() {
             {activeView === 'biteback' ? (
               <BiteBack />
             ) : ( 
-              <Diary entries={entries} fetchDiaries={fetchDiaries} fetchFriendDiaries ={fetchFriendDiaries} loading={loading} error={error}/>
+              <Diary entries={entries} fetchDiaries={fetchDiaries} fetchFriendDiaries ={fetchFriendDiaries} loading={loading} error={error}viewingFriendId={viewingFriendId}/>
             )}
           </div>
           

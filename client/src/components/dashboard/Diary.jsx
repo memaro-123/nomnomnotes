@@ -5,7 +5,7 @@ import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-export default function Diary({ entries, fetchDiaries,fetchFriendDiaries, loading, error }) {
+export default function Diary({ entries, fetchDiaries, loading, error,viewingFriendId }) {
     const [selectedEntry, setSelectedEntry] = useState(null);
     const [cuisineFilters, setCuisineFilters] = useState([])
     const [labelFilters, setLabelFilters] = useState([])
@@ -127,7 +127,7 @@ export default function Diary({ entries, fetchDiaries,fetchFriendDiaries, loadin
       />
   </div>
 
-  <EntryList selectedEntry={selectedEntry} handleSelectEntry={handleSelectEntry} entries={sortedEntries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}/>
+  <EntryList selectedEntry={selectedEntry} handleSelectEntry={handleSelectEntry} entries={sortedEntries} loading={loading}  error={error} search={search} cuisineFilters={cuisineFilters} priceFilters={priceFilters} labelFilters={labelFilters} fetchDiaries={fetchDiaries}  isReadOnly={viewingFriendId}/>
 </div>
 
   {selectedEntry && <Entry entry={selectedEntry}/>}
