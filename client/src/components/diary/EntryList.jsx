@@ -68,11 +68,13 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
                                     key={entry.id} 
                                     onClick={() => handleSelectEntry(entry)}
                                     className="flex-1 flex items-center justify-start gap-5 h-full overflow-hidden hover:cursor-pointer">
-                                            <img 
+                                            {entry.images.length > 0 && <img 
                                             src={entry.images[0]}
                                             alt="entry thumbnail"
                                             className="w-[106px] h-[106px] object-cover rounded-md shrink-0"
-                                            />
+                                            />}
+                                            {entry.images.length === 0 && 
+                                            <div className="w-[106px] h-[106px] bg-gray-200 flex items-center justify-center rounded-md shrink-0"><span className="font-pacifico text-white text-3xl">N</span></div>}
                                             <div className="flex flex-col justify-between w-full h-full">
                                                 <div className="flex flex-col items-start justify-center gap-1">
                                                     <span className="flex-wrap text-left font-semibold text-xl">{entry.title}</span>

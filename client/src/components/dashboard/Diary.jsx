@@ -34,19 +34,8 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
     const sortedEntries = [...entries].sort((a, b) => {
       
       if (sortBy === 'recent') {
-        const parseDate = (dateString) => {
-          if (!dateString) return new Date(0);
-          
-          if (dateString.includes('/')) {
-            const [month, day, year] = dateString.split('/');
-            return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
-          }
-          
-          return new Date(dateString);
-        };
-        
-        const dateA = parseDate(a.date);
-        const dateB = parseDate(b.date);
+        const dateA = a.date ? new Date(a.date) : new Date(0);
+        const dateB = b.date ? new Date(b.date) : new Date(0);
         
         return dateB - dateA;
       } else if (sortBy === 'rating') {
