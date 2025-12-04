@@ -2,11 +2,12 @@ const request = require('supertest')
 const express = require('express')
 const { verifyUser } = require('../api/middleware/verifyUser')
 
-// Mock Firebase admin
+// Mock Firebase admin with a shared mock function so middleware uses the same mock
+const mockVerifyIdToken = jest.fn()
 jest.mock('firebase-admin', () => ({
-  auth: jest.fn(() => ({
-    verifyIdToken: jest.fn()
-  }))
+  auth: () => ({
+    verifyIdToken: mockVerifyIdToken
+  })
 }))
 
 const admin = require('firebase-admin')
@@ -18,7 +19,8 @@ describe('BiteBack API Integration Tests', () => {
   beforeEach(() => {
     app = express()
     app.use(express.json())
-    verifyIdTokenMock = admin.auth().verifyIdToken
+    mockVerifyIdToken.mockReset()
+    // admin.auth() will return the shared mock object above
     
     // Import routes after mocking
     const analyticsRoutes = require('../api/analyticsRoutes')
@@ -26,7 +28,7 @@ describe('BiteBack API Integration Tests', () => {
   })
 
   test('GET /api/analytics/biteback requires authentication', async () => {
-    verifyIdTokenMock.mockRejectedValueOnce(new Error('Invalid token'))
+    mockVerifyIdToken.mockRejectedValueOnce(new Error('Invalid token'))
 
     const response = await request(app)
       .get('/api/analytics/biteback')
@@ -38,7 +40,7 @@ describe('BiteBack API Integration Tests', () => {
 
   test('GET /api/analytics/biteback returns stats for authenticated user', async () => {
     const mockUser = { uid: 'test-user-123' }
-    verifyIdTokenMock.mockResolvedValueOnce(mockUser)
+    mockVerifyIdToken.mockResolvedValueOnce(mockUser)
 
     // Mock the database function
     const dbFunctions = require('../../sqlDB/dbFunctions')
@@ -66,7 +68,7 @@ describe('BiteBack API Integration Tests', () => {
 
   test('GET /api/analytics/biteback handles year parameter', async () => {
     const mockUser = { uid: 'test-user-123' }
-    verifyIdTokenMock.mockResolvedValueOnce(mockUser)
+    mockVerifyIdToken.mockResolvedValueOnce(mockUser)
 
     const dbFunctions = require('../../sqlDB/dbFunctions')
     dbFunctions.getBiteBackStats = jest.fn().mockResolvedValue({ year: 2023 })
@@ -81,7 +83,7 @@ describe('BiteBack API Integration Tests', () => {
 
   test('GET /api/analytics/biteback handles database errors', async () => {
     const mockUser = { uid: 'test-user-123' }
-    verifyIdTokenMock.mockResolvedValueOnce(mockUser)
+    mockVerifyIdToken.mockResolvedValueOnce(mockUser)
 
     const dbFunctions = require('../../sqlDB/dbFunctions')
     dbFunctions.getBiteBackStats = jest.fn().mockRejectedValue(new Error('Database error'))
