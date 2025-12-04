@@ -108,7 +108,7 @@ export default function Dashboard() {
             <div className=" flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
               {/* <span className="text-xl">🐠 🥦 🍎</span> */}
               <span className="text-lg font-bold">nomnom notes</span>
-              <SettingsButton/>
+              <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
             </div>
               <FriendModal/>
           </div>
@@ -122,7 +122,7 @@ export default function Dashboard() {
 
                 <div className="flex items-center justify-center gap-3">
                   <div className="lg:hidden">
-                    <SettingsButton/>
+                    <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
                   </div>
                   <button className="hover:cursor-pointer" onClick={() => setActiveView('diary')}><HouseIcon size={28} weight={'fill'}/></button>
                   <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>

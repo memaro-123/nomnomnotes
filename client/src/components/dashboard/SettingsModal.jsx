@@ -6,11 +6,11 @@ import { toast } from 'react-hot-toast';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider} from 'firebase/auth';
 
 
-export default function SettingsModal({ handleClose }) {
+export default function SettingsModal({ handleClose, myUsername, handleUsername }) {
   const [user, setUser] = useState(null);
   const [signInMeth, setSignInMeth] = useState(null)
-  const [permissions, setPermissions] = useState({});
-  const [name, setName] = useState('')
+  const [name, setName] = useState(myUsername || '')
+  const [nameError, setNameError] = useState('')
   const [newPassword, setNewPassword] = useState('');
   const [password, setPassword] = useState('')
   const [passwordVisibility, setPasswordVisibility] = useState('password')
@@ -23,32 +23,6 @@ export default function SettingsModal({ handleClose }) {
       setSignInMeth(currentUser.providerData[0]?.providerId);
     }
   }, []);
-
-  // Fetches the SQLite metadata
-useEffect(() => {
-  const fetchUserMeta = async () => {
-    if (!user) return;
-    try {
-      const token = await user.getIdToken();
-      const res = await fetch(`http://localhost:8080/api/user/info?id=${user.uid}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch user metadata');
-      const data = await res.json();
-
-      const parsedPermissions = typeof data.permissions === 'string'
-        ? JSON.parse(data.permissions)
-        : data.permissions;
-
-      setPermissions(parsedPermissions);
-      setName(data.username || 'N/A');
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchUserMeta();
-}, [user]);
 
 
   const handleCopyUid = async () => {
@@ -92,11 +66,16 @@ useEffect(() => {
     }
   }
   const handleNameChange = async () => {
-    if (!name) {
-      return;
-    }
-
+    const toastId = toast.loading('updating username...')
+      
     try {
+      if (!name || name.trim() === '') {
+        throw new Error('please enter a username')
+      }
+
+      if(name === myUsername) {
+        throw new Error('please enter a different username')
+      }
       const token = await auth.currentUser.getIdToken();
       const myID = auth.currentUser.uid;
       const res = await fetch("http://localhost:8080/api/user/updateUsername", {
@@ -107,17 +86,17 @@ useEffect(() => {
         },
         body: JSON.stringify({ myID, newName: name }),
       });
+
       if (!res.ok) {
-        return;
-      }
-      else{
-        setName("")
-        alert("username updated sucessfully")
+        throw new Error('username update failed')
+      } else{
+        handleUsername(name)
+        toast.success('updated username successfully', { id: toastId })
       }
     } catch (err) {
       console.error("Error updating username:", err);
+      toast.error(err.message || 'error saving username', { id:toastId })
     }
-  
   }
 
   if (!user) return null;
@@ -156,8 +135,6 @@ useEffect(() => {
               <button onClick={handleNameChange} className="bg-black text-white hover:cursor-pointer px-2 py-1 text-sm rounded-md">change name</button>
             </div>
           </div>
-
-          <span>permissions: {permissions.length > 0 && permissions ? JSON.stringify(permissions) : 'N/A'}</span>
 
           {signInMeth === 'password' && 
           <div className="flex flex-col justify-center gap-2">
