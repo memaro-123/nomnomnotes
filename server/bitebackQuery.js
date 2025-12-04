@@ -55,8 +55,9 @@ const extractCityFree = (location) => {
  * @param {number} year - Year to analyze 
  * @returns {object} analytics
  */
-const getBiteBackData = async (userId, year = new Date().getFullYear()) => {
-  const db = getDB();
+const getBiteBackData = async (userId, year = null) => {
+  const db = new sqlite3.Database("my.db");
+  
   // Calculate date range for the specified year
   const startDate = `${year}-01-01`;
   const endDate = `${year}-12-31`;
