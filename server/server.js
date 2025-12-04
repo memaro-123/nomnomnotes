@@ -21,7 +21,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/diary", diaryRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/analytics', analyticsRoutes);
+app.use("/api/analytics", require("./api/analyticsRoutes"));
 app.use('/api/wishlist', wishlistRoutes);
 
 
