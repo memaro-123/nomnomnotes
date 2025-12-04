@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { 
   TrophyIcon, ForkKnifeIcon, CurrencyDollarIcon,
   StarIcon, CalendarIcon, ChartBarIcon,
-  TrendUpIcon, MapPinIcon, FireIcon, SparkleIcon,
+  TrendUpIcon, MapPinAreaIcon, FireIcon, SparkleIcon,
   HeartIcon, SmileyIcon
 } from "@phosphor-icons/react";
 
@@ -108,16 +108,14 @@ export default function BiteBack() {
             value={stats.totalEntries || 0}
             subtitle="delicious moments"
             color="bg-blue-50 text-blue-700"
-            emoji="📝"
           />
           
           <SummaryCard
-            icon={<StarIcon size={24} weight="fill" />}
-            title="Top Spot"
-            value={stats.topRatedRestaurant.rating || "0.0"}
-            subtitle={`${stats.topRatedRestaurant.name || "—"}`}
+            icon={<MapPinAreaIcon size={24} weight="fill" />}
+            title="Top City"
+            value={stats.mostDinedCity.name || "N/A"}
+            subtitle={`${stats.mostDinedCity.count || 0 } visits`}
             color="bg-amber-50 text-amber-700"
-            emoji="⭐"
           />
           
           <SummaryCard
@@ -126,7 +124,6 @@ export default function BiteBack() {
             value={stats.favoriteCuisine.name || "N/A"}
             subtitle={getCuisineMessage(stats.favoriteCuisine.name, stats.favoriteCuisine.count)}
             color="bg-emerald-50 text-emerald-700"
-            emoji="😋"
           />
           
           <SummaryCard
@@ -135,7 +132,6 @@ export default function BiteBack() {
             value={stats.mostActiveMonth.name || "N/A"}
             subtitle={getActivityMessage(stats.mostActiveMonth.name, stats.mostActiveMonth.entry_count)}
             color="bg-purple-50 text-purple-700"
-            emoji="📈"
           />
         </div>
         
@@ -144,7 +140,7 @@ export default function BiteBack() {
           {/* Most Visited */}
           <SectionCard 
             title="Your Go-To Spot" 
-            icon={<MapPinIcon size={20} weight="fill" />}
+            icon={<MapPinAreaIcon size={20} weight="fill" />}
             description="The place that feels like home"
           >
             <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
@@ -226,12 +222,12 @@ export default function BiteBack() {
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
               What a year it was! You collected <span className="font-bold text-amber-700">{stats.totalEntries}</span> food memories. 
               <br />
-              <span className="font-bold">{stats.mostActiveMonth.name}</span> was your busiest foodie month, 
-              and you developed a real thing for <span className="font-bold">{stats.favoriteCuisine.name}</span> cuisine.
+              <span className="font-bold">{stats.mostActiveMonth.name}</span> was your busiest month, 
+              and you developed a real taste for <span className="font-bold">{stats.favoriteCuisine.name}</span> cuisine.
               {stats.mostDinedLocation.name !== 'N/A' && (
                 <>
-                  {" "}And let's not forget about <span className="font-bold">{stats.mostDinedLocation.name}</span> — 
-                  your home away from home!
+                  {" "} You explored <span className="font-bold">{stats.mostDinedLocation.name}</span> the most,
+                  dining there <span className="font-bold">{stats.mostDinedLocation.visit_count} time{stats.mostDinedLocation.visit_count !== 1 ? 's' : ''}!</span>.
                 </>
               )}
             </p>
@@ -253,7 +249,7 @@ export default function BiteBack() {
             
             <div className="mt-6 pt-6 border-t border-amber-300">
               <p className="text-gray-600 text-sm">
-                Can't wait to see what delicious adventures {selectedYear + 1} brings! 🚀
+                💕 Can't wait to see what delicious adventures {selectedYear + 1} brings! 💕
               </p>
             </div>
           </div>
@@ -275,7 +271,7 @@ function LoadingSpinner() {
           </div>
         </div>
         <p className="mt-4 text-gray-600 font-medium">Cooking up your BiteBack...</p>
-        <p className="text-sm text-gray-500">Getting your delicious stats ready</p>
+        <p className="text-sm text-gray-500">Getting your scrumptious stats ready</p>
       </div>
     </div>
   );
@@ -334,7 +330,7 @@ function BiteBackHeader({ year, onYearChange, totalEntries }) {
         <SparkleIcon size={24} className="text-amber-500" weight="fill" />
       </div>
       <p className="text-gray-600 text-lg">
-        Your {totalEntries} delicious memories, beautifully wrapped 🎁
+        Your delicious memories, beautifully wrapped 🎁
       </p>
       
       <div className="flex justify-center gap-2">
