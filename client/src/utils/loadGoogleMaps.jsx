@@ -16,7 +16,7 @@ export function loadGoogleMaps(libraries = ["places"]) {
   
     const script = document.createElement("script");
     script.id = id;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=${libraries.join(",")}`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&loading=async`;
     script.async = true;
     script.defer = true;
   
