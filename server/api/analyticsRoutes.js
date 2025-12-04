@@ -1,10 +1,10 @@
-const { getAllEntries } = require("../../sqlDB/dbFunctions.js");
 // server/api/analyticsRoutes.js
 const express = require('express');
 const router = express.Router();
 const { verifyUser } = require('./middleware/verifyUser');
 const { fetchAll } = require("../../sqlDB/helperFunctions.js");
 const getDB = require('../getDB');
+const { getAllEntries } = require("../../sqlDB/dbFunctions.js");
 
 // Helper function without connection pool
 const executeQuery = async (sql, params = []) => {
