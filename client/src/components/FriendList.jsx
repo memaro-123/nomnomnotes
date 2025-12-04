@@ -8,6 +8,7 @@ export default function FriendList({refreshFriends, friends, onSelectFriend, get
   const [usernames, setUsernames] = useState({});
   const [open, setOpen] = useState(false)
 const handleDelete = async (friendID) =>{
+  e.stopPropagation();
     try {
       const token = await auth.currentUser.getIdToken(); // get Firebase auth token
       const res = await fetch(`http://localhost:8080/api/user/friends/${friendID}`, {
@@ -68,6 +69,7 @@ const handleDelete = async (friendID) =>{
             {friends.map((f) => (
               <div
               className="flex items-center justify-between px-3 py-5 border-2 border-gray-300 rounded-md"
+              onClick={() => onSelectFriend(f)}
               key={f}>
                 <span>{usernames[f] || "Loading..."}</span>
                 <button className="hover:cursor-pointer" onClick={() => handleDelete(f)}><TrashIcon size={20} weight={'fill'}/></button>
