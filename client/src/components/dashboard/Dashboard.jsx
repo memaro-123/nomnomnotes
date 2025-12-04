@@ -131,7 +131,7 @@ export default function Dashboard() {
                 <div className="flex gap-3">
                   <button onClick={() => setActiveView('biteback')} 
                   className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer">
-                   wrapped </button>
+                   biteback! </button>
                   {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
                 </div>
 

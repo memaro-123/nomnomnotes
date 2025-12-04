@@ -150,31 +150,20 @@ router.delete("/delete/:entryId", verifyUser, async (req, res) => {
 router.patch("/sendreq", verifyUser, async (req, res) => {
   
   const { myID, friendID } = req.body;
-  if (await alreadySentOrFriended({myID, friendID})){
-    return res.json({ success: true, message: "alr sent/friends" });
-  }
-  if (!myID || !friendID) {
-    return res.status(400).json({ error: "Missing id" });
-  }
-
-  if (!(await userExists({ id: friendID }))) {
-    return res.status(400).json({ error: "friend doesn't exist" });
-  }
-  const result = await autoAcc({ myID, friendID });
-  if (result) {
-    return res.json({ success: true, message: "friend auto acc" });
-}
-
-
   try {
-    await insertSentCode({ myID: myID, sentID: friendID });
-    console.log("insertSentCode jsut ran type shit");
-    await insertRecievedCode({ myID: friendID, recievedID: myID });
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to update friendstuff" });
+    const result = await dbFunctions.sendFriendRequest({ myID, friendID });
+    res.json({
+      success: true,
+      autoAccepted: result.autoAccepted,
+      message: result.autoAccepted
+        ? "Friend request auto accepted"
+        : "Friend request sent success",
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({
+      error: error.message || "Failed to send friend request"
+    });
   }
 });
 
