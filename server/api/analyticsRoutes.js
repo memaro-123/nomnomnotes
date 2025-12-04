@@ -1,73 +1,20 @@
+const { getAllEntries } = require("../../sqlDB/dbFunctions.js");
 // server/api/analyticsRoutes.js
 const express = require('express');
 const router = express.Router();
 const { verifyUser } = require('./middleware/verifyUser');
-const { getAllEntries } = require("../../sqlDB/dbFunctions.js");
 const { fetchAll } = require("../../sqlDB/helperFunctions.js");
 const getDB = require('../getDB');
 
-//i think there is still a chance of connection leaks so im gonna prep for that and also reestablishing a whole new one is annoying
-class ConnectionPool {
-    constructor(maxConnections = 5) {
-        this.maxConnections = maxConnections;
-        this.activeConnections = 0;
-        this.waitingRequests = [];
-    }
-
-    async getConnection() {
-        if (this.activeConnections < this.maxConnections) {
-            this.activeConnections++;
-            return getDB();
-        }
-        
-        return new Promise((resolve) => {
-            this.waitingRequests.push(resolve);
-        });
-    }
-
-    releaseConnection(db) {
-        if (db) {
-            db.close((err) => {
-                if (err) {
-                    console.error('Error closing DB connection:', err.message);
-                }
-            });
-        }
-        
-        this.activeConnections--;
-        
-        if (this.waitingRequests.length > 0) {
-            const nextResolve = this.waitingRequests.shift();
-            this.activeConnections++;
-            nextResolve(getDB());
-        }
-    }
-
-    withConnection(callback) {
-        return new Promise(async (resolve, reject) => {
-            let db;
-            try {
-                db = await this.getConnection();
-                const result = await callback(db);
-                resolve(result);
-            } catch (error) {
-                reject(error);
-            } finally {
-                if (db) {
-                    this.releaseConnection(db);
-                }
-            }
-        });
-    }
-}
-
-const dbPool = new ConnectionPool(5);
-
-// Helper function 
+// Helper function without connection pool
 const executeQuery = async (sql, params = []) => {
-    return dbPool.withConnection(async (db) => {
-        return await fetchAll(db, sql, params);
-    });
+  const db = getDB();
+  try {
+    const result = await fetchAll(db, sql, params);
+    return result;
+  } finally {
+    db.close();
+  }
 };
 
 // hybrid method of getting/making report
@@ -146,28 +93,90 @@ router.get('/biteback/:year', verifyUser, async (req, res) => {
 });
 
 async function generateBiteBackData(userId, year) {
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
+    console.log(`🔄 generateBiteBackData for user: ${userId}, year: ${year}`);
     
     try {
-        const entries = await executeQuery(`
-            SELECT * FROM diary_entries 
-            WHERE user_id = ? 
-            AND date BETWEEN ? AND ?
+        // Debug: Check what entries we have
+        const allEntries = await executeQuery(`
+            SELECT id, date, title FROM diary_entries 
+            WHERE user_id = ?
             ORDER BY date DESC
-        `, [userId, startDate, endDate]);
+            LIMIT 5
+        `, [userId]);
         
-        if (entries.length === 0) {
+        console.log(`📊 Found ${allEntries.length} total entries for user`);
+        allEntries.forEach((entry, i) => {
+            console.log(`  ${i+1}. Date: "${entry.date}", Title: "${entry.title}"`);
+        });
+        
+        if (allEntries.length === 0) {
+            console.log(`❌ No entries found`);
             return { 
                 year,
-                message: "No entries found for this year",
+                message: "No diary entries found. Create your first entry!",
+                hasData: false,
+                summary: { totalEntries: 0 }
+            };
+        }
+        
+        // Since dates are MM/DD/YYYY, we can't use SQL BETWEEN with YYYY-MM-DD
+        // Instead, get ALL entries and filter by year in JavaScript
+        const entries = await executeQuery(`
+            SELECT * FROM diary_entries 
+            WHERE user_id = ?
+            ORDER BY date DESC
+        `, [userId]);
+        
+        // Filter entries for the requested year (MM/DD/YYYY format)
+        const filteredEntries = entries.filter(entry => {
+            if (!entry.date) return false;
+            
+            try {
+                // Parse MM/DD/YYYY format
+                const [month, day, entryYear] = entry.date.split('/');
+                const matches = parseInt(entryYear) === year;
+                
+                if (matches) {
+                    console.log(`✅ Entry matches ${year}: "${entry.date}" - ${entry.title}`);
+                }
+                return matches;
+                
+            } catch (e) {
+                console.error(`❌ Error parsing date "${entry.date}":`, e);
+                return false;
+            }
+        });
+        
+        console.log(`✅ After filtering: ${filteredEntries.length} entries for ${year}`);
+        
+        if (filteredEntries.length === 0) {
+            // Find what years we DO have entries for
+            const availableYears = entries
+                .map(entry => {
+                    if (!entry.date) return null;
+                    try {
+                        const [month, day, entryYear] = entry.date.split('/');
+                        return parseInt(entryYear);
+                    } catch (e) {
+                        return null;
+                    }
+                })
+                .filter(year => year !== null)
+                .filter((year, index, self) => self.indexOf(year) === index) // Unique
+                .sort((a, b) => b - a); // Descending
+            
+            console.log(`📅 Available years: ${availableYears.join(', ')}`);
+            
+            return { 
+                year,
+                message: `No entries found for ${year}. Try ${availableYears.length > 0 ? availableYears[0] : 'creating new entries'}.`,
                 hasData: false,
                 summary: { totalEntries: 0 }
             };
         }
         
         // Parse JSON fields
-        const parsedEntries = entries.map(entry => {
+        const parsedEntries = filteredEntries.map(entry => {
             // Parse JSON strings to objects
             if (entry.selected_cuisines) {
                 try {
@@ -200,7 +209,9 @@ async function generateBiteBackData(userId, year) {
             return entry;
         });
         
-        const analytics = generateAnalytics(parsedEntries);
+        const analytics = generateAnalytics(parsedEntries, year);
+        
+        console.log(`🎉 Success! Generated BiteBack for ${year} with ${analytics.summary.totalEntries} entries`);
         
         return {
             year,
@@ -209,7 +220,7 @@ async function generateBiteBackData(userId, year) {
         };
         
     } catch (error) {
-        console.error('Error generating BiteBack data:', error);
+        console.error('❌ Error generating BiteBack data:', error);
         throw error;
     }
 }
@@ -313,15 +324,19 @@ function generateAnalytics(entries, year) {
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
     
-  // Calculate monthly distribution
+  // Calculate monthly distribution (MM/DD/YYYY format)
   const monthlyDistribution = {};
   entries.forEach(entry => {
     if (entry.date) {
       try {
         // Parse MM/DD/YYYY format
         const [month, day, year] = entry.date.split('/');
-        const date = new Date(year, month - 1, day);
-        const monthName = date.toLocaleString('default', { month: 'long' });
+        const monthNumber = parseInt(month);
+        const monthNames = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const monthName = monthNames[monthNumber - 1] || 'Unknown';
         monthlyDistribution[monthName] = (monthlyDistribution[monthName] || 0) + 1;
       } catch (e) {
         console.error('Error parsing date:', entry.date, e);
@@ -358,7 +373,6 @@ function generateAnalytics(entries, year) {
   };
 }
 
-// Keep the existing generateAnalytics function as is
 // Keep existing wrapped endpoint for backward compatibility
 router.get('/wrapped/:year', verifyUser, async (req, res) => {
     try {

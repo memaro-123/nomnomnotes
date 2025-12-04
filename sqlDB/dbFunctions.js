@@ -313,10 +313,10 @@ const insertEntry = async (entryData) => {
   const getPSTDateString = () => {
     const now = new Date();
     const pstDate = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
+    const year = pstDate.getFullYear();
     const month = String(pstDate.getMonth() + 1).padStart(2, '0');
     const day = String(pstDate.getDate()).padStart(2, '0');
-    const year = pstDate.getFullYear();
-    return `${month}/${day}/${year}`;
+    return `${year}-${month}-${day}`; // YYYY-MM-DD format
   };
 
   const date = getPSTDateString();
