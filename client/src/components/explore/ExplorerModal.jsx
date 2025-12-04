@@ -96,7 +96,21 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
       ]);
     }
 
-    setPlacesList(prev => prev.filter(p => p.place_id !== place.place_id));
+    const updatedList = placesList.filter(p => p.place_id !== place.place_id);
+    setPlacesList(updatedList);
+    
+    if (updatedList.length > 0 && mapRef.current) {
+      mapRef.current.panTo(updatedList[0].geometry.location);
+      mapRef.current.setZoom(16);
+
+      setTimeout(() => {
+        const marker = mapRef.current.markers?.find(m => m.title === updatedList[0].name);
+        if (marker) {
+          window.google.maps.event.trigger(marker, 'click');
+        }
+      }, 500);
+    }
+
     toast.success('added to wishlist')
   };
 
@@ -106,7 +120,20 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
     localStorage.setItem('rejectedPlaces', JSON.stringify(updated));
     
     // Remove from current list
-    setPlacesList(prev => prev.filter(p => p.place_id !== placeId));
+    const updatedList = placesList.filter(p => p.place_id !== placeId);
+    setPlacesList(updatedList);
+    
+    if (updatedList.length > 0 && mapRef.current) {
+      mapRef.current.panTo(updatedList[0].geometry.location);
+      mapRef.current.setZoom(16);
+
+      setTimeout(() => {
+        const marker = mapRef.current.markers?.find(m => m.title === updatedList[0].name);
+        if (marker) {
+          window.google.maps.event.trigger(marker, 'click');
+        }
+      }, 500);
+    }
   };
 
   const centerOnPlace = (place) => {
@@ -114,7 +141,6 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
       mapRef.current.panTo(place.geometry.location);
       mapRef.current.setZoom(17);
       
-      // Find the marker for this place and trigger its click event
       const marker = mapRef.current.markers?.find(m => m.title === place.name);
       if (marker) {
         window.google.maps.event.trigger(marker, 'click');
@@ -124,9 +150,9 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
 
   return (
     <div className="flex w-full h-[calc(100vh-100px)] gap-5">
-      <div className="flex flex-col w-2/5 gap-2">
-        <span className="font-pacifico text-2xl">explore nearby food</span>
-        <span className="text-sm">click left to pass and right to save! find your <span className="font-pacifico">perfect</span> bite</span>
+      <div className="flex flex-col w-full flex-1 gap-2">
+        <span className="font-pacifico text-2xl">explore restaurants</span>
+        <span className="text-sm">click pass and save to find your <span className="font-pacifico">perfect</span> bite</span>
         <ExplorerList
           placesList={placesList}
           placesLoading={placesLoading}

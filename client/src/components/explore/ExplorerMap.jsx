@@ -164,7 +164,7 @@ export default function ExplorerMap({
             title: r.name,
             icon: {
               path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-              fillColor: isInWishlist ? "#10b981" : "#3b82f6", // green if in wishlist, blue if unseen
+              fillColor: isInWishlist ? "oklch(84.1% 0.238 128.85)" : "oklch(70.7% 0.165 254.624)",
               fillOpacity: 1,
               strokeColor: "#ffffff",
               strokeWeight: 2,
@@ -199,27 +199,6 @@ export default function ExplorerMap({
     // });
 
   }, [center, visitedPlaceIds]);
-
-  // Add this new useEffect to update marker colors when wishlist changes
-useEffect(() => {
-  if (!mapRef.current?.markers) return;
-  
-  mapRef.current.markers.forEach((marker) => {
-    const placeId = marker.placeId; // We need to store this on the marker
-    const isInWishlist = wishlist?.some(item => item.id === placeId);
-    
-    marker.setIcon({
-      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-      fillColor: isInWishlist ? "#10b981" : "#3b82f6",
-      fillOpacity: 1,
-      strokeColor: "#ffffff",
-      strokeWeight: 2,
-      scale: 1.5,
-      anchor: new window.google.maps.Point(12, 22),
-    });
-  });
-}, [wishlist]);
-
   
 
   return (

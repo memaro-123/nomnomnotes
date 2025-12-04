@@ -1,4 +1,4 @@
-import { CircleNotchIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon, CheckIcon, StarIcon, XIcon } from "@phosphor-icons/react";
 
 export default function ExplorerList({
     placesList,
@@ -26,8 +26,9 @@ export default function ExplorerList({
             const alreadyInWishlist = wishlist.some((i) => i.id === place.place_id);
             return (
               <div key={place.place_id} 
-              className="flex gap-5 border-2 border-gray-300 rounded-md p-3"
+              className="flex gap-5 border-2 border-gray-300 rounded-md p-3 items-center justify-start w-full"
               onClick={() => onPlaceClick(place)}>
+
                 {/* Image */}
                 {place.photos && place.photos[0] && (
                   <img
@@ -36,7 +37,8 @@ export default function ExplorerList({
                     alt={place.name}
                   />
                 )}
-                <div>
+
+                <div className="flex-1">
                   <div className="font-bold">{place.name}</div>
                   <div className="text-sm text-gray-600">
                     {place.vicinity || place.formatted_address}
@@ -45,19 +47,19 @@ export default function ExplorerList({
                     Rating: {place.rating || "—"} •{" "}
                     {Array(place.price_level || 0).fill("$").join("")}
                   </div>
-                  <div className="flex gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex gap-2 mt-2 items-center justify-end" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => rejectPlace(place.place_id)}
-                      className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                      className="flex items-center justify-center gap-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
                     >
-                      ❌ Pass
+                      <XIcon size={15} weight={'bold'}/> pass
                     </button>
                     <button
                       onClick={() => addToWishlist(place)}
                       disabled={alreadyInWishlist}
                       className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50"
                     >
-                      {alreadyInWishlist ? "✓ In Wishlist" : "❤️ Save"}
+                      {alreadyInWishlist ? (<div className="flex items-center justify-center gap-2"><CheckIcon/><span>in wishlist</span></div>) : (<div className="flex items-center justify-center gap-2"><StarIcon/><span>save</span></div>)}
                     </button>
                   </div>
                 </div>
