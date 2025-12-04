@@ -1,11 +1,34 @@
 import { useState, useEffect } from "react";
 import { CaretUpIcon, CaretDownIcon, TrashIcon } from "@phosphor-icons/react";
 import FriendFinder from './FriendFinder'
+import { auth } from "../firebase.js"; 
+import { toast } from "react-hot-toast"; 
 
-export default function FriendList({ friends, onSelectFriend, getUsername }) {
+export default function FriendList({refreshFriends, friends, onSelectFriend, getUsername }) {
   const [usernames, setUsernames] = useState({});
   const [open, setOpen] = useState(false)
+const handleDelete = async (friendID) =>{
+    try {
+      const token = await auth.currentUser.getIdToken(); // get Firebase auth token
+      const res = await fetch(`http://localhost:8080/api/user/friends/${friendID}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Failed to remove friend");
+      refreshFriends()
+      // Optionally update local state after deletion
+      toast.success("Friend removed!");
+      
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to remove friend");
+    }
+}
   useEffect(() => {
     const fetchUsernames = async () => {
       // Fetch all usernames in parallel
@@ -26,7 +49,7 @@ export default function FriendList({ friends, onSelectFriend, getUsername }) {
           <div className="flex items-center justify-center gap-1">
           {!open && <button onClick={() => {setOpen(true)}}><CaretUpIcon size={16} weight={'bold'}/></button>}
           {open && <button onClick={() => {setOpen(false)}}><CaretDownIcon size={16} weight={'bold'}/></button>}
-          <span>friend requests ({friends.length})</span>
+          <span>my friends! ({friends.length})</span>
           </div>
         </div>
 
@@ -47,7 +70,7 @@ export default function FriendList({ friends, onSelectFriend, getUsername }) {
               className="flex items-center justify-between px-3 py-5 border-2 border-gray-300 rounded-md"
               key={f}>
                 <span>{usernames[f] || "Loading..."}</span>
-                <button className="hover:cursor-pointer"><TrashIcon size={20} weight={'fill'}/></button>
+                <button className="hover:cursor-pointer" onClick={() => handleDelete(f)}><TrashIcon size={20} weight={'fill'}/></button>
               </div>
             ))}
           </div>

@@ -5,7 +5,7 @@ import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-export default function Diary({ entries, fetchDiaries, loading, error }) {
+export default function Diary({ entries, fetchDiaries,fetchFriendDiaries, loading, error }) {
     const [selectedEntry, setSelectedEntry] = useState(null);
     const [cuisineFilters, setCuisineFilters] = useState([])
     const [labelFilters, setLabelFilters] = useState([])
@@ -29,6 +29,7 @@ export default function Diary({ entries, fetchDiaries, loading, error }) {
 
     useEffect(() => {
       fetchDiaries()
+      
     }, [])
 
     const sortedEntries = [...entries].sort((a, b) => {

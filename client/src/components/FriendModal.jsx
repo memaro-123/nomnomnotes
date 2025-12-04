@@ -114,7 +114,7 @@ export default function FriendModal({ onSelectFriend }) {
       <div className="flex flex-col w-full h-[calc(100vh-90px)] border-2 border-gray-300 p-5 rounded-md shadow-md">
         <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
 
-        <FriendList friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
+        <FriendList refreshFriends={refreshFriends } friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
       </div>
   );
   }
