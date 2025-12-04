@@ -2,7 +2,9 @@
 // realized that generating the report live would maybe strain the database since it is a bunch of queries, so perhaps it is better if this is something that happens once a set time period for all users and saves the data into a new 
 //  that way when the user wants their report, the api endpoint can simply fetch the precalculated data and make it load faster
 const { fetchAll } = require('../sqlDB/helperFunctions');
-const getDB = require('../getDB').db;
+
+// File: server/bitebackQuery.js
+const { fetchAll } = require('../../sqlDB/helperFunctions.js');
 
 /**
  * Generates comprehensive "BiteBack" analytics for a user's food diary
@@ -10,261 +12,219 @@ const getDB = require('../getDB').db;
  * @param {number} year - Year to analyze 
  * @returns {object} analytics
  */
-const getBiteBackData = async (userId, year = new Date().getFullYear()) => {
-    const db = getDB();
-    // Calculate date range for the specified year
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
-    const params = [userId, startDate, endDate]; 
+const generateBiteBack = async (db, userId, year) => {
+  console.log(`Generating BiteBack for user ${userId}, year ${year}`);
+  
+  // Calculate date range for the specified year
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+  
+  try {
+    // Since our dates are stored as MM/DD/YYYY, we need to handle them differently
+    // We'll extract year from the date string in SQLite
+    const params = [userId];
+    
+    // 1. Get all entries for the user first (we'll filter by year in JavaScript)
+    const entries = await fetchAll(db, `
+      SELECT 
+        id,
+        title,
+        selected_cuisines,
+        selected_labels,
+        selected_prices,
+        location,
+        images,
+        notes,
+        taste,
+        service,
+        value,
+        date,
+        strftime('%m', 
+          substr(date, 7, 4) || '-' || 
+          substr(date, 1, 2) || '-' || 
+          substr(date, 4, 2)
+        ) as month_num,
+        substr(date, 7, 4) as year_str
+      FROM diary_entries 
+      WHERE user_id = ?
+      ORDER BY 
+        substr(date, 7, 4) DESC,
+        substr(date, 1, 2) DESC,
+        substr(date, 4, 2) DESC
+    `, params);
 
-    try {
-        // Execute all analytics queries in parallel
-        const [
-            basicStats,
-            topRestaurants,
-            cuisineAnalysis,
-            priceAnalysis,
-            ratingStats,
-            labelAnalysis,
-            monthlyTrends,
-            bestRated
-        ] = await Promise.all([
-            // 1. Basic Statistics
-            fetchAll(db, `
-                SELECT 
-                    COUNT(id) as total_entries,
-                    AVG((taste + service + value) / 3.0) as avg_overall_rating,
-                    AVG(taste) as avg_taste,
-                    AVG(service) as avg_service,
-                    AVG(value) as avg_value
-                FROM diary_entries 
-                WHERE user_id = ? 
-                AND date BETWEEN ? AND ?`,
-                params),
+    // Filter entries for the requested year
+    const filteredEntries = entries.filter(entry => {
+      if (!entry.year_str) return false;
+      return parseInt(entry.year_str) === year;
+    });
 
-            // 2. Top 5 Most Visited Restaurants
-            fetchAll(db, `
-                SELECT 
-                    json_extract(location, '$.name') as restaurant_name,
-                    COUNT(id) as visit_count,
-                    AVG((taste + service + value) / 3.0) as avg_rating
-                FROM diary_entries 
-                WHERE user_id = ? 
-                AND date BETWEEN ? AND ?
-                AND json_extract(location, '$.name') IS NOT NULL
-                GROUP BY restaurant_name
-                ORDER BY visit_count DESC
-                LIMIT 5`,
-                params),
+    if (filteredEntries.length === 0) {
+      return {
+        year,
+        hasData: false,
+        message: `No entries found for ${year}. Start documenting your food adventures!`
+      };
+    }
 
-            // 3. Cuisine Breakdown
-            fetchAll(db, `
-                WITH RECURSIVE split(cuisine, rest) AS (
-                    SELECT '', selected_cuisines || ',' FROM diary_entries 
-                    WHERE user_id = ? AND date BETWEEN ? AND ?
-                    UNION ALL
-                    SELECT 
-                        substr(rest, 0, instr(rest, ',')),
-                        substr(rest, instr(rest, ',') + 1)
-                    FROM split WHERE rest != ''
-                )
-                SELECT 
-                    TRIM(REPLACE(REPLACE(cuisine, '[', ''), ']', '')) as cuisine,
-                    COUNT(*) as count
-                FROM split 
-                WHERE cuisine != '' AND cuisine NOT LIKE '%null%'
-                GROUP BY cuisine
-                ORDER BY count DESC
-                LIMIT 10`,
-                params),
+    // Parse JSON fields
+    const parsedEntries = filteredEntries.map(entry => {
+      const parsedEntry = { ...entry };
+      
+      // Parse JSON strings to objects
+      try {
+        parsedEntry.selectedCuisines = JSON.parse(entry.selected_cuisines || '[]');
+        parsedEntry.selectedLabels = JSON.parse(entry.selected_labels || '[]');
+        parsedEntry.images = JSON.parse(entry.images || '[]');
+        parsedEntry.location = JSON.parse(entry.location || '{}');
+      } catch (e) {
+        parsedEntry.selectedCuisines = [];
+        parsedEntry.selectedLabels = [];
+        parsedEntry.images = [];
+        parsedEntry.location = {};
+      }
+      
+      return parsedEntry;
+    });
 
-            // 4. Price Range Analysis
-            fetchAll(db, `
-                SELECT 
-                    selected_prices as price_range,
-                    COUNT(id) as count,
-                    AVG((taste + service + value) / 3.0) as avg_rating
-                FROM diary_entries 
-                WHERE user_id = ? 
-                AND date BETWEEN ? AND ?
-                AND selected_prices IS NOT NULL
-                GROUP BY selected_prices
-                ORDER BY 
-                    CASE selected_prices
-                        WHEN '$' THEN 1
-                        WHEN '$$' THEN 2
-                        WHEN '$$$' THEN 3
-                        WHEN '$$$$' THEN 4
-                        ELSE 5
-                    END`,
-                params),
-
-            // 5. Rating Statistics
-            fetchAll(db, `
-                SELECT 
-                    MAX((taste + service + value) / 3.0) as highest_rating,
-                    MIN((taste + service + value) / 3.0) as lowest_rating,
-                    COUNT(CASE WHEN taste >= 4 THEN 1 END) as high_taste_count,
-                    COUNT(CASE WHEN value >= 4 THEN 1 END) as high_value_count
-                FROM diary_entries 
-                WHERE user_id = ? 
-                AND date BETWEEN ? AND ?`,
-                params),
-
-            // 6. Most Used Labels/Tags
-            fetchAll(db, `
-                WITH RECURSIVE split(label, rest) AS (
-                    SELECT '', selected_labels || ',' FROM diary_entries 
-                    WHERE user_id = ? AND date BETWEEN ? AND ?
-                    UNION ALL
-                    SELECT 
-                        substr(rest, 0, instr(rest, ',')),
-                        substr(rest, instr(rest, ',') + 1)
-                    FROM split WHERE rest != ''
-                )
-                SELECT 
-                    TRIM(REPLACE(REPLACE(label, '[', ''), ']', '')) as label,
-                    COUNT(*) as count
-                FROM split 
-                WHERE label != '' AND label NOT LIKE '%null%'
-                GROUP BY label
-                ORDER BY count DESC
-                LIMIT 15`,
-                params),
-
-            // 7. Monthly Activity Trends
-            fetchAll(db, `
-                SELECT 
-                    strftime('%m', date) as month_num,
-                    strftime('%Y-%m', date) as month,
-                    COUNT(id) as entry_count
-                FROM diary_entries 
-                WHERE user_id = ? 
-                AND date BETWEEN ? AND ?
-                GROUP BY month
-                ORDER BY month`,
-                params),
-
-            // 8. Best Rated Restaurants (minimum 2 visits)
-            fetchAll(db, `
-                SELECT 
-                    json_extract(location, '$.name') as restaurant_name,
-                    AVG((taste + service + value) / 3.0) as avg_rating,
-                    COUNT(id) as visit_count
-                FROM diary_entries 
-                WHERE user_id = ? 
-                AND date BETWEEN ? AND ?
-                AND json_extract(location, '$.name') IS NOT NULL
-                GROUP BY restaurant_name
-                HAVING visit_count >= 2
-                ORDER BY avg_rating DESC
-                LIMIT 5`,
-                params)
-        ]);
-        db.close();
-        // 9. Format and structure the response
-        return {
-            year,
-            summary: {
-                totalEntries: basicStats[0]?.total_entries || 0,
-                averageRating: Number(basicStats[0]?.avg_overall_rating || 0).toFixed(2),
-                ratingBreakdown: {
-                    taste: Number(basicStats[0]?.avg_taste || 0).toFixed(2),
-                    service: Number(basicStats[0]?.avg_service || 0).toFixed(2),
-                    value: Number(basicStats[0]?.avg_value || 0).toFixed(2)
-                },
-                ratingStats: {
-                    highest: Number(ratingStats[0]?.highest_rating || 0).toFixed(2),
-                    lowest: Number(ratingStats[0]?.lowest_rating || 0).toFixed(2),
-                    highTasteCount: ratingStats[0]?.high_taste_count || 0,
-                    highValueCount: ratingStats[0]?.high_value_count || 0
-                }
-            },
-            restaurants: {
-                mostVisited: topRestaurants.map(r => ({
-                    name: r.restaurant_name,
-                    visits: r.visit_count,
-                    avgRating: Number(r.avg_rating || 0).toFixed(2)
-                })),
-                bestRated: bestRated.map(r => ({
-                    name: r.restaurant_name,
-                    avgRating: Number(r.avg_rating || 0).toFixed(2),
-                    visits: r.visit_count
-                }))
-            },
-            categories: {
-                topCuisines: cuisineAnalysis.map(c => ({
-                    cuisine: c.cuisine,
-                    count: c.count
-                })),
-                priceDistribution: priceAnalysis.map(p => ({
-                    priceRange: p.price_range,
-                    count: p.count,
-                    avgRating: Number(p.avg_rating || 0).toFixed(2)
-                })),
-                topLabels: labelAnalysis.map(l => ({
-                    label: l.label,
-                    count: l.count
-                }))
-            },
-            trends: {
-                monthlyActivity: monthlyTrends.map(m => ({
-                    month: m.month,
-                    count: m.entry_count
-                })),
-                busiestMonth: monthlyTrends.reduce((max, curr) => 
-                    curr.entry_count > max.entry_count ? curr : max, 
-                    {entry_count: 0, month: 'None'}
-                ).month
-            }
+    // Calculate basic statistics
+    const totalEntries = parsedEntries.length;
+    const totalRating = parsedEntries.reduce((sum, e) => sum + (e.taste + e.service + e.value) / 3, 0);
+    const averageRating = (totalRating / totalEntries).toFixed(2);
+    
+    // Calculate individual averages
+    const avgTaste = (parsedEntries.reduce((sum, e) => sum + e.taste, 0) / totalEntries).toFixed(2);
+    const avgService = (parsedEntries.reduce((sum, e) => sum + e.service, 0) / totalEntries).toFixed(2);
+    const avgValue = (parsedEntries.reduce((sum, e) => sum + e.value, 0) / totalEntries).toFixed(2);
+    
+    // Group by restaurant
+    const restaurantMap = {};
+    parsedEntries.forEach(entry => {
+      const name = entry.location?.name || 'Unknown Restaurant';
+      if (!restaurantMap[name]) {
+        restaurantMap[name] = {
+          count: 0,
+          totalRating: 0,
+          entries: []
         };
-    } catch (error) {
-        console.error('Error generating BiteBack data:', error);
-        throw error;
-    }
+      }
+      restaurantMap[name].count++;
+      restaurantMap[name].totalRating += (entry.taste + entry.service + entry.value) / 3;
+      restaurantMap[name].entries.push(entry);
+    });
+    
+    // Calculate top restaurants by visit count
+    const topRestaurants = Object.entries(restaurantMap)
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        avgRating: (data.totalRating / data.count).toFixed(2)
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+      
+    // Calculate best rated restaurants (minimum 2 visits)
+    const bestRatedRestaurants = Object.entries(restaurantMap)
+      .filter(([_, data]) => data.count >= 2)
+      .map(([name, data]) => ({
+        name,
+        visits: data.count,
+        averageRating: (data.totalRating / data.count).toFixed(2)
+      }))
+      .sort((a, b) => b.averageRating - a.averageRating)
+      .slice(0, 5);
+    
+    // Calculate cuisine distribution
+    const cuisineCount = {};
+    parsedEntries.forEach(entry => {
+      entry.selectedCuisines.forEach(cuisine => {
+        cuisineCount[cuisine] = (cuisineCount[cuisine] || 0) + 1;
+      });
+    });
+    
+    const topCuisines = Object.entries(cuisineCount)
+      .map(([cuisine, count]) => ({ cuisine, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+    
+    // Calculate price distribution
+    const priceDistribution = {};
+    parsedEntries.forEach(entry => {
+      const price = entry.selected_prices || 'Not specified';
+      priceDistribution[price] = (priceDistribution[price] || 0) + 1;
+    });
+    
+    // Calculate label distribution
+    const labelCount = {};
+    parsedEntries.forEach(entry => {
+      entry.selectedLabels.forEach(label => {
+        labelCount[label] = (labelCount[label] || 0) + 1;
+      });
+    });
+    
+    const topLabels = Object.entries(labelCount)
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    // Calculate monthly distribution
+    const monthlyDistribution = {};
+    parsedEntries.forEach(entry => {
+      if (entry.month_num) {
+        const monthNames = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const monthName = monthNames[parseInt(entry.month_num) - 1] || 'Unknown';
+        monthlyDistribution[monthName] = (monthlyDistribution[monthName] || 0) + 1;
+      }
+    });
+    
+    // Calculate busiest month
+    const busiestMonth = Object.entries(monthlyDistribution)
+      .reduce((max, [month, count]) => count > max.count ? { month, count } : max, 
+              { month: 'None', count: 0 }).month;
+    
+    // Find highest and lowest rated entries
+    const allRatings = parsedEntries.map(e => (e.taste + e.service + e.value) / 3);
+    const highestRating = Math.max(...allRatings).toFixed(2);
+    const lowestRating = Math.min(...allRatings).toFixed(2);
+    
+    // Find entries with high ratings
+    const highTasteCount = parsedEntries.filter(e => e.taste >= 4).length;
+    const highValueCount = parsedEntries.filter(e => e.value >= 4).length;
+    
+    return {
+      year,
+      hasData: true,
+      summary: {
+        totalEntries,
+        averageRating
+      },
+      ratingStats: {
+        averageRating,
+        taste: avgTaste,
+        service: avgService,
+        value: avgValue,
+        highest: highestRating,
+        lowest: lowestRating,
+        highTasteCount,
+        highValueCount
+      },
+      topRestaurants,
+      bestRatedRestaurants,
+      topCuisines,
+      priceDistribution,
+      topLabels,
+      monthlyDistribution,
+      busiestMonth,
+      entries: parsedEntries
+    };
+    
+  } catch (error) {
+    console.error('Error generating BiteBack data:', error);
+    throw error;
+  }
 };
 
-/**
- * Precalculates and stores BiteBack data for all users
- * Should be run periodically (e.g., via cron job at year-end)
- */
-const precalculateAllBiteBacks = async () => {
-    const currentYear = new Date().getFullYear();
-    
-    // Get all active users (simplified - you'd need a users table)
-    const users = await fetchAll(db, `
-        SELECT DISTINCT user_id FROM diary_entries 
-        WHERE strftime('%Y', date) = ?
-    `, [currentYear.toString()]);
-    
-    // Create a table for storing precalculated data
-    await fetchAll(db, `
-        CREATE TABLE IF NOT EXISTS biteback_reports (
-            user_id TEXT,
-            year INTEGER,
-            data TEXT, -- JSON string of the report
-            generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (user_id, year)
-        )
-    `);
-    
-    // Generate and store reports for each user
-    for (const user of users) {
-        try {
-            const report = await getBiteBackData(user.user_id, currentYear);
-            
-            await fetchAll(db, `
-                INSERT OR REPLACE INTO biteback_reports (user_id, year, data)
-                VALUES (?, ?, ?)
-            `, [user.user_id, currentYear, JSON.stringify(report)]);
-            
-            console.log(`Generated BiteBack for user ${user.user_id}`);
-        } catch (error) {
-            console.error(`Failed to generate BiteBack for user ${user.user_id}:`, error);
-        }
-    }
-    
-    console.log('BiteBack precalculation complete!');
-};
-
-module.exports = { getBiteBackData, precalculateAllBiteBacks };
+module.exports = { generateBiteBack };
