@@ -915,5 +915,6 @@ module.exports = {
   deleteWishlistEntry,
   getVisitedPlaceIds, 
   sendFriendRequest,
-  removeFromReceivedRequests
+  removeFromReceivedRequests, 
+  getBiteBackStats
 };

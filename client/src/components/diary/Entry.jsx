@@ -115,14 +115,14 @@ export default function Entry({ entry }) {
                         <span className="font-semibold">tags</span>
                         <div className="flex flex-wrap items-center justify-center">
                             {entry.selectedCuisines
-                                .map((c) => {
-                                    return(<div className="px-2 py-1 bg-black text-white m-2 rounded-md">{c}</div>)
+                                .map((c, i) => {
+                                    return(<div key={i} className="px-2 py-1 bg-black text-white m-2 rounded-md">{c}</div>)
                                 })
                             }
                             <div className="px-2 py-1 bg-black text-white m-2 rounded-md">{entry.selectedPrices}</div>
                             {entry.selectedLabels   
-                                .map((l) => {
-                                    return(<div className="px-2 py-1 bg-black text-white m-2 rounded-md">{l}</div>)
+                                .map((l, i) => {
+                                    return(<div key={i} className="px-2 py-1 bg-black text-white m-2 rounded-md">{l}</div>)
                                 })
                             }
                         </div>
