@@ -1,6 +1,3 @@
-// File: server/biteBackQuery.js; meant to make it easier to generate spotify wrapped knockoff reports for the user's food diary, named BiteBack 
-// realized that generating the report live would maybe strain the database since it is a bunch of queries, so perhaps it is better if this is something that happens once a set time period for all users and saves the data into a new 
-// that way when the user wants their report, the api endpoint can simply fetch the precalculated data and make it load faster
 
 const { fetchAll, getFirstRow } = require('../sqlDB/dbFunctions');
 const getDB = require('./getDB').db;
@@ -13,8 +10,6 @@ const extractCityFree = (location) => {
     const address = loc.formatted_address || loc.address || '';
     
     if (!address) return null;
-    
-    // Common US city patterns
     const patterns = [
       // Format: "123 Main St, Los Angeles, CA 90001"
       /,\s*([^,]+),\s*(?:[A-Z]{2}|California|New York|Texas)\s*\d{5}/i,
@@ -109,6 +104,7 @@ const getBiteBackData = async (userId, year = new Date().getFullYear()) => {
         params),
 
       // 3. Cuisine Breakdown
+      // Note, recursive sql is so awesome, i did some sql tutorials and never learned about this before but then i think this is a better way for splitting strings
       fetchAll(db, `
         WITH RECURSIVE split(cuisine, rest) AS (
           SELECT '', selected_cuisines || ',' FROM diary_entries 

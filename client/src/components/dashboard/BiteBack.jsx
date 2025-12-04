@@ -112,9 +112,9 @@ export default function BiteBack() {
           
           <SummaryCard
             icon={<MapPinAreaIcon size={24} weight="fill" />}
-            title="Top Spot"
+            title="Top City"
             value={stats.mostDinedCity.name || "N/A"}
-            subtitle={`${stats.mostDinedCity.count || 0 } cisits`}
+            subtitle={`${stats.mostDinedCity.count || 0 } visits`}
             color="bg-amber-50 text-amber-700"
           />
           
