@@ -316,7 +316,7 @@ const insertEntry = async (entryData) => {
     const year = pstDate.getFullYear();
     const month = String(pstDate.getMonth() + 1).padStart(2, '0');
     const day = String(pstDate.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`; // YYYY-MM-DD format
+    return `${month}/${day}/${year}`;
   };
 
   const date = getPSTDateString();

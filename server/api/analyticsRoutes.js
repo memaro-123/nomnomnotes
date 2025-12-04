@@ -4,6 +4,7 @@ const router = express.Router();
 const { verifyUser } = require('./middleware/verifyUser');
 const { fetchAll } = require("../../sqlDB/helperFunctions.js");
 const getDB = require('../getDB');
+const { generateBiteBack } = require("../bitebackQuery");
 const { getAllEntries } = require("../../sqlDB/dbFunctions.js");
 
 // Helper function without connection pool
