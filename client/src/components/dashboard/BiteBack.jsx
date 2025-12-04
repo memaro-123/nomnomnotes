@@ -110,7 +110,7 @@ export default function BiteBack() {
           <SummaryCard
             icon={<MapPinIcon size={24} weight="fill" />}
             title="Most Visited"
-            value={stats.mostDinedLocation.name.split(' ')[0]}
+            value={stats.mostDinedLocation.name}
             subtitle={`${stats.mostDinedLocation.visit_count} visits`}
             color="bg-purple-50 text-purple-700"
             emoji="📍"
