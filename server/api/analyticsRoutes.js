@@ -18,7 +18,7 @@ router.get("/biteback", verifyUser, async (req, res) => {
   }
 });
 
-// Get year comparison (just show different years' stats)
+// Get year comparison
 router.get("/biteback/years", verifyUser, async (req, res) => {
   try {
     const userId = req.user.uid;

@@ -33,6 +33,19 @@ router.get( "/", verifyUser, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch diary" });
   }
 } )
+router.get( "/friend/:friendId", verifyUser, async (req, res) => {
+  const { friendId } = req.params;
+  try{
+    
+    const entries = await getAllEntries(friendId) 
+
+    res.json({ success: true, diaryData: entries })
+  }
+  catch(err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch diary" });
+  }
+} )
 
 router.post( "/create", verifyUser, uploadBuffer.array('images', 10), async (req, res)=> {
   const uid = req.user.uid
