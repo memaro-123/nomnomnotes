@@ -61,9 +61,9 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
 
             console.log('=== EDIT FORM DATA DEBUG ===');
             console.log('Entry ID:', entryData.entryId);
-            console.log('Existing images count:', existingImageUrls.length);
-            console.log('New images count:', newImageFiles.length);
-            console.log('Total images after edit:', existingImageUrls.length + newImageFiles.length);
+            console.log('Existing images count:', existingImages.length);
+            console.log('New images count:', newImages.length);
+            console.log('Total images after edit:', existingImages.length + newImages.length);
             console.log('=== END DEBUG ===');
 
             const editResponse = await fetch("http://localhost:8080/api/diary/edit", {
