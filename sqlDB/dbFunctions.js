@@ -443,7 +443,7 @@ const insertEntry = async (entryData) => {
     notes,
     taste,
     service,
-    value
+    value,
   } = entryData;
 
   const getPSTDateString = () => {
@@ -452,8 +452,8 @@ const insertEntry = async (entryData) => {
     const year = pstDate.getFullYear();
     const month = String(pstDate.getMonth() + 1).padStart(2, '0');
     const day = String(pstDate.getDate()).padStart(2, '0');
-    return `${month}/${day}/${year}`;
-  };
+    return `${year}-${month}-${day}`;
+  };  
 
   const date = getPSTDateString();
 

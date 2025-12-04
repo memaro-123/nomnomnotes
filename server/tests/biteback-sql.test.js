@@ -13,21 +13,24 @@ describe('BiteBack SQL Query Tests', () => {
 
   beforeEach((done) => {
     db.serialize(() => {
-      // Create test tables
-      db.run(`
-        CREATE TABLE diary_entries (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          user_id TEXT NOT NULL,
-          title TEXT NOT NULL,
-          selected_cuisines TEXT,
-          location TEXT,
-          selected_prices TEXT,
-          taste REAL,
-          service REAL,
-          value REAL,
-          date TEXT
-        )
-      `, done)
+      // Ensure a clean table exists for each test
+      db.run(`DROP TABLE IF EXISTS diary_entries`, (dropErr) => {
+        if (dropErr) return done(dropErr)
+        db.run(`
+          CREATE TABLE diary_entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            selected_cuisines TEXT,
+            location TEXT,
+            selected_prices TEXT,
+            taste REAL,
+            service REAL,
+            value REAL,
+            date TEXT
+          )
+        `, done)
+      })
     })
   })
 
@@ -44,14 +47,14 @@ describe('BiteBack SQL Query Tests', () => {
 
     const userId = 'test-user-123'
     
-    // March entries
-    insertStmt.run(userId, 'Entry 1', '["Italian"]', '{"name": "Test"}', '$$', 4, 4, 4, '03/15/2024')
-    insertStmt.run(userId, 'Entry 2', '["Italian"]', '{"name": "Test"}', '$$', 4, 4, 4, '03/20/2024')
+    // March entries (ISO date format)
+    insertStmt.run(userId, 'Entry 1', '["Italian"]', '{"name": "Test"}', '$$', 4, 4, 4, '2024-03-15')
+    insertStmt.run(userId, 'Entry 2', '["Italian"]', '{"name": "Test"}', '$$', 4, 4, 4, '2024-03-20')
     
-    // April entries (more)
-    insertStmt.run(userId, 'Entry 3', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '04/10/2024')
-    insertStmt.run(userId, 'Entry 4', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '04/15/2024')
-    insertStmt.run(userId, 'Entry 5', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '04/20/2024')
+    // April entries (more) - ISO date format
+    insertStmt.run(userId, 'Entry 3', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '2024-04-10')
+    insertStmt.run(userId, 'Entry 4', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '2024-04-15')
+    insertStmt.run(userId, 'Entry 5', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '2024-04-20')
 
     insertStmt.finalize(() => {
       // Test the query
@@ -82,11 +85,11 @@ describe('BiteBack SQL Query Tests', () => {
     const userId = 'test-user-123'
     
     // Italian cuisine entries
-    insertStmt.run(userId, 'Entry 1', '["Italian", "Pizza"]', '{"name": "Test"}', '$$', 4, 4, 4, '03/15/2024')
-    insertStmt.run(userId, 'Entry 2', '["Italian", "Pasta"]', '{"name": "Test"}', '$$', 4, 4, 4, '03/20/2024')
+    insertStmt.run(userId, 'Entry 1', '["Italian", "Pizza"]', '{"name": "Test"}', '$$', 4, 4, 4, '2024-03-15')
+    insertStmt.run(userId, 'Entry 2', '["Italian", "Pasta"]', '{"name": "Test"}', '$$', 4, 4, 4, '2024-03-20')
     
     // Chinese cuisine entry
-    insertStmt.run(userId, 'Entry 3', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '04/10/2024')
+    insertStmt.run(userId, 'Entry 3', '["Chinese"]', '{"name": "Test"}', '$$$', 5, 5, 5, '2024-04-10')
 
     insertStmt.finalize(() => {
       // This query should extract individual cuisines from JSON arrays
@@ -131,11 +134,11 @@ describe('BiteBack SQL Query Tests', () => {
     const userId = 'test-user-123'
     
     // Restaurant A with high rating
-    insertStmt.run(userId, 'Entry 1', '["Italian"]', '{"name": "Restaurant A"}', '$$', 5, 5, 5, '03/15/2024')
-    insertStmt.run(userId, 'Entry 2', '["Italian"]', '{"name": "Restaurant A"}', '$$', 4, 4, 4, '03/20/2024')
+    insertStmt.run(userId, 'Entry 1', '["Italian"]', '{"name": "Restaurant A"}', '$$', 5, 5, 5, '2024-03-15')
+    insertStmt.run(userId, 'Entry 2', '["Italian"]', '{"name": "Restaurant A"}', '$$', 4, 4, 4, '2024-03-20')
     
     // Restaurant B with perfect rating
-    insertStmt.run(userId, 'Entry 3', '["Chinese"]', '{"name": "Restaurant B"}', '$$$', 5, 5, 5, '04/10/2024')
+    insertStmt.run(userId, 'Entry 3', '["Chinese"]', '{"name": "Restaurant B"}', '$$$', 5, 5, 5, '2024-04-10')
 
     insertStmt.finalize(() => {
       db.get(`
