@@ -8,6 +8,9 @@ import Diary from './Diary';
 import SettingsButton from './SettingsButton';
 import ChooseUsername from "../ChooseUsername";
 import { useEffect } from 'react';
+import ExplorerModal from "../ExplorerModal.jsx";
+import WishlistModal from "../WishlistModal.jsx";
+import { FiMap, FiStar } from "react-icons/fi";
 
 export default function Dashboard() {
 
@@ -19,6 +22,9 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState('diary'); 
   const [myUsername, setMyUsername] = useState("");
 
+  const [wishlist, setWishlist] = useState([]);
+  const [explorerOpen, setExplorerOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
 
   const handleUsername = (newUsername) => {
     setMyUsername(newUsername)
@@ -129,6 +135,16 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex gap-3">
+                  <button onClick={() => setExplorerOpen(true)}
+                  className="p-2 border rounded hover:bg-gray-200">
+                    <FiMap size={20} />
+                  </button>
+
+                   <button onClick={() => setWishlistOpen(true)}
+                  className="p-2 border rounded hover:bg-gray-200">
+                    <FiStar size={20} />
+                  </button>
+
                   <button onClick={() => setActiveView('biteback')} 
                   className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer">
                    biteback! </button>
@@ -146,6 +162,14 @@ export default function Dashboard() {
               <Diary entries={entries} fetchDiaries={fetchDiaries} loading={loading} error={error}/>
             )}
           </div>
+          
+          {explorerOpen && (
+            <ExplorerModal onClose={() => setExplorerOpen(false)} wishlist={wishlist} setWishlist={setWishlist}/>
+          )}
+
+          {wishlistOpen && (
+            <WishlistModal onClose={() => setWishlistOpen(false)} wishlist={wishlist} setWishlist={setWishlist}/>
+          )}
         </div>
     )
   }

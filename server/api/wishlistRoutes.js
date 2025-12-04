@@ -48,4 +48,20 @@ router.delete("/:id", verifyUser, async (req, res) => {
   }
 });
 
+router.get("/visited-places", verifyUser, async (req, res) => {
+  const uid = req.user.uid;
+  try {
+    const wishlist = await dbFunctions.getWishlistByUser(uid);
+    const visitedPlaceIds = wishlist.map(item => item.place_id);
+
+    res.json({
+      success: true,
+      visitedPlaceIds
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed fetching visited place IDs" });
+  }
+});
+
 module.exports = router;
