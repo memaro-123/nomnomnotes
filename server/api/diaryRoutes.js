@@ -10,6 +10,7 @@ const {
   insertRecievedCode,
   userExists,
   intializeUser,
+  sendFriendRequest,
   autoAcc,
   alreadySentOrFriended
 } = require("../../sqlDB/dbFunctions.js");
@@ -151,7 +152,7 @@ router.patch("/sendreq", verifyUser, async (req, res) => {
   
   const { myID, friendID } = req.body;
   try {
-    const result = await dbFunctions.sendFriendRequest({ myID, friendID });
+    const result = await sendFriendRequest({ myID, friendID });
     res.json({
       success: true,
       autoAccepted: result.autoAccepted,

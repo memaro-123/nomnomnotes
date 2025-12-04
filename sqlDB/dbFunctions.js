@@ -87,24 +87,26 @@ const autoAcc = async ({ myID, friendID }) => {
   }
 };
 
-const removeFromReceivedRequests = async ({ db, userId, friendId }) => {
-  const row = await getFirstRow(
-    db,
-    "SELECT received_requests FROM friends WHERE user_id = ?",
-    [userId]
-  );
-  
-  if (!row || !row.received_requests) return;
-  
-  let receivedRequests = JSON.parse(row.received_requests);
-  receivedRequests = receivedRequests.filter(id => id !== friendId);
-  
-  await paramExec(
-    db,
-    "UPDATE friends SET received_requests = ? WHERE user_id = ?",
-    [JSON.stringify(receivedRequests), userId]
-  );
-};
+  const removeFromReceivedRequests = async (  userId, friendId ) => {
+    const db = new sqlite3.Database("my.db");
+    const row = await getFirstRow(
+      db,
+      "SELECT received_requests FROM friends WHERE user_id = ?",
+      [userId]
+    );
+    
+    if (!row || !row.received_requests) return;
+    
+    let receivedRequests = JSON.parse(row.received_requests);
+    receivedRequests = receivedRequests.filter(id => id !== friendId);
+    
+    await paramExec(
+      db,
+      "UPDATE friends SET received_requests = ? WHERE user_id = ?",
+      [JSON.stringify(receivedRequests), userId]
+    );
+    db.close()
+  };
 
 const alreadySentOrFriended = async ({ myID, friendID }) => {
   const db = new sqlite3.Database("my.db");
@@ -871,6 +873,7 @@ const deleteWishlistEntry = async (id, userId) => {
     db.close();
   }
 };
+
 
 const getVisitedPlaceIds = async (userId) => {
   const db = new sqlite3.Database("my.db");

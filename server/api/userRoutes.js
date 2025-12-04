@@ -182,4 +182,18 @@ router.patch("/getUsername", verifyUser, async (req, res) => {
     res.status(500).json({ error: "Failed to change usrname" });
   }
 });
+router.delete("/delete/:requesterID", verifyUser, async (req, res) => {
+  const uid = req.user.uid;
+  const { requesterID } = req.params;
+  if (!requesterID) {
+    return res.status(400).json({ error: "Missing requesterID" });
+  }
+  try {
+    await dbFunctions.removeFromReceivedRequests( uid, requesterID);
+    res.json({ success: true, message: "deleted correctly" });
+  } catch (err) {
+    console.error("Error deleting friend req:", err);
+    res.status(500).json({ error: "Failed to delete diary entry" });
+  }
+});
 module.exports = router;
