@@ -290,6 +290,140 @@ const sendFriendRequest = async ({ myID, friendID }) => {
   }
 }
 
+const getBiteBackStats = async (userId, year = null) => {
+  const db = new sqlite3.Database("my.db");
+  
+  try {
+    const currentYear = year || new Date().getFullYear();
+    const yearParam = year ? [year.toString()] : [];
+    
+    // 1. Most Active Month
+    const mostActiveMonthQuery = `
+      SELECT 
+        strftime('%m', date) as month,
+        COUNT(*) as entry_count
+      FROM diary_entries 
+      WHERE user_id = ?
+      ${year ? `AND strftime('%Y', date) = ?` : ''}
+      GROUP BY strftime('%m', date)
+      ORDER BY entry_count DESC
+      LIMIT 1
+    `;
+    const mostActiveMonthParams = year ? [userId, year.toString()] : [userId];
+    const mostActiveMonth = await getFirstRow(db, mostActiveMonthQuery, mostActiveMonthParams);
+    
+    // 2. Favorite Cuisine
+    const favoriteCuisineQuery = `
+      SELECT 
+        json_each.value as cuisine,
+        COUNT(*) as count
+      FROM diary_entries,
+      json_each(selected_cuisines)
+      WHERE user_id = ?
+      ${year ? `AND strftime('%Y', date) = ?` : ''}
+      GROUP BY json_each.value
+      ORDER BY count DESC
+      LIMIT 1
+    `;
+    const favoriteCuisine = await getFirstRow(db, favoriteCuisineQuery, mostActiveMonthParams);
+    
+    // 3. Top Rated Restaurant
+    const topRatedRestaurantQuery = `
+      SELECT 
+        json_extract(location, '$.name') as restaurant_name,
+        AVG((taste + service + value) / 3.0) as avg_rating,
+        COUNT(*) as visit_count
+      FROM diary_entries 
+      WHERE user_id = ?
+      ${year ? `AND strftime('%Y', date) = ?` : ''}
+      AND json_extract(location, '$.name') IS NOT NULL
+      AND taste > 0 AND service > 0 AND value > 0
+      GROUP BY json_extract(location, '$.name')
+      HAVING visit_count >= 1
+      ORDER BY avg_rating DESC
+      LIMIT 1
+    `;
+    const topRatedRestaurant = await getFirstRow(db, topRatedRestaurantQuery, mostActiveMonthParams);
+    
+    // 4. Price Range Most Dined In
+    const priceRangeQuery = `
+      SELECT 
+        selected_prices as price_range,
+        COUNT(*) as count
+      FROM diary_entries 
+      WHERE user_id = ?
+      ${year ? `AND strftime('%Y', date) = ?` : ''}
+      AND selected_prices IS NOT NULL
+      GROUP BY selected_prices
+      ORDER BY count DESC
+      LIMIT 1
+    `;
+    const priceRange = await getFirstRow(db, priceRangeQuery, mostActiveMonthParams);
+    
+    // 5. Most Dined In Location
+    const mostDinedLocationQuery = `
+      SELECT 
+        json_extract(location, '$.name') as location_name,
+        COUNT(*) as visit_count
+      FROM diary_entries 
+      WHERE user_id = ?
+      ${year ? `AND strftime('%Y', date) = ?` : ''}
+      AND json_extract(location, '$.name') IS NOT NULL
+      GROUP BY json_extract(location, '$.name')
+      ORDER BY visit_count DESC
+      LIMIT 1
+    `;
+    const mostDinedLocation = await getFirstRow(db, mostDinedLocationQuery, mostActiveMonthParams);
+    
+    // 6. Total entries for the year
+    const totalEntriesQuery = `
+      SELECT COUNT(*) as total_entries
+      FROM diary_entries 
+      WHERE user_id = ?
+      ${year ? `AND strftime('%Y', date) = ?` : ''}
+    `;
+    const totalEntries = await getFirstRow(db, totalEntriesQuery, mostActiveMonthParams);
+    
+    // Format month name
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthName = mostActiveMonth ? monthNames[parseInt(mostActiveMonth.month) - 1] : 'N/A';
+    
+    return {
+      year: currentYear,
+      totalEntries: totalEntries?.total_entries || 0,
+      mostActiveMonth: {
+        name: monthName,
+        month: mostActiveMonth?.month,
+        entry_count: mostActiveMonth?.entry_count || 0
+      },
+      favoriteCuisine: {
+        name: favoriteCuisine?.cuisine || 'N/A',
+        count: favoriteCuisine?.count || 0
+      },
+      topRatedRestaurant: {
+        name: topRatedRestaurant?.restaurant_name || 'N/A',
+        rating: topRatedRestaurant?.avg_rating ? topRatedRestaurant.avg_rating.toFixed(1) : 'N/A',
+        visit_count: topRatedRestaurant?.visit_count || 0
+      },
+      priceRange: {
+        range: priceRange?.price_range || 'N/A',
+        count: priceRange?.count || 0
+      },
+      mostDinedLocation: {
+        name: mostDinedLocation?.location_name || 'N/A',
+        visit_count: mostDinedLocation?.visit_count || 0
+      }
+    };
+    
+  } catch (err) {
+    console.error("Error fetching BiteBack stats:", err);
+    throw err;
+  } finally {
+    db.close();
+  }
+};
+
 const insertEntry = async (entryData) => {
 
   console.log('received data', entryData)
@@ -781,5 +915,6 @@ module.exports = {
   deleteWishlistEntry,
   getVisitedPlaceIds, 
   sendFriendRequest,
-  removeFromReceivedRequests
+  removeFromReceivedRequests, 
+  getBiteBackStats
 };
