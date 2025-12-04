@@ -128,7 +128,13 @@ export default function Dashboard() {
                     <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
                   </div>
                   <button className="hover:cursor-pointer" onClick={() => setActiveView('diary')}><HouseIcon size={28} weight={'fill'}/></button>
+                  {activeView === 'diary' ? (
                   <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>
+                ) : activeView === 'bitebaack' ? (
+                  <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s biteback' : 'my biteback'}</span>
+                ) : (
+                  <span className="text-24 font-bold">my map</span>
+                )}
                 </div>
 
                 <div className="flex gap-3">
