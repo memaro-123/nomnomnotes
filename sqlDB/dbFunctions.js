@@ -297,129 +297,234 @@ const getBiteBackStats = async (userId, year = null) => {
   
   try {
     const currentYear = year || new Date().getFullYear();
-    const yearParam = year ? [year.toString()] : [];
+    const yearParam = year ? year.toString() : null;
     
-    // 1. Most Active Month
-    const mostActiveMonthQuery = `
-      SELECT 
-        strftime('%m', date) as month,
-        COUNT(*) as entry_count
+    // Helper function to extract city from location
+    const extractCityFromLocation = (locationStr) => {
+      if (!locationStr) return null;
+      try {
+        const location = typeof locationStr === 'string' ? JSON.parse(locationStr) : locationStr;
+        const address = location.formatted_address || location.address || '';
+        
+        // Common patterns for city extraction
+        const patterns = [
+          // Format: "123 Main St, Los Angeles, CA 90001"
+          /,\s*([^,]+),\s*(?:[A-Z]{2}|California|New York|Texas)\s*\d{5}/i,
+          // Format: "Los Angeles, CA"
+          /^([^,]+),\s*(?:[A-Z]{2}|California|New York|Texas)/i,
+          // Major cities by name
+          (addr) => {
+            const majorCities = [
+              'Los Angeles', 'New York', 'Chicago', 'San Francisco', 'Seattle',
+              'Miami', 'Boston', 'Austin', 'Portland', 'Denver', 'Las Vegas',
+              'San Diego', 'Phoenix', 'Dallas', 'Houston', 'Atlanta',
+              'Philadelphia', 'Washington', 'San Jose', 'Nashville', 'Orlando'
+            ];
+            for (const city of majorCities) {
+              if (addr.includes(city)) return city;
+            }
+            return null;
+          }
+        ];
+        
+        for (const pattern of patterns) {
+          if (typeof pattern === 'function') {
+            const result = pattern(address);
+            if (result) return result;
+          } else {
+            const match = address.match(pattern);
+            if (match && match[1]) {
+              return match[1].trim();
+            }
+          }
+        }
+        
+        // Last resort: take second-to-last part
+        const parts = address.split(',').map(p => p.trim());
+        if (parts.length >= 2) {
+          return parts[parts.length - 2];
+        }
+        
+        return null;
+      } catch (err) {
+        return null;
+      }
+    };
+
+    // Get all entries for analysis
+    const allEntriesQuery = `
+      SELECT location, selected_cuisines, selected_prices, taste, service, value, date
       FROM diary_entries 
       WHERE user_id = ?
-      ${year ? `AND strftime('%Y', date) = ?` : ''}
-      GROUP BY strftime('%m', date)
-      ORDER BY entry_count DESC
-      LIMIT 1
+      ${yearParam ? `AND strftime('%Y', date) = ?` : ''}
     `;
-    const mostActiveMonthParams = year ? [userId, year.toString()] : [userId];
-    const mostActiveMonth = await getFirstRow(db, mostActiveMonthQuery, mostActiveMonthParams);
     
-    // 2. Favorite Cuisine
-    const favoriteCuisineQuery = `
-      SELECT 
-        json_each.value as cuisine,
-        COUNT(*) as count
-      FROM diary_entries,
-      json_each(selected_cuisines)
-      WHERE user_id = ?
-      ${year ? `AND strftime('%Y', date) = ?` : ''}
-      GROUP BY json_each.value
-      ORDER BY count DESC
-      LIMIT 1
-    `;
-    const favoriteCuisine = await getFirstRow(db, favoriteCuisineQuery, mostActiveMonthParams);
+    const allEntriesParams = yearParam ? [userId, yearParam] : [userId];
+    const allEntries = await fetchAll(db, allEntriesQuery, allEntriesParams);
     
-    // 3. Top Rated Restaurant
-    const topRatedRestaurantQuery = `
+    if (allEntries.length === 0) {
+      return {
+        year: currentYear,
+        totalEntries: 0,
+        mostActiveMonth: { name: 'N/A', entry_count: 0 },
+        favoriteCuisine: { name: 'N/A', count: 0 },
+        topRatedRestaurant: { name: 'N/A', rating: 'N/A' },
+        priceRange: { range: 'N/A', count: 0 },
+        mostDinedLocation: { name: 'N/A', visit_count: 0 },
+        mostDinedCity: { name: 'N/A', count: 0 } 
+      };
+    }
+    
+    // Process data in JavaScript
+    const cityMap = {};
+    const cuisineMap = {};
+    const priceMap = {};
+    const restaurantMap = {};
+    const monthMap = {};
+    
+    allEntries.forEach(entry => {
+      // Extract and count city
+      const city = extractCityFromLocation(entry.location);
+      if (city) {
+        cityMap[city] = (cityMap[city] || 0) + 1;
+      }
+      
+      // Extract and count restaurant
+      try {
+        const location = typeof entry.location === 'string' ? JSON.parse(entry.location) : entry.location;
+        if (location?.name) {
+          restaurantMap[location.name] = (restaurantMap[location.name] || 0) + 1;
+        }
+      } catch (e) {
+        // Ignore errors
+      }
+      
+      // Count cuisines
+      try {
+        const cuisines = typeof entry.selected_cuisines === 'string' 
+          ? JSON.parse(entry.selected_cuisines) 
+          : entry.selected_cuisines || [];
+        cuisines.forEach(cuisine => {
+          cuisineMap[cuisine] = (cuisineMap[cuisine] || 0) + 1;
+        });
+      } catch (e) {
+        // Ignore errors
+      }
+      
+      // Count prices
+      if (entry.selected_prices) {
+        priceMap[entry.selected_prices] = (priceMap[entry.selected_prices] || 0) + 1;
+      }
+      
+      // Count months
+      if (entry.date) {
+        try {
+          const date = new Date(entry.date);
+          const month = date.toLocaleString('default', { month: 'long' });
+          monthMap[month] = (monthMap[month] || 0) + 1;
+        } catch (e) {
+          // Ignore date errors
+        }
+      }
+    });
+    
+    // Find most common city
+    let topCity = 'N/A';
+    let topCityCount = 0;
+    Object.entries(cityMap).forEach(([city, count]) => {
+      if (count > topCityCount) {
+        topCity = city;
+        topCityCount = count;
+      }
+    });
+    
+    // Find most common cuisine
+    let topCuisine = 'N/A';
+    let topCuisineCount = 0;
+    Object.entries(cuisineMap).forEach(([cuisine, count]) => {
+      if (count > topCuisineCount) {
+        topCuisine = cuisine;
+        topCuisineCount = count;
+      }
+    });
+    
+    // Find most common price
+    let topPrice = 'N/A';
+    let topPriceCount = 0;
+    Object.entries(priceMap).forEach(([price, count]) => {
+      if (count > topPriceCount) {
+        topPrice = price;
+        topPriceCount = count;
+      }
+    });
+    
+    // Find most active month
+    let topMonth = 'N/A';
+    let topMonthCount = 0;
+    Object.entries(monthMap).forEach(([month, count]) => {
+      if (count > topMonthCount) {
+        topMonth = month;
+        topMonthCount = count;
+      }
+    });
+    
+    // Find most visited restaurant
+    let topRestaurant = 'N/A';
+    let topRestaurantCount = 0;
+    Object.entries(restaurantMap).forEach(([restaurant, count]) => {
+      if (count > topRestaurantCount) {
+        topRestaurant = restaurant;
+        topRestaurantCount = count;
+      }
+    });
+    
+    // Get top rated restaurant
+    const topRatedQuery = `
       SELECT 
-        json_extract(location, '$.name') as restaurant_name,
-        AVG((taste + service + value) / 3.0) as avg_rating,
-        COUNT(*) as visit_count
+        json_extract(location, '$.name') as name,
+        AVG((taste + service + value) / 3.0) as rating
       FROM diary_entries 
       WHERE user_id = ?
-      ${year ? `AND strftime('%Y', date) = ?` : ''}
+      ${yearParam ? `AND strftime('%Y', date) = ?` : ''}
       AND json_extract(location, '$.name') IS NOT NULL
-      AND taste > 0 AND service > 0 AND value > 0
       GROUP BY json_extract(location, '$.name')
-      HAVING visit_count >= 1
-      ORDER BY avg_rating DESC
+      ORDER BY rating DESC
       LIMIT 1
     `;
-    const topRatedRestaurant = await getFirstRow(db, topRatedRestaurantQuery, mostActiveMonthParams);
     
-    // 4. Price Range Most Dined In
-    const priceRangeQuery = `
-      SELECT 
-        selected_prices as price_range,
-        COUNT(*) as count
-      FROM diary_entries 
-      WHERE user_id = ?
-      ${year ? `AND strftime('%Y', date) = ?` : ''}
-      AND selected_prices IS NOT NULL
-      GROUP BY selected_prices
-      ORDER BY count DESC
-      LIMIT 1
-    `;
-    const priceRange = await getFirstRow(db, priceRangeQuery, mostActiveMonthParams);
-    
-    // 5. Most Dined In Location
-    const mostDinedLocationQuery = `
-      SELECT 
-        json_extract(location, '$.name') as location_name,
-        COUNT(*) as visit_count
-      FROM diary_entries 
-      WHERE user_id = ?
-      ${year ? `AND strftime('%Y', date) = ?` : ''}
-      AND json_extract(location, '$.name') IS NOT NULL
-      GROUP BY json_extract(location, '$.name')
-      ORDER BY visit_count DESC
-      LIMIT 1
-    `;
-    const mostDinedLocation = await getFirstRow(db, mostDinedLocationQuery, mostActiveMonthParams);
-    
-    // 6. Total entries for the year
-    const totalEntriesQuery = `
-      SELECT COUNT(*) as total_entries
-      FROM diary_entries 
-      WHERE user_id = ?
-      ${year ? `AND strftime('%Y', date) = ?` : ''}
-    `;
-    const totalEntries = await getFirstRow(db, totalEntriesQuery, mostActiveMonthParams);
-    
-    // Format month name
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                       'July', 'August', 'September', 'October', 'November', 'December'];
-    const monthName = mostActiveMonth ? monthNames[parseInt(mostActiveMonth.month) - 1] : 'N/A';
+    const topRated = await fetchAll(db, topRatedQuery, allEntriesParams);
     
     return {
       year: currentYear,
-      totalEntries: totalEntries?.total_entries || 0,
+      totalEntries: allEntries.length,
       mostActiveMonth: {
-        name: monthName,
-        month: mostActiveMonth?.month,
-        entry_count: mostActiveMonth?.entry_count || 0
+        name: topMonth,
+        entry_count: topMonthCount
       },
       favoriteCuisine: {
-        name: favoriteCuisine?.cuisine || 'N/A',
-        count: favoriteCuisine?.count || 0
+        name: topCuisine,
+        count: topCuisineCount
       },
-      topRatedRestaurant: {
-        name: topRatedRestaurant?.restaurant_name || 'N/A',
-        rating: topRatedRestaurant?.avg_rating ? topRatedRestaurant.avg_rating.toFixed(1) : 'N/A',
-        visit_count: topRatedRestaurant?.visit_count || 0
+      mostDinedCity: {  //top spot like location dined in
+        name: topCity,
+        count: topCityCount
       },
       priceRange: {
-        range: priceRange?.price_range || 'N/A',
-        count: priceRange?.count || 0
+        range: topPrice,
+        count: topPriceCount
       },
       mostDinedLocation: {
-        name: mostDinedLocation?.location_name || 'N/A',
-        visit_count: mostDinedLocation?.visit_count || 0
+        name: topRestaurant,
+        visit_count: topRestaurantCount
+      },
+      topRatedRestaurant: {  // Keep this for others incase
+        name: topRated[0]?.name || 'N/A',
+        rating: topRated[0]?.rating ? topRated[0].rating.toFixed(1) : 'N/A'
       }
     };
     
   } catch (err) {
-    console.error("Error fetching BiteBack stats:", err);
+    console.error("Error in getBiteBackStats:", err);
     throw err;
   } finally {
     db.close();
