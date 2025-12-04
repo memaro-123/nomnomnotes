@@ -89,7 +89,20 @@ export default function FriendModal({ onSelectFriend }) {
         await refreshFriends();
       }}
       else if (action === "reject") {
-      setPendingRequests(prev => prev.filter(r => r !== requesterId));
+        try {
+          const myID = auth.currentUser.uid;
+          const response =await fetch(`http://localhost:8080/api/user/delete/${requesterId}`
+, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        
+      });
+          setPendingRequests(prev => prev.filter(r => r !== requesterId));
+        }
+        catch{}
     }
       
     } catch (err) {
@@ -101,7 +114,7 @@ export default function FriendModal({ onSelectFriend }) {
       <div className="flex flex-col w-full h-[calc(100vh-90px)] border-2 border-gray-300 p-5 rounded-md shadow-md">
         <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
 
-        <FriendList friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
+        <FriendList refreshFriends={refreshFriends } friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
       </div>
   );
   }

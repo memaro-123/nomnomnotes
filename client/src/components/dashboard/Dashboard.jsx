@@ -95,7 +95,7 @@ export default function Dashboard() {
         const data = await res.json();
         // Marking all entries as not owned so that they are read-only
         const entriesWithOwnership = data.diaryData.map(e => ({ ...e, isOwner: false }));
-        setEntries(entriesWithOwnership);
+        setEntries(prevEntries => [...prevEntries,...entriesWithOwnership]);
       } catch (err) {
         console.error(err);
         setError(err);
@@ -159,7 +159,7 @@ export default function Dashboard() {
             {activeView === 'biteback' ? (
               <BiteBack />
             ) : ( 
-              <Diary entries={entries} fetchDiaries={fetchDiaries} loading={loading} error={error}/>
+              <Diary entries={entries} fetchDiaries={fetchDiaries} fetchFriendDiaries ={fetchFriendDiaries} loading={loading} error={error}/>
             )}
           </div>
           

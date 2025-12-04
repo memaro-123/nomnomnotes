@@ -2,14 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { verifyUser } = require('./middleware/verifyUser');
 const sqlite3 = require("sqlite3");
-const { fetchAll, paramExec } = require("../../sqlDB/helperFunctions.js");
 const dbFunctions = require("../../sqlDB/dbFunctions.js");
 const { validateUserInput, sanitizeInput, rateLimit } = require('./middleware/validateInput');
+const { paramExec, fetchAll,getFirstRow } = require("../helperFunctions.js");
 
 router.use(verifyUser); // Apply user verification middleware to all routes
 router.use(rateLimit()); // Apply rate limiting middleware to all routes
 router.use(sanitizeInput); // Apply input sanitization middleware to all routes
 router.use(validateUserInput); // Apply input validation middleware to all routes
+
 
 
 router.get("/friends", verifyUser, async (req, res) => {
@@ -104,13 +105,11 @@ router.delete("/friends/:friendId", verifyUser, async (req, res) => {
   const uid = req.user.uid;
   const { friendId } = req.params;
   const db = new sqlite3.Database("my.db");
-  const sql = `
-    DELETE FROM friends
-    WHERE (requester_id = ? AND receiver_id = ?) 
-       OR (requester_id = ? AND receiver_id = ?)
-  `;
   try {
-    await paramExec(db, sql, [uid, friendId, friendId, uid]);
+    const row = await getFirstRow(db, "SELECT friends FROM friends WHERE user_id = ?", [uid]);
+    let friends = JSON.parse(row.friends || "[]");
+    friends = friends.filter(f => f !== friendId);
+    await paramExec(db, "UPDATE friends SET friends = ? WHERE user_id = ?", [JSON.stringify(friends), uid]);
     res.json({ success: true, message: "Friend removed" });
   } catch (err) {
     console.error(err);
@@ -152,7 +151,7 @@ router.get("/getUsername", verifyUser, async (req, res) => {
   const { id } = req.query;
   if (!id)  {
     return res.status(400).json({ error: "Missing id or name" });
-  }
+  } 
   if (!(await dbFunctions.userExists({id:id}))) {
     return res.status(400).json({ error: "you doesn't exist" });
   }
@@ -182,4 +181,20 @@ router.patch("/getUsername", verifyUser, async (req, res) => {
     res.status(500).json({ error: "Failed to change usrname" });
   }
 });
+router.delete("/delete/:requesterID", verifyUser, async (req, res) => {
+  const uid = req.user.uid;
+  const { requesterID } = req.params;
+  if (!requesterID) {
+    return res.status(400).json({ error: "Missing requesterID" });
+  }
+  try {
+    await dbFunctions.removeFromReceivedRequests( uid, requesterID);
+    res.json({ success: true, message: "deleted correctly" });
+  } catch (err) {
+    console.error("Error deleting friend req:", err);
+    res.status(500).json({ error: "Failed to delete frind req" });
+  }
+});
+
+
 module.exports = router;
