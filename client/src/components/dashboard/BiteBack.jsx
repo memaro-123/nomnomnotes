@@ -50,20 +50,20 @@ export default function BiteBack() {
   const getPriceMessage = (priceRange) => {
     const messages = {
       '$': { 
-        message: "Finding hidden gems without breaking the bank! 💎",
+        message: "Finding hidden gems without breaking the bank! 😝",
         emoji: "💰"
       },
       '$$': { 
-        message: "Great taste at sweet-spot prices! ✨",
-        emoji: "🍽️"
+        message: "Great taste at sweet-spot prices!? 🤑",
+        emoji: "📢"
       },
       '$$$': { 
-        message: "You've got taste for finer things! Living the luxe life. 🥂",
-        emoji: "👑"
+        message: "You've got taste for finer things! Living the luxe life. 💎",
+        emoji: "🌟"
       },
       '$$$$': { 
         message: "Only the best for your palate! Cheers to that. 🥂",
-        emoji: "🌟"
+        emoji: "👑"
       }
     };
     return messages[priceRange] || { message: "Exploring all price ranges! 🗺️", emoji: "🔍" };
@@ -81,6 +81,75 @@ export default function BiteBack() {
     return `${month} treated you well! 👌`;
   };
 
+  const getStarRatingInfo = (rating) => {
+    const numericRating = parseFloat(rating);
+    
+    // Star display (0-5 stars)
+    const getStarDisplay = () => {
+      const fullStars = Math.floor(numericRating);
+      const halfStar = numericRating % 1 >= 0.5;
+      const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+      
+      return {
+        fullStars,
+        halfStar,
+        emptyStars
+      };
+    };
+
+    // Rating messages based on score
+    const getRatingMessage = () => {
+      if (numericRating >= 4.8) {
+        return { 
+          message: "Absolute perfection! This place has your heart. ❤️", 
+          emoji: "🏆",
+          color: "text-amber-600"
+        };
+      } else if (numericRating >= 4.5) {
+        return { 
+          message: "Exceptional! This is a must-return spot. ⭐", 
+          emoji: "✨",
+          color: "text-amber-500"
+        };
+      } else if (numericRating >= 4.0) {
+        return { 
+          message: "Great choice! Consistently delicious. 🤭", 
+          emoji: "👍",
+          color: "text-amber-400"
+        };
+      } else if (numericRating >= 3.5) {
+        return { 
+          message: "Solid pick! Worth another visit. 👌", 
+          emoji: "✅",
+          color: "text-amber-300"
+        };
+      } else if (numericRating >= 3.0) {
+        return { 
+          message: "Good experience! Has potential. 🤔", 
+          emoji: "💭",
+          color: "text-amber-200"
+        };
+      } else if (numericRating > 2.0) {
+        return { 
+          message: "Memorable meal! Room for discovery. 🔍", 
+          emoji: "📝",
+          color: "text-gray-400"
+        };
+      }
+      else {
+        return {
+        message: "I fear it was not the most delicious year... 😞",
+        emoji: "💤",
+        color: "text-gray-300"
+      };
+    }
+  };
+    return {
+      starDisplay: getStarDisplay(),
+      ratingInfo: getRatingMessage()
+    };
+  };
+      
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -90,6 +159,9 @@ export default function BiteBack() {
   }
 
   const priceInfo = getPriceMessage(stats.priceRange.range);
+  const starRatingInfo = stats.topRatedRestaurant.rating !== 'N/A'
+    ? getStarRatingInfo(stats.topRatedRestaurant.rating)
+    : null;
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -107,7 +179,7 @@ export default function BiteBack() {
             icon={<CalendarIcon size={24} weight="fill" />}
             title="Entries Logged"
             value={stats.totalEntries || 0}
-            subtitle="new experiences captured"
+            subtitle="new experiences captured 📝"
             color="bg-blue-50 text-blue-700"
           />
           
@@ -115,7 +187,7 @@ export default function BiteBack() {
             icon={<MapPinAreaIcon size={24} weight="fill" />}
             title="Top City"
             value={stats.mostDinedCity.name || "N/A"}
-            subtitle={`${stats.mostDinedCity.count || 0 } visits`}
+            subtitle={`${stats.mostDinedCity.count || 0 }  visits 🗺️`}
             color="bg-amber-50 text-amber-700"
           />
           
@@ -138,52 +210,53 @@ export default function BiteBack() {
         
         {/* Restaurant Rankings */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Most Visited */}
           <SectionCard 
-    title="Top Rated Restaurant" 
-    icon={<StarIcon size={20} weight="fill" />}
-    description="Your highest rated dining experience"
-  >
-    <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="p-2 bg-amber-100 rounded-lg">
-          <StarIcon size={20} className="text-amber-600" weight="fill" />
-        </div>
-        <div>
-          <h4 className="font-bold text-gray-800">{stats.topRatedRestaurant.name}</h4>
-          <p className="text-sm text-gray-600">Your favorite by rating</p>
-        </div>
-      </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-amber-700">
-              {stats.topRatedRestaurant.rating}
-            </div>
-            <div className="text-xs text-gray-600">rating</div>
-          </div>
-          {stats.topRatedRestaurant.visit_count > 1 && (
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-800">
-                {stats.topRatedRestaurant.visit_count}
+            title="Top Rated Restaurant" 
+            icon={<StarIcon size={20} weight="fill" />}
+            description="Your highest rated dining experience"
+          >
+            <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <StarIcon size={20} className="text-amber-600" weight="fill" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-800">{stats.topRatedRestaurant.name}</h4>
+                  <p className="text-sm text-gray-600">Your favorite by rating</p>
+                </div>
               </div>
-              <div className="text-xs text-gray-600">visits</div>
+              {/* Star Rating Display */}
+              {starRatingInfo && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-center mb-2">
+                    {/* Star rating display */}
+                    <div className="flex items-center gap-1">
+                      {[...Array(starRatingInfo.starDisplay.fullStars)].map((_, i) => (
+                        <StarIcon key={`full-${i}`} size={24} className="text-amber-500" weight="fill" />
+                      ))}
+                      {starRatingInfo.starDisplay.halfStar && (
+                        <StarIcon size={24} className="text-amber-500" weight="half" />
+                      )}
+                      {[...Array(starRatingInfo.starDisplay.emptyStars)].map((_, i) => (
+                        <StarIcon key={`empty-${i}`} size={24} className="text-gray-300" weight="regular" />
+                      ))}
+                    </div>
+                    {/* Numerical rating */}
+                    <div className="ml-3">
+                      <span className="text-2xl font-bold text-amber-700">
+                        {stats.topRatedRestaurant.rating}
+                      </span>
+                      <span className="text-gray-500">/5</span>
+                    </div>
+                  </div>
+                  {/* Rating message */}
+                  <p className={`text-center text-sm ${starRatingInfo.ratingInfo.color} font-medium`}>
+                    {starRatingInfo.ratingInfo.message}
+                  </p>
+                </div>
+              )}   
             </div>
-          )}
-        </div>
-        {stats.topRatedRestaurant.rating > 4.5 && (
-          <span className="px-3 py-1 bg-amber-100 text-amber-800 text-sm rounded-full">
-            Top Pick! ⭐
-          </span>
-        )}
-      </div>
-      {stats.topRatedRestaurant.rating !== 'N/A' && parseFloat(stats.topRatedRestaurant.rating) > 4.0 && (
-        <p className="text-center text-amber-700 text-sm mt-3">
-          This place really impressed you!
-        </p>
-      )}
-    </div>
-  </SectionCard>
+          </SectionCard>
           
           {/* Price Insights */}
           <SectionCard 
