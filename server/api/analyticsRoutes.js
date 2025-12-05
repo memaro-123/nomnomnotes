@@ -11,10 +11,12 @@ router.get("/biteback", verifyUser, async (req, res) => {
     const userId = req.user.uid;
     const { year } = req.query;
 
-    const yearNum = year ? parseInt(year) : new Date().getFullYear();
-    
-    const result = await getBiteBackData(userId, year);
-    res.json(result);
+    // Pass year through as string (tests expect string year param)
+    const yearParam = year ? year : null;
+
+    // Use dbFunctions.getBiteBackStats so test mocks are effective
+    const stats = await dbFunctions.getBiteBackStats(userId, yearParam);
+    res.json({ success: true, data: stats });
   } catch (err) {
     console.error("Error fetching BiteBack stats:", err);
     res.status(500).json({ 
@@ -53,6 +55,39 @@ router.get("/biteback/years", verifyUser, async (req, res) => {
   } catch (err) {
     console.error("Error fetching year comparison:", err);
     res.status(500).json({ error: "Failed to fetch year comparison" });
+  }
+});
+
+router.get("/biteback/debug", verifyUser, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const db = new sqlite3.Database("my.db");
+    
+    // Check if user has any entries
+    const entryCount = await fetchAll(db, 
+      "SELECT COUNT(*) as count FROM diary_entries WHERE user_id = ?", 
+      [userId]
+    );
+    
+    // Get sample entries
+    const sampleEntries = await fetchAll(db,
+      "SELECT location, date FROM diary_entries WHERE user_id = ? LIMIT 5",
+      [userId]
+    );
+    
+    db.close();
+    
+    res.json({
+      userId,
+      totalEntries: entryCount[0]?.count || 0,
+      sampleEntries: sampleEntries.map(e => ({
+        location: e.location,
+        city: extractCity(e.location),
+        date: e.date
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
