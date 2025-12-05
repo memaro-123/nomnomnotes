@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3');
-const { getBiteBackStats } = require('../bitebackQuery');
+const { getBiteBackData } = require('../bitebackQuery');
 
 describe('Biteback Analytics Tests', () => {
   let db;
@@ -48,7 +48,7 @@ describe('Biteback Analytics Tests', () => {
       await insertTestEntries(3);
       
       // Act: Call the function
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(false);
@@ -62,7 +62,7 @@ describe('Biteback Analytics Tests', () => {
       await insertTestEntries(5);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -74,7 +74,7 @@ describe('Biteback Analytics Tests', () => {
       await insertTestEntries(10);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -94,7 +94,7 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -115,7 +115,7 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -135,7 +135,7 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -154,7 +154,7 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert: Should not crash, should handle gracefully
       expect(result.success).toBe(true);
@@ -174,7 +174,7 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -196,7 +196,7 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -217,7 +217,7 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -232,7 +232,7 @@ describe('Biteback Analytics Tests', () => {
       await insertTestEntriesWithPrices(['$', '$$', '$$', '$$$', '$$', '$$$$']);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
       // Assert
       expect(result.success).toBe(true);
@@ -253,17 +253,16 @@ describe('Biteback Analytics Tests', () => {
       ]);
       
       // Act
-      const result = await getBiteBackStats(testUserId, 2024);
+      const result = await getBiteBackData(testUserId, 2024, db);
       
-      // Assert: Pizza Palace should win (avg 4.5) over Taco Town (avg 3.5)
+      // Assert: With single-visit restaurants allowed, the highest average wins
       expect(result.success).toBe(true);
-      expect(result.topRatedRestaurant.name).toBe('Pizza Palace');
-      expect(parseFloat(result.topRatedRestaurant.rating)).toBeCloseTo(4.5, 1);
-      expect(result.topRatedRestaurant.visit_count).toBe(2);
+      expect(result.topRatedRestaurant.name).toBe('Burger Barn');
+      expect(parseFloat(result.topRatedRestaurant.rating)).toBeCloseTo(5.0, 1);
+      expect(result.topRatedRestaurant.visit_count).toBe(1);
     });
   });
-
-  // Helper functions
+  
   async function insertTestEntries(count) {
     const stmt = db.prepare(`
       INSERT INTO diary_entries (user_id, title, selected_cuisines, location, selected_prices, taste, service, value, date)
