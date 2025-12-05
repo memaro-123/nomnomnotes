@@ -114,7 +114,7 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
 
                                 {/* options */}
                                 {/* {entry.id === openOptionsId &&  */}
-                                <div className={`w-0 transition-all ${entry.id === openOptionsId ? 'w-1/4 flex flex-col px-1 items-center justify-stretch' : ''}`}>
+                                <div className={`w-0 transition-all flex flex-col items-center justify-stretch ${entry.id === openOptionsId ? 'w-1/4 opacity-100 px-1' : 'w-0 opacity-0 px-0'}`}>
                                     <EditDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries}  />
                                     <DeleteDiaryButton entry={entry} handleCloseOptions={handleCloseOptions} fetchDiaries={fetchDiaries} />
                                 </div>
