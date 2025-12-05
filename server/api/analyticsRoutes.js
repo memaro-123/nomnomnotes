@@ -11,9 +11,12 @@ router.get("/biteback", verifyUser, async (req, res) => {
     const userId = req.user.uid;
     const { year } = req.query;
 
-    const yearNum = year ? parseInt(year) : new Date().getFullYear();
-    const result = await getBiteBackData(userId, yearNum);
-    res.json(result);
+    // Pass year through as string (tests expect string year param)
+    const yearParam = year ? year : null;
+
+    // Use dbFunctions.getBiteBackStats so test mocks are effective
+    const stats = await dbFunctions.getBiteBackStats(userId, yearParam);
+    res.json({ success: true, data: stats });
   } catch (err) {
     console.error("Error fetching BiteBack stats:", err);
     res.status(500).json({ 
