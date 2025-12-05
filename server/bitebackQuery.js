@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const {fetchAll} = require('../sqlDB/helperFunctions');
 
-const extractCity= (location) => {
+const extractCity = (location) => {
   if (!location) return null;
   
   try {
@@ -9,71 +9,33 @@ const extractCity= (location) => {
     const address = loc.formatted_address || loc.address || loc.name || '';
     
     if (!address) return null;
-    // Common patterns for city extraction
-    // I USED AI FOR THIS PART BECAUSE IT IS A LOT OF USELESS TYPING
-    const patterns = [
-      // US format: "123 Main St, Los Angeles, CA 90001"
-      /,\s*([^,]+?)\s*,\s*(?:[A-Z]{2}|California|New York|Texas|Florida|Illinois|Pennsylvania|Ohio|Georgia|Michigan|North Carolina|Virginia|Washington|Massachusetts|Indiana|Arizona|Tennessee|Missouri|Maryland|Wisconsin|Minnesota|Colorado|Alabama|South Carolina|Louisiana|Kentucky|Oregon|Oklahoma|Connecticut|Iowa|Mississippi|Arkansas|Kansas|Utah|Nevada|New Mexico|West Virginia|Nebraska|Idaho|Hawaii|Maine|New Hampshire|Rhode Island|Montana|Delaware|South Dakota|Alaska|North Dakota|Vermont|Wyoming)\s*\d{5}/i,
-      
-      // International format: "123 Main St, Los Angeles, California 90001"
-      /,\s*([^,]+?)\s*,\s*(?:California|New York|Texas|Florida|Illinois|Pennsylvania|Ohio|Georgia|Michigan|North Carolina|Virginia|Washington|Massachusetts|Indiana|Arizona|Tennessee|Missouri|Maryland|Wisconsin|Minnesota|Colorado|Alabama|South Carolina|Louisiana|Kentucky|Oregon|Oklahoma|Connecticut|Iowa|Mississippi|Arkansas|Kansas|Utah|Nevada|New Mexico|West Virginia|Nebraska|Idaho|Hawaii|Maine|New Hampshire|Rhode Island|Montana|Delaware|South Dakota|Alaska|North Dakota|Vermont|Wyoming)\s*\d{5}/i,
-      
-      // Major cities by name (direct match)
-      (addr) => {
-        const majorCities = [
-          // US Cities
-          'Los Angeles', 'New York', 'Chicago', 'San Francisco', 'Seattle',
-          'Miami', 'Boston', 'Austin', 'Portland', 'Denver', 'Las Vegas',
-          'San Diego', 'Phoenix', 'Dallas', 'Houston', 'Atlanta',
-          'Philadelphia', 'Washington', 'San Jose', 'Nashville', 'Orlando',
-          'Detroit', 'Baltimore', 'Memphis', 'Milwaukee', 'Albuquerque',
-          'Tucson', 'Fresno', 'Sacramento', 'Kansas City', 'Mesa',
-          'Colorado Springs', 'Omaha', 'Raleigh', 'Long Beach', 'Virginia Beach',
-          'Oakland', 'Minneapolis', 'Tulsa', 'Arlington', 'Tampa',
-          
-          // California cities
-          'Santa Monica', 'Beverly Hills', 'West Hollywood', 'Pasadena',
-          'Long Beach', 'Berkeley', 'Irvine', 'Anaheim', 'Santa Barbara',
-          'San Luis Obispo', 'Malibu', 'Sacramento', 'San Jose', 'Fremont',
-          'Irvine', 'Modesto', 'Fontana', 'Oxnard', 'Moreno Valley',
-          'Glendale', 'Huntington Beach', 'Santa Clarita', 'Garden Grove',
-          'Oceanside', 'Rancho Cucamonga', 'Santa Rosa', 'Ontario', 'Elk Grove',
-          'Corona', 'Lancaster', 'Palmdale', 'Salinas', 'Hayward', 'Pomona',
-          'Escondido', 'Sunnyvale', 'Torrance', 'Orange', 'Fullerton',
-          'Pasadena', 'Thousand Oaks', 'Visalia', 'Simi Valley', 'Concord',
-          'Roseville', 'Victorville', 'Santa Clara', 'Vallejo', 'Berkeley'
-        ];
-        
-        for (const city of majorCities) {
-          if (addr.includes(city)) return city;
-        }
-        return null;
-      }
-    ];
     
-    for (const pattern of patterns) {
-      if (typeof pattern === 'function') {
-        const result = pattern(address);
-        if (result) return result;
-      } else {
-        const match = address.match(pattern);
-        if (match && match[1]) {
-          const city = match[1].trim();
-          // Filter out common non-city words
-          if (city && !/^\d+$/.test(city) && city.length > 2 &&
-              !/^(st|street|ave|avenue|blvd|boulevard|dr|drive|rd|road|ln|lane|way|ct|court|pl|place)$/i.test(city)) {
-            return city;
-          }
-        }
+    // Simple comma-based parsing
+    const parts = address.split(',').map(p => p.trim());
+    
+    // Usually format is: Address, City, State ZIP, Country
+    if (parts.length >= 3) {
+      // Return the city part (usually second-to-last before state)
+      const cityIndex = parts.length - 2;
+      const city = parts[cityIndex];
+      
+      // Basic validation: not a number, not too short
+      if (city && !/^\d+$/.test(city) && city.length > 2) {
+        return city;
       }
     }
-    // Last resort: take the second-to-last comma-separated part
-    const parts = address.split(',').map(p => p.trim());
-    if (parts.length >= 3) {
-      // Usually format is: Street, City, State ZIP
-      const potentialCity = parts[parts.length - 2];
-      if (potentialCity && potentialCity.length > 2 && !/^\d+$/.test(potentialCity)) {
-        return potentialCity;
+    
+    // Fallback: try to find any known major city
+    const majorCities = [
+      'Los Angeles', 'New York', 'Chicago', 'San Francisco', 'Seattle',
+      'Miami', 'Boston', 'Austin', 'Portland', 'Denver', 'Las Vegas',
+      'San Diego', 'Phoenix', 'Dallas', 'Houston', 'Atlanta',
+      'Philadelphia', 'Washington', 'San Jose', 'Nashville', 'Orlando'
+    ];
+    
+    for (const city of majorCities) {
+      if (address.includes(city)) {
+        return city;
       }
     }
     
