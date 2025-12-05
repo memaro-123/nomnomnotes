@@ -370,7 +370,6 @@ const getBiteBackStats = async (userId, year = null) => {
         favoriteCuisine: { name: 'N/A', count: 0 },
         topRatedRestaurant: { name: 'N/A', rating: 'N/A' },
         priceRange: { range: 'N/A', count: 0 },
-        mostDinedLocation: { name: 'N/A', visit_count: 0 },
         mostDinedCity: { name: 'N/A', count: 0 } 
       };
     }
@@ -379,7 +378,6 @@ const getBiteBackStats = async (userId, year = null) => {
     const cityMap = {};
     const cuisineMap = {};
     const priceMap = {};
-    const restaurantMap = {};
     const monthMap = {};
     
     allEntries.forEach(entry => {
@@ -468,7 +466,7 @@ const getBiteBackStats = async (userId, year = null) => {
       }
     });
     
-    // Find most visited restaurant
+    /* Find most visited restaurant
     let topRestaurant = 'N/A';
     let topRestaurantCount = 0;
     Object.entries(restaurantMap).forEach(([restaurant, count]) => {
@@ -476,18 +474,22 @@ const getBiteBackStats = async (userId, year = null) => {
         topRestaurant = restaurant;
         topRestaurantCount = count;
       }
-    });
+    });*/
     
-    // Get top rated restaurant
+    // Get top rated restaurant (by average rating)
     const topRatedQuery = `
       SELECT 
         json_extract(location, '$.name') as name,
-        AVG((taste + service + value) / 3.0) as rating
+        AVG((taste + service + value) / 3.0) as rating,
+        COUNT(id) as visit_count
       FROM diary_entries 
       WHERE user_id = ?
       ${yearParam ? `AND strftime('%Y', date) = ?` : ''}
       AND json_extract(location, '$.name') IS NOT NULL
+      AND json_extract(location, '$.name') != ''
+      AND taste > 0 AND service > 0 AND value > 0
       GROUP BY json_extract(location, '$.name')
+      HAVING visit_count >= 1
       ORDER BY rating DESC
       LIMIT 1
     `;
@@ -513,13 +515,10 @@ const getBiteBackStats = async (userId, year = null) => {
         range: topPrice,
         count: topPriceCount
       },
-      mostDinedLocation: {
-        name: topRestaurant,
-        visit_count: topRestaurantCount
-      },
-      topRatedRestaurant: {  // Keep this for others incase
-        name: topRated[0]?.name || 'N/A',
-        rating: topRated[0]?.rating ? topRated[0].rating.toFixed(1) : 'N/A'
+      topRatedRestaurant: { 
+         name: topRated[0]?.name || 'N/A',
+        rating: topRated[0]?.rating ? topRated[0].rating.toFixed(1) : 'N/A',
+        visit_count: topRated[0]?.visit_count || 0
       }
     };
     

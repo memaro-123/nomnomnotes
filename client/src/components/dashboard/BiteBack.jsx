@@ -26,14 +26,15 @@ export default function BiteBack() {
       }
       
       const data = await res.json();
+
       if (data.success) {
-        setStats(data.data);
+        const statsData = data.data || data;
+        setStats(statsData);
       } else {
         setStats(null);
-        toast.error(data.error || 'Failed to load BiteBack');
+        toast.error(data.message || 'failed to load biteback data');
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) { 
       toast.error('Failed to load your BiteBack');
       setStats(null);
     } finally {
@@ -45,24 +46,24 @@ export default function BiteBack() {
     fetchBiteBackData(selectedYear);
   }, [selectedYear]);
 
-  // Fun messages and emojis
+
   const getPriceMessage = (priceRange) => {
     const messages = {
       '$': { 
-        message: "Finding hidden gems without breaking the bank! 💎",
+        message: "Finding hidden gems without breaking the bank! 😝",
         emoji: "💰"
       },
       '$$': { 
-        message: "Great taste at sweet-spot prices! ✨",
-        emoji: "🍽️"
+        message: "Great taste at sweet-spot prices!? 🤑",
+        emoji: "📢"
       },
       '$$$': { 
-        message: "You've got taste for finer things! Living the luxe life. 🥂",
-        emoji: "👑"
+        message: "You've got taste for finer things! Living the luxe life. 💎",
+        emoji: "🌟"
       },
       '$$$$': { 
         message: "Only the best for your palate! Cheers to that. 🥂",
-        emoji: "🌟"
+        emoji: "👑"
       }
     };
     return messages[priceRange] || { message: "Exploring all price ranges! 🗺️", emoji: "🔍" };
@@ -75,20 +76,92 @@ export default function BiteBack() {
   };
 
   const getActivityMessage = (month, count) => {
-    if (count > 8) return `You were on a food tour in ${month}! 🚗💨`;
-    if (count > 4) return `${month} was your foodie adventure month! 🗺️`;
+    if (count > 8) return `You were on a roll in ${month}! 🚗💨`;
+    if (count > 6) return `${month} was your busy season! 📅`;
     return `${month} treated you well! 👌`;
   };
 
+  const getStarRatingInfo = (rating) => {
+    const numericRating = parseFloat(rating);
+    
+    // Star display (0-5 stars)
+    const getStarDisplay = () => {
+      const fullStars = Math.floor(numericRating);
+      const halfStar = numericRating % 1 >= 0.5;
+      const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+      
+      return {
+        fullStars,
+        halfStar,
+        emptyStars
+      };
+    };
+
+    // Rating messages based on score
+    const getRatingMessage = () => {
+      if (numericRating >= 4.8) {
+        return { 
+          message: "Absolute perfection! This place has your heart. ❤️", 
+          emoji: "🏆",
+          color: "text-amber-600"
+        };
+      } else if (numericRating >= 4.5) {
+        return { 
+          message: "Exceptional! This is a must-return spot. ⭐", 
+          emoji: "✨",
+          color: "text-amber-500"
+        };
+      } else if (numericRating >= 4.0) {
+        return { 
+          message: "Great choice! Consistently delicious. 🤭", 
+          emoji: "👍",
+          color: "text-amber-400"
+        };
+      } else if (numericRating >= 3.5) {
+        return { 
+          message: "Solid pick! Worth another visit. 👌", 
+          emoji: "✅",
+          color: "text-amber-300"
+        };
+      } else if (numericRating >= 3.0) {
+        return { 
+          message: "Good experience! Has potential. 🤔", 
+          emoji: "💭",
+          color: "text-amber-200"
+        };
+      } else if (numericRating > 2.0) {
+        return { 
+          message: "Memorable meal! Room for discovery. 🔍", 
+          emoji: "📝",
+          color: "text-gray-400"
+        };
+      }
+      else {
+        return {
+        message: "I fear it was not the most delicious year... 😞",
+        emoji: "💤",
+        color: "text-gray-300"
+      };
+    }
+  };
+    return {
+      starDisplay: getStarDisplay(),
+      ratingInfo: getRatingMessage()
+    };
+  };
+      
   if (loading) {
     return <LoadingSpinner />;
   }
 
   if (!stats || stats.totalEntries === 0) {
-    return <EmptyState year={selectedYear} setSelectedYear={setSelectedYear} />;
+    return <EmptyState year={selectedYear} setSelectedYear={setSelectedYear} data={stats} />;
   }
 
   const priceInfo = getPriceMessage(stats.priceRange.range);
+  const starRatingInfo = stats.topRatedRestaurant.rating !== 'N/A'
+    ? getStarRatingInfo(stats.topRatedRestaurant.rating)
+    : null;
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -104,9 +177,9 @@ export default function BiteBack() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <SummaryCard
             icon={<CalendarIcon size={24} weight="fill" />}
-            title="Food Memories"
+            title="Entries Logged"
             value={stats.totalEntries || 0}
-            subtitle="delicious moments"
+            subtitle="new experiences captured 📝"
             color="bg-blue-50 text-blue-700"
           />
           
@@ -114,7 +187,7 @@ export default function BiteBack() {
             icon={<MapPinAreaIcon size={24} weight="fill" />}
             title="Top City"
             value={stats.mostDinedCity.name || "N/A"}
-            subtitle={`${stats.mostDinedCity.count || 0 } visits`}
+            subtitle={`${stats.mostDinedCity.count || 0 }  visits 🗺️`}
             color="bg-amber-50 text-amber-700"
           />
           
@@ -128,7 +201,7 @@ export default function BiteBack() {
           
           <SummaryCard
             icon={<TrendUpIcon size={24} weight="fill" />}
-            title="Foodie Peak"
+            title="Most Active Month"
             value={stats.mostActiveMonth.name || "N/A"}
             subtitle={getActivityMessage(stats.mostActiveMonth.name, stats.mostActiveMonth.entry_count)}
             color="bg-purple-50 text-purple-700"
@@ -137,39 +210,52 @@ export default function BiteBack() {
         
         {/* Restaurant Rankings */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Most Visited */}
           <SectionCard 
-            title="Your Go-To Spot" 
-            icon={<MapPinAreaIcon size={20} weight="fill" />}
-            description="The place that feels like home"
+            title="Top Rated Restaurant" 
+            icon={<StarIcon size={20} weight="fill" />}
+            description="Your highest rated dining experience"
           >
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <HeartIcon size={20} className="text-blue-600" weight="fill" />
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <StarIcon size={20} className="text-amber-600" weight="fill" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-800">{stats.mostDinedLocation.name}</h4>
-                  <p className="text-sm text-gray-600">Your happy place</p>
+                  <h4 className="font-bold text-gray-800">{stats.topRatedRestaurant.name}</h4>
+                  <p className="text-sm text-gray-600">Your favorite by rating</p>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <CalendarIcon size={14} />
-                  <span>Visited {stats.mostDinedLocation.visit_count} time{stats.mostDinedLocation.visit_count !== 1 ? 's' : ''}</span>
+              {/* Star Rating Display */}
+              {starRatingInfo && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-center mb-2">
+                    {/* Star rating display */}
+                    <div className="flex items-center gap-1">
+                      {[...Array(starRatingInfo.starDisplay.fullStars)].map((_, i) => (
+                        <StarIcon key={`full-${i}`} size={24} className="text-amber-500" weight="fill" />
+                      ))}
+                      {starRatingInfo.starDisplay.halfStar && (
+                        <StarIcon size={24} className="text-amber-500" weight="half" />
+                      )}
+                      {[...Array(starRatingInfo.starDisplay.emptyStars)].map((_, i) => (
+                        <StarIcon key={`empty-${i}`} size={24} className="text-gray-300" weight="regular" />
+                      ))}
+                    </div>
+                    {/* Numerical rating */}
+                    <div className="ml-3">
+                      <span className="text-2xl font-bold text-amber-700">
+                        {stats.topRatedRestaurant.rating}
+                      </span>
+                      <span className="text-gray-500">/5</span>
+                    </div>
+                  </div>
+                  {/* Rating message */}
+                  <p className={`text-center text-sm ${starRatingInfo.ratingInfo.color} font-medium`}>
+                    {starRatingInfo.ratingInfo.message}
+                  </p>
                 </div>
-                {stats.mostDinedLocation.visit_count > 2 && (
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                    Regular status! 👋
-                  </span>
-                )}
-              </div>
+              )}   
             </div>
-            {stats.mostDinedLocation.visit_count > 1 && (
-              <p className="text-center text-gray-600 text-sm mt-3">
-                They probably know your order by now! 😄
-              </p>
-            )}
           </SectionCard>
           
           {/* Price Insights */}
@@ -216,27 +302,31 @@ export default function BiteBack() {
               <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl">
                 <TrophyIcon size={32} className="text-white" weight="fill" />
               </div>
-              <h2 className="text-3xl font-bold">Your {selectedYear} Food Story</h2>
+              <h2 className="text-3xl font-bold">Your {selectedYear} In a Bite</h2>
             </div>
             
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-              What a year it was! You collected <span className="font-bold text-amber-700">{stats.totalEntries}</span> food memories. 
+              What a year it was! You created <span className="font-bold text-amber-700">{stats.totalEntries}</span> new entries. 
               <br />
               <span className="font-bold">{stats.mostActiveMonth.name}</span> was your busiest month, 
               and you developed a real taste for <span className="font-bold">{stats.favoriteCuisine.name}</span> cuisine.
-              {stats.mostDinedLocation.name !== 'N/A' && (
+              {stats.topRatedRestaurant.name !== 'N/A' && (
                 <>
-                  {" "} You explored <span className="font-bold">{stats.mostDinedLocation.name}</span> the most,
-                  dining there <span className="font-bold">{stats.mostDinedLocation.visit_count} time{stats.mostDinedLocation.visit_count !== 1 ? 's' : ''}!</span>.
+                  {" "} Your top rated spot was <span className="font-bold">{stats.topRatedRestaurant.name}</span> with a <span className="font-bold">{stats.topRatedRestaurant.rating}/5</span> rating!
                 </>
               )}
             </p>
-            
             <div className="flex flex-wrap justify-center gap-3">
               <div className="bg-white/80 rounded-full px-4 py-2 border flex items-center gap-2">
                 <SparkleIcon size={16} className="text-amber-500" weight="fill" />
                 <span className="font-medium">{stats.totalEntries} memories</span>
               </div>
+              {stats.topRatedRestaurant.rating !== 'N/A' && (
+                <div className="bg-white/80 rounded-full px-4 py-2 border flex items-center gap-2">
+                  <StarIcon size={16} className="text-amber-500" weight="fill" />
+                  <span className="font-medium">{stats.topRatedRestaurant.rating} stars</span>
+                </div>
+              )}
               <div className="bg-white/80 rounded-full px-4 py-2 border flex items-center gap-2">
                 <FireIcon size={16} className="text-red-500" weight="fill" />
                 <span className="font-medium">{stats.favoriteCuisine.name} fan</span>
@@ -246,7 +336,6 @@ export default function BiteBack() {
                 <span className="font-medium">{stats.priceRange.range} vibes</span>
               </div>
             </div>
-            
             <div className="mt-6 pt-6 border-t border-amber-300">
               <p className="text-gray-600 text-sm">
                 💕 Can't wait to see what delicious adventures {selectedYear + 1} brings! 💕
@@ -277,19 +366,29 @@ function LoadingSpinner() {
   );
 }
 
-function EmptyState({ year, setSelectedYear }) {
+function EmptyState({ year, setSelectedYear, data }) {
+  const message = data?.message || "Your story is waiting to be written! Add some diary entries to unlock your personalized recap.";
+  const currentEntries = data?.totalEntries || 0;
+  const requiredEntries = data?.requiredEntries || 5;
+
   return (
     <div className="flex items-center justify-center h-full min-h-[500px]">
       <div className="text-center max-w-md mx-auto p-8">
         <div className="w-20 h-20 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full flex items-center justify-center mx-auto mb-6">
           <TrophyIcon size={40} className="text-amber-600" weight="fill" />
         </div>
-        
-        <h2 className="font-pacifico text-3xl text-gray-800 mb-3">No BiteBack Yet!</h2>
+        <h2 className="font-pacifico text-3xl text-gray-800 mb-3">
+          {currentEntries === 0 ? "No BiteBack Yet!" : "Almost There!"}
+        </h2>
         <p className="text-gray-600 mb-6">
-          Your food story is waiting to be written! Add some diary entries to unlock your personalized recap.
+          {message}
+          {currentEntries > 0 && (
+            <span className="block mt-2">
+              You have <span className="font-bold">{currentEntries}</span> entries. 
+              Need <span className="font-bold">{requiredEntries - currentEntries}</span> more!
+            </span>
+          )}
         </p>
-        
         <div className="flex flex-col gap-4">
           <div className="text-sm text-gray-500">Try checking a different year:</div>
           <div className="flex justify-center gap-2">
@@ -311,7 +410,7 @@ function EmptyState({ year, setSelectedYear }) {
         
         <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-200">
           <p className="text-sm text-amber-800">
-            💡 <span className="font-semibold">Pro tip:</span> Add just 3 entries to start seeing your food patterns emerge!
+            💡 <span className="font-semibold">Pro tip:</span> Add just 5 entries to start seeing your food patterns emerge!
           </p>
         </div>
       </div>
