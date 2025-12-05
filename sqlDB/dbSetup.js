@@ -39,6 +39,13 @@ const main = async () => {
         date TEXT DEFAULT (DATE('now'))
       );`
     );
+    try {
+      await execute(db, "ALTER TABLE diary_entries ADD COLUMN city TEXT;");
+      console.log("Added city column to diary_entries");
+    } catch (e) {
+      // Column might already exist
+      console.log("City column already exists or error:", e.message);
+    }
     console.log("diary_entries table ready");
 
     await execute(

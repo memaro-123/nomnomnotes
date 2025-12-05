@@ -55,4 +55,37 @@ router.get("/biteback/years", verifyUser, async (req, res) => {
   }
 });
 
+router.get("/biteback/debug", verifyUser, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const db = new sqlite3.Database("my.db");
+    
+    // Check if user has any entries
+    const entryCount = await fetchAll(db, 
+      "SELECT COUNT(*) as count FROM diary_entries WHERE user_id = ?", 
+      [userId]
+    );
+    
+    // Get sample entries
+    const sampleEntries = await fetchAll(db,
+      "SELECT location, date FROM diary_entries WHERE user_id = ? LIMIT 5",
+      [userId]
+    );
+    
+    db.close();
+    
+    res.json({
+      userId,
+      totalEntries: entryCount[0]?.count || 0,
+      sampleEntries: sampleEntries.map(e => ({
+        location: e.location,
+        city: extractCity(e.location),
+        date: e.date
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
