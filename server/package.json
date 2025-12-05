@@ -11,9 +11,7 @@
     "test:basic": "jest tests/basic-security.test.js",
     "test:security": "jest security.test.js",
      "test:rateLimit": "jest tests/rateLimit-integration.test.js --forceExit --detectOpenHandles",
-    "test:inputValidation": "jest tests/input-validation-comprehensive.test.js --forceExit --detectOpenHandles",
-    "test:sqlInjection": "jest tests/sql-injection-verification.test.js --forceExit --detectOpenHandles",
-    "test:biteback": "jest biteback --forceExit --detectOpenHandles",
+    "test:inputValidation": "jest tests/input-validation.test.js --forceExit --detectOpenHandles",    "test:biteback": "jest biteback --forceExit --detectOpenHandles",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
