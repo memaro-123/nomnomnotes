@@ -24,27 +24,6 @@ router.get("/friends", verifyUser, async (req, res) => {
   }
 });
 
-/*
-// Handles sending a friend request
-router.post("/friends/request", verifyUser, async (req, res) => {
-  const uid = req.user.uid;
-  const { friendId } = req.body;
-  if (!friendId) return res.status(400).json({ error: "Missing friendId" });
-
-  const db = new sqlite3.Database("my.db");
-  const sql = `INSERT INTO friends (requester_id, receiver_id, status) VALUES (?, ?, 'pending')`;
-
-  try {
-    await paramExec(db, sql, [uid, friendId]);
-    res.json({ success: true, message: "Friend request sent" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to send friend request" });
-  } finally {
-    db.close();
-  }
-});
-*/
 // This gets all pending friend requests for the logged-in user
 router.get("/friends/requests", verifyUser, async (req, res) => {
   const uid = req.user.uid;
@@ -176,6 +155,30 @@ router.patch("/getUsername", verifyUser, async (req, res) => {
     const username = await dbFunctions.getUsername(id)
 
     res.json({ username: username, success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to change usrname" });
+  }
+});
+router.patch("/getUsernameList", verifyUser, async (req, res) => {
+  let idAndUsernames ={}
+  let { idArray } = req.body|| {};
+  if (!idArray)  {
+    return res.status(400).json({ error: "Missing id or name" });
+  }
+  idArray = Array.isArray(idArray) ? idArray : [idArray];
+ 
+  try {
+    for (const id of idArray) {
+       if (!(await dbFunctions.userExists({id:id}))) {
+        return res.status(400).json({ error: `${id} not found in db` })
+  }
+      else{
+        const username = await dbFunctions.getUsername(id)
+        idAndUsernames[id]=username
+      } 
+    }
+    res.json({ usernames: idAndUsernames, success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to change usrname" });

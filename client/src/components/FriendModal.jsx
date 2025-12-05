@@ -19,23 +19,25 @@ export default function FriendModal({ onSelectFriend }) {
   setFriends(data.friends || []);
 };
 
-  const getUsername= async (id) =>{
+  const getUsernameList= async (ids) =>{
     const token = await auth.currentUser.getIdToken();
     try{
-      const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`http://localhost:8080/api/user/getUsernameList`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}`,"Content-Type": "application/json" },
+      
+      body: JSON.stringify({ idArray: ids })
     });
     if (!res.ok) {
-      throw new Error("Failed to fetch username");
+      throw new Error("Failed to fetch usernames");
     }
     const data = await res.json();
-    return data.username;
+    return data.usernames;
     }
     catch(err){       
     console.error(err);
     return null;
   }
-    
   }
   useEffect(() => {
     const fetchData = async () => {
@@ -112,9 +114,9 @@ export default function FriendModal({ onSelectFriend }) {
 
     return (
       <div className="flex flex-col w-full h-[calc(100vh-90px)] border-2 border-gray-300 p-5 rounded-md shadow-md">
-        <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
+        <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsernameList={getUsernameList}/>
 
-        <FriendList refreshFriends={refreshFriends } friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>
+        <FriendList refreshFriends={refreshFriends } friends={friends} onSelectFriend={onSelectFriend} getUsernameList={getUsernameList}/>
       </div>
   );
   }
