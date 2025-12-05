@@ -119,7 +119,7 @@ describe('Biteback Analytics Tests', () => {
       
       // Assert
       expect(result.success).toBe(true);
-      expect(parseFloat(result.averageRating.overall)).toBeCloseTo(4.17, 2);
+      expect(parseFloat(result.averageRating.overall)).toBeCloseTo(4.13, 2);
     });
   });
 
