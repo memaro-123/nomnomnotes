@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, devices } from '@playwright/test';
+import test, { defineConfig, devices } from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -80,6 +80,8 @@ export default defineConfig({
 });
 
 module.exports = {
+  testDir: './tests',
+  testMatch: ['**/*.spec.js'],
   webServer: [
     {
       command: 'cd client && npm run dev',
