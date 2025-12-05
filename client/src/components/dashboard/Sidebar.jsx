@@ -44,15 +44,27 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername, setOpe
 
                 {/* desktop sidebar */}
             <div className={'hidden lg:block h-full transition-all w-full rounded-md shadow-md border-gray-300 border-1'}>
-                <div className="flex flex-col items-center justify-between h-full w-full py-5">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                    <span className="font-pacifico text-3xl">n</span>
-                    <button 
-                        className="p-2 hover:bg-gray-200 rounded-md hover:cursor-pointer transition-all"
-                        onClick={() => setOpenSidebar(false)}>
-                    </button>
+                <div className="flex w-full h-full gap-2">
+                    <div className="flex flex-col items-center justify-between h-full w-full py-5">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                            <span className="font-pacifico text-3xl">n</span>
+                            <button 
+                                className={`p-2 hover:bg-gray-200 rounded-md hover:cursor-pointer transiton-all ${activeView === 'friends' ? 'bg-gray-200' : ''}`}
+                                onClick={() => setActiveView('friends')}
+                                >
+                                    <UsersIcon size={20} weight={'fill'}/>
+                            </button>
+                            <button 
+                                className={`p-2 hover:bg-gray-200 rounded-md hover:cursor-pointer transiton-all ${activeView === 'wishlist' ? 'bg-gray-200' : ''}`}
+                                onClick={() => setActiveView('wishlist')}>
+                                    <StarIcon size={20} weight={'fill'}/>
+                            </button>
+                        </div>
+                        <SettingsButton myUsername={myUsername} handleUsername={setMyUsername}/>
                     </div>
-                    <SettingsButton myUsername={myUsername} handleUsername={setMyUsername}/>
+
+                    {activeView === 'friends' && <FriendModal/>}
+                    {activeView === 'wishlist' && <WishlistModal wishlist={wishlist} setWishlist={setWishlist}/>}
                 </div>
             </div>
 
