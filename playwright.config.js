@@ -80,7 +80,7 @@ export default defineConfig({
 });
 
 module.exports = {
-  testDir: './tests',
+  testDir: './e2etests',
   testMatch: ['**/*.spec.js'],
   webServer: [
     {
