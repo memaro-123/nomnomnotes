@@ -8,49 +8,6 @@ import {
   HeartIcon, SmileyIcon
 } from "@phosphor-icons/react";
 
-// normalize
-const normalizeBiteBackData = (data) => {
-  if (!data) return null;
-  
-  // If data already has the expected structure, return as-is
-  if (data.mostDinedCity && data.favoriteCuisine) {
-    return data;
-  }
-  
-  // Normalize from getBiteBackData structure
-  return {
-    totalEntries: data.totalEntries || 0,
-    mostDinedCity: {
-      name: data.mostDinedCity?.name || 'N/A',
-      count: data.mostDinedCity?.count || 0
-    },
-    favoriteCuisine: {
-      name: data.favoriteCuisine?.name || 'N/A',
-      count: data.favoriteCuisine?.count || 0
-    },
-    mostActiveMonth: {
-      name: data.mostActiveMonth?.name || 'N/A',
-      entry_count: data.mostActiveMonth?.entry_count || 0
-    },
-    priceRange: {
-      range: data.priceRange?.range || 'N/A',
-      count: data.priceRange?.count || 0
-    },
-    mostDinedLocation: {
-      name: data.mostDinedLocation?.name || 'N/A',
-      visit_count: data.mostDinedLocation?.visit_count || 0
-    },
-    // Add other fields from getBiteBackData if needed
-    topRatedRestaurant: data.topRatedRestaurant || { name: 'N/A', rating: 'N/A' },
-    averageRating: data.averageRating || {
-      overall: 'N/A',
-      taste: 'N/A',
-      service: 'N/A',
-      value: 'N/A'
-    }
-  };
-};
-
 export default function BiteBack() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -71,17 +28,13 @@ export default function BiteBack() {
       const data = await res.json();
 
       if (data.success) {
-        if (data.data) {
-          setStats(data.data);
-        } else {
-          setStats(data);
-        }
+        const statsData = data.data || data;
+        setStats(statsData);
       } else {
         setStats(null);
-        toast.error(data.message || data.error || 'Failed to load BiteBack data');
+        toast.error(data.message || 'failed to load biteback data');
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) { 
       toast.error('Failed to load your BiteBack');
       setStats(null);
     } finally {
@@ -93,7 +46,7 @@ export default function BiteBack() {
     fetchBiteBackData(selectedYear);
   }, [selectedYear]);
 
-  // Fun messages and emojis
+
   const getPriceMessage = (priceRange) => {
     const messages = {
       '$': { 
@@ -369,7 +322,7 @@ function EmptyState({ year, setSelectedYear, data }) {
         
         <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-200">
           <p className="text-sm text-amber-800">
-            💡 <span className="font-semibold">Pro tip:</span> Add just 3 entries to start seeing your food patterns emerge!
+            💡 <span className="font-semibold">Pro tip:</span> Add just 5 entries to start seeing your food patterns emerge!
           </p>
         </div>
       </div>
