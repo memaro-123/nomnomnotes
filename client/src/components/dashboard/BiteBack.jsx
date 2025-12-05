@@ -8,6 +8,49 @@ import {
   HeartIcon, SmileyIcon
 } from "@phosphor-icons/react";
 
+// normalize
+const normalizeBiteBackData = (data) => {
+  if (!data) return null;
+  
+  // If data already has the expected structure, return as-is
+  if (data.mostDinedCity && data.favoriteCuisine) {
+    return data;
+  }
+  
+  // Normalize from getBiteBackData structure
+  return {
+    totalEntries: data.totalEntries || 0,
+    mostDinedCity: {
+      name: data.mostDinedCity?.name || 'N/A',
+      count: data.mostDinedCity?.count || 0
+    },
+    favoriteCuisine: {
+      name: data.favoriteCuisine?.name || 'N/A',
+      count: data.favoriteCuisine?.count || 0
+    },
+    mostActiveMonth: {
+      name: data.mostActiveMonth?.name || 'N/A',
+      entry_count: data.mostActiveMonth?.entry_count || 0
+    },
+    priceRange: {
+      range: data.priceRange?.range || 'N/A',
+      count: data.priceRange?.count || 0
+    },
+    mostDinedLocation: {
+      name: data.mostDinedLocation?.name || 'N/A',
+      visit_count: data.mostDinedLocation?.visit_count || 0
+    },
+    // Add other fields from getBiteBackData if needed
+    topRatedRestaurant: data.topRatedRestaurant || { name: 'N/A', rating: 'N/A' },
+    averageRating: data.averageRating || {
+      overall: 'N/A',
+      taste: 'N/A',
+      service: 'N/A',
+      value: 'N/A'
+    }
+  };
+};
+
 export default function BiteBack() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,11 +69,16 @@ export default function BiteBack() {
       }
       
       const data = await res.json();
+
       if (data.success) {
-        setStats(data.data);
+        if (data.data) {
+          setStats(data.data);
+        } else {
+          setStats(data);
+        }
       } else {
         setStats(null);
-        toast.error(data.error || 'Failed to load BiteBack');
+        toast.error(data.message || data.error || 'Failed to load BiteBack data');
       }
     } catch (err) {
       console.error(err);
@@ -85,7 +133,7 @@ export default function BiteBack() {
   }
 
   if (!stats || stats.totalEntries === 0) {
-    return <EmptyState year={selectedYear} setSelectedYear={setSelectedYear} />;
+    return <EmptyState year={selectedYear} setSelectedYear={setSelectedYear} data={stats} />;
   }
 
   const priceInfo = getPriceMessage(stats.priceRange.range);
@@ -277,19 +325,29 @@ function LoadingSpinner() {
   );
 }
 
-function EmptyState({ year, setSelectedYear }) {
+function EmptyState({ year, setSelectedYear, data }) {
+  const message = data?.message || "Your story is waiting to be written! Add some diary entries to unlock your personalized recap.";
+  const currentEntries = data?.totalEntries || 0;
+  const requiredEntries = data?.requiredEntries || 5;
+
   return (
     <div className="flex items-center justify-center h-full min-h-[500px]">
       <div className="text-center max-w-md mx-auto p-8">
         <div className="w-20 h-20 bg-gradient-to-r from-amber-200 to-orange-200 rounded-full flex items-center justify-center mx-auto mb-6">
           <TrophyIcon size={40} className="text-amber-600" weight="fill" />
         </div>
-        
-        <h2 className="font-pacifico text-3xl text-gray-800 mb-3">No BiteBack Yet!</h2>
+        <h2 className="font-pacifico text-3xl text-gray-800 mb-3">
+          {currentEntries === 0 ? "No BiteBack Yet!" : "Almost There!"}
+        </h2>
         <p className="text-gray-600 mb-6">
-          Your food story is waiting to be written! Add some diary entries to unlock your personalized recap.
+          {message}
+          {currentEntries > 0 && (
+            <span className="block mt-2">
+              You have <span className="font-bold">{currentEntries}</span> entries. 
+              Need <span className="font-bold">{requiredEntries - currentEntries}</span> more!
+            </span>
+          )}
         </p>
-        
         <div className="flex flex-col gap-4">
           <div className="text-sm text-gray-500">Try checking a different year:</div>
           <div className="flex justify-center gap-2">
