@@ -14,7 +14,7 @@ export default function Filters({
         className={`
             fixed left-5 top-5 z-40
             h-[calc(100vh-40px)] bg-white pl-3
-            w-[300px] rounded-md shadow-md border border-gray-300
+            w-[315px] rounded-md shadow-md border border-gray-300
             transform transition-transform duration-300 ease-in-out
             ${openFilter ? 'translate-x-0 pointer-events-auto opacity-100' : '-translate-x-full pointer-events-none opacity-0'}
         `}

@@ -10,7 +10,7 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername,
     const [openSettings, setOpenSettings] = useState(false)
 
     return (
-        <div className="flex h-full gap-2 items-center justify-center lg:w-1/4">
+        <div className="flex h-full gap-2 items-center justify-center lg:w-2/7">
             {/* mobile sidebar */}
             <div
             className={`

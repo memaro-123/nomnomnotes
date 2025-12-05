@@ -117,6 +117,8 @@ export default function Dashboard() {
       fetchUsername(setMyUsername, id)
     }, [])
 
+    useEffect(() => {console.log({myUsername})}, [])
+
 
     const fetchFriendDiaries = async (friendId) => {
       setLoading(true);

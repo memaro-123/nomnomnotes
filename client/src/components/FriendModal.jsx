@@ -75,6 +75,8 @@ export default function FriendModal({ onSelectFriend }) {
       
       if (action === "accept") {
         const myID = auth.currentUser.uid;
+        console.log('accepting api with requeseterId', requesterId)
+      console.log('accpeting api with myid', myID)
         const response = await fetch("http://localhost:8080/api/user/makefriend", {
           method: "PATCH",
           headers: {

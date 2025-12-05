@@ -168,6 +168,9 @@ const insertRecievedCode = async ({ myID, recievedID }) => {
 };
 
 const insertNewFriend = async ({ myID, friendID }) => {
+  console.log('in db function')
+  console.log('myid', myID)
+  console.log('friendid', friendID)
   const db = new sqlite3.Database("my.db");
   try {
     await paramExec(db, "BEGIN TRANSACTION");
@@ -236,6 +239,7 @@ const insertNewFriend = async ({ myID, friendID }) => {
 };
 
 const userExists = async ({ id }) => {
+  console.log('inuserexists')
   const db = new sqlite3.Database("my.db");
   try {
     const row = await getFirstRow(

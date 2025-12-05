@@ -61,16 +61,22 @@ router.patch("/friends/:friendId", verifyUser, async (req, res) => {
   }
 });
 router.patch("/makefriend", verifyUser, async (req, res) => {
+  console.log('in api')
+  console.log('reqbody', req.body)
   //API TO ACCEPT A FRIEND REQ
-  const { myID, friendID } = req.body;
-  if (!myID || !friendID) {
+  const { userId, friendId } = req.body;
+  if (!userId || !friendId) {
+    console.log('missing ids')
     return res.status(400).json({ error: "Missing id" });
   }
-  if (!(await dbFunctions.userExists({id:friendID}))) {
+  if (!(await dbFunctions.userExists({id:friendId}))) {
+    console.log('friend doesnt exist')
     return res.status(400).json({ error: "friend doesn't exist" });
   }
   try {
-    await dbFunctions.insertNewFriend({ myID, friendID });
+    console.log('calling db function userid', userId)
+    console.log('calling db function friendid', friendId)
+    await dbFunctions.insertNewFriend( { myID: userId, friendID: friendId } );
     console.log("insertNewFriend jsut ran type shit");
 
     res.json({ success: true });

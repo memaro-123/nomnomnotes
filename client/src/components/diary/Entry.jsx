@@ -92,7 +92,7 @@ export default function Entry({ entry }) {
                     <div className="flex flex-col items-center justify-center mt-1">
                         <span>service</span>
                         <StarRating
-                        value={entry.taste}
+                        value={entry.service}
                         size={20}
                         write={false}
                         />
@@ -101,7 +101,7 @@ export default function Entry({ entry }) {
                     <div className="flex flex-col items-center justify-center mt-1">
                         <span>value</span>
                         <StarRating
-                        value={entry.taste}
+                        value={entry.value}
                         size={20}
                         write={false}
                         />
