@@ -4,7 +4,7 @@ import { auth } from '../../firebase';
 import ChooseUsername from "../ChooseUsername";
 import AddDiaryButton from '../diary/AddDiaryButton';
 import ExplorerModal from "../explore/ExplorerModal.jsx";
-import FriendModal from "../FriendModal";
+import Filters from './Filters';
 import WishlistModal from "../WishlistModal.jsx";
 import BiteBack from './BiteBack';
 import Diary from './Diary';
@@ -26,6 +26,23 @@ export default function Dashboard() {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false)
   const [friendUsername, setFriendUsername] = useState("");
+  const [openFilter, setOpenFilter] = useState(false)
+
+  const [cuisineFilters, setCuisineFilters] = useState([])
+  const [labelFilters, setLabelFilters] = useState([])
+  const [priceFilters, setPriceFilters] = useState([])
+
+  const handleCuisineFilter = (filter) => {
+    setCuisineFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
+    }
+
+    const handleLabelFilter = (filter) => {
+    setLabelFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
+    }
+
+    const handlePriceFilter = (filter) => {
+    setPriceFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
+    }
   
   const onSelectFriend = async (friendID) => {
     try {
@@ -135,6 +152,10 @@ export default function Dashboard() {
               <Sidebar onSelectFriend={onSelectFriend} openSidebar={openSidebar} 
               myUsername={myUsername} setUsername={setMyUsername} setOpenSidebar={setOpenSidebar}
               wishlist={wishlist} setWishlist={setWishlist} setActiveView={setActiveView}/>
+
+              <Filters handleCuisineFilter={handleCuisineFilter} handleLabelFilter={handleLabelFilter}
+              handlePriceFilter={handlePriceFilter} openFilter={openFilter} setOpenFilter={setOpenFilter}
+              cuisineFilters={cuisineFilters} labelFilters={labelFilters} priceFilters={priceFilters}/>
               {/* <FriendModal onSelectFriend={onSelectFriend}/> */}
           {/* </div> */}
 
@@ -178,7 +199,9 @@ export default function Dashboard() {
             {activeView === 'biteback' ? (
               <BiteBack />
             ) : activeView === 'diary' ? ( 
-              <Diary entries={entries} fetchDiaries={fetchDiaries} fetchFriendDiaries ={fetchFriendDiaries} loading={loading} error={error} viewingFriendId={viewingFriendId}/>
+              <Diary entries={entries} fetchDiaries={fetchDiaries} fetchFriendDiaries ={fetchFriendDiaries} 
+              loading={loading} error={error} viewingFriendId={viewingFriendId} cuisineFilters={cuisineFilters} labelFilters={labelFilters}
+              priceFilters={priceFilters} setOpenFilter={setOpenFilter}/>
             ) : (
               <ExplorerModal wishlist={wishlist} setWishlist={setWishlist}/>
             )}

@@ -1,14 +1,13 @@
-import Filters from './Filters';
 import Entry from '../diary/Entry';
 import EntryList from '../diary/EntryList';
-import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, SlidersHorizontalIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from 'react';
 
-export default function Diary({ entries, fetchDiaries, loading, error, viewingFriendId }) {
+export default function Diary({ entries, fetchDiaries, loading, error, viewingFriendId,
+  cuisineFilters, labelFilters, priceFilters,
+  setOpenFilter
+ }) {
     const [selectedEntry, setSelectedEntry] = useState(null);
-    const [cuisineFilters, setCuisineFilters] = useState([])
-    const [labelFilters, setLabelFilters] = useState([])
-    const [priceFilters, setPriceFilters] = useState([])
     const [search, setSearch] = useState('')
     const [sortBy, setSortBy] = useState('recent')
 
@@ -52,18 +51,6 @@ export default function Diary({ entries, fetchDiaries, loading, error, viewingFr
     setSelectedEntry(newEntry)
     }
 
-    const handleCuisineFilter = (filter) => {
-    setCuisineFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
-    }
-
-    const handleLabelFilter = (filter) => {
-    setLabelFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
-    }
-
-    const handlePriceFilter = (filter) => {
-    setPriceFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
-    }
-
     return(
 <div className="flex items-center justify-center w-full h-full max-h-full gap-4">
 
@@ -91,14 +78,17 @@ export default function Diary({ entries, fetchDiaries, loading, error, viewingFr
         <option value='rating'>highest rating</option>
       </select>
     </div>
-    <Filters 
+    {/* <Filters 
       handleCuisineFilter={handleCuisineFilter} 
       handleLabelFilter={handleLabelFilter} 
       handlePriceFilter={handlePriceFilter}
       cuisineFilters={cuisineFilters}
       labelFilters={labelFilters}
       priceFilters={priceFilters}
-      />
+      /> */}
+      <button 
+            className="bg-black text-white p-1 rounded-md hover:cursor-pointer hover:bg-gray-800 transition-all"
+            onClick={() => setOpenFilter(prev => !prev)}><SlidersHorizontalIcon size={16}/></button>
   </div>
 
   <EntryList selectedEntry={selectedEntry} 
