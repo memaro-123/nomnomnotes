@@ -96,12 +96,8 @@ export default function FriendModal({ onSelectFriend }) {
         const result = await response.json();
         console.log("Friend request accepted:", result);
   
-        setPendingRequests(prev => prev.filter(req => req.uid !== requesterId));
-        
-        const newFriend = pendingRequests.find(req => req.uid === requesterId);
-        if (newFriend && setFriends) {
-          setFriends(prev => [...prev, newFriend]);
-        }
+        setPendingRequests(prev => prev.filter(id => id !== requesterId));
+        setFriends(prev => [...prev, requesterId]);
   
       } else if (action === "reject") {
         const response = await fetch("http://localhost:8080/api/user/rejectfriend", {
