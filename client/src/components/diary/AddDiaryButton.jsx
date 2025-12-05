@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from 'react-hot-toast';
 import { auth } from "../../firebase";
 import DiaryForm from "./DiaryForm";
+import { PlusIcon } from "@phosphor-icons/react";
 
 export default function AddDiaryButton({ fetchDiaries }) {
   const [openForm, setOpenForm] = useState(false);
@@ -74,8 +75,11 @@ export default function AddDiaryButton({ fetchDiaries }) {
   return (
     <div>
       <button 
-      className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer"
-      onClick={() => setOpenForm(true)}>add entry</button>
+      className="bg-black text-white p-2 md:px-4 md:py-1 rounded-md text-sm hover:cursor-pointer"
+      onClick={() => setOpenForm(true)}>
+        <PlusIcon size={15} weight={"bold"} className="md:hidden"/>
+        <span className="hidden md:block">add entry</span>
+        </button>
       {openForm && (
         <DiaryForm
           handleCloseForm={handleCloseForm}

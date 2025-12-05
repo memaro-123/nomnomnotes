@@ -1,4 +1,4 @@
-import { HouseIcon } from "@phosphor-icons/react";
+import { HouseIcon, MapPinIcon, ChartLineIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from 'react';
 import { auth } from '../../firebase';
 import ChooseUsername from "../ChooseUsername";
@@ -8,7 +8,7 @@ import FriendModal from "../FriendModal";
 import WishlistModal from "../WishlistModal.jsx";
 import BiteBack from './BiteBack';
 import Diary from './Diary';
-import SettingsButton from './SettingsButton';
+import Sidebar from './Sidebar';
 
 export default function Dashboard() {
 
@@ -22,6 +22,7 @@ export default function Dashboard() {
 
   const [wishlist, setWishlist] = useState([]);
   const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [openSidebar, setOpenSidebar] = useState(false)
   const [friendUsername, setFriendUsername] = useState("");
   
   const onSelectFriend = async (friendID) => {
@@ -33,10 +34,6 @@ export default function Dashboard() {
     } catch(error) {
       console.log(error)
     }
-  }
-
-  const handleUsername = (newUsername) => {
-    setMyUsername(newUsername)
   }
 
     const fetchDiaries = useCallback(async () => {
@@ -125,17 +122,19 @@ export default function Dashboard() {
     return (
         <div className="w-screen h-screen flex gap-5 p-5">
 
-          {myUsername === 'defaultUsername' && <ChooseUsername handleUsername={handleUsername}/>}
+          {myUsername === 'defaultUsername' && <ChooseUsername handleUsername={setMyUsername}/>}
 
           {/* friends */}
-          <div className="hidden lg:block lg:flex flex-col w-1/4 h-full gap-2">
-            <div className=" flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
-              {/* <span className="text-xl">🐠 🥦 🍎</span> */}
+          {/* <div className="hidden lg:block lg:flex flex-col w-1/4 h-full gap-2"> */}
+            {/* <div className=" flex items-center justify-between w-full px-5 py-2 border-2 border-gray-300 rounded-md shadow-md">
               <span className="text-lg font-bold">nomnom notes</span>
               <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
-            </div>
-              <FriendModal onSelectFriend ={onSelectFriend}/>
-          </div>
+            </div> */}
+              <Sidebar onSelectFriend={onSelectFriend} openSidebar={openSidebar} 
+              myUsername={myUsername} setUsername={setMyUsername} setOpenSidebar={setOpenSidebar}
+              wishlist={wishlist} setWishlist={setWishlist}/>
+              {/* <FriendModal onSelectFriend={onSelectFriend}/> */}
+          {/* </div> */}
 
           {/* diary part */}
           <div className="w-full h-full max-h-full flex flex-col gap-3">
@@ -146,7 +145,7 @@ export default function Dashboard() {
 
                 <div className="flex items-center justify-center gap-3">
                   <div className="lg:hidden">
-                    <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
+                    <CaretRightIcon size={28} weight={'bold'} onClick={() => setOpenSidebar(true)}/>
                   </div>
                   <button className="hover:cursor-pointer" onClick={() => {setActiveView('diary'); setViewingFriendId(null); fetchDiaries();}}><HouseIcon size={28} weight={'fill'}/></button>
                 {activeView === 'diary' ? (
@@ -160,9 +159,9 @@ export default function Dashboard() {
 
                 <div className="flex gap-3">
                   {!viewingFriendId && <button onClick={() => setActiveView('explore')}
-                  className="px-4 py-1 bg-black text-white text-sm rounded-md hover:cursor-pointer">
-                    {/* <MapPinIcon size={20} /> */}
-                    explore
+                  className="p-2 md:px-4 md:py-1 bg-black text-white text-sm rounded-md hover:cursor-pointer">
+                    <MapPinIcon size={15} weight={"fill"} className="md:hidden"/>
+                    <span className="hidden md:block">explore</span>
                   </button>}
                   {/* 
                    <button onClick={() => setWishlistOpen(true)}
@@ -171,8 +170,10 @@ export default function Dashboard() {
                   </button> */}
 
                   {!viewingFriendId && <button onClick={() => setActiveView('biteback')} 
-                  className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer">
-                   biteback </button>}
+                  className="bg-black text-white p-2 md:px-4 md:py-1 rounded-md text-sm hover:cursor-pointer">
+                    <ChartLineIcon size={15} weight={"bold"} className="md:hidden"/>
+                    <span className="hidden md:block">biteback</span>
+                   </button>}
                   {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
                 </div>
 

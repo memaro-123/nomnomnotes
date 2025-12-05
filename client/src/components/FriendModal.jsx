@@ -73,45 +73,65 @@ export default function FriendModal({ onSelectFriend }) {
       
       if (action === "accept") {
         const myID = auth.currentUser.uid;
-        const response =await fetch("http://localhost:8080/api/user/makefriend", {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ 
-          myID: myID,
-          friendID: requesterId 
-        })
-      });
-      if (response.ok) {
-        setPendingRequests(prev => prev.filter(r => r !== requesterId));
-        await refreshFriends();
-      }}
-      else if (action === "reject") {
-        try {
-          const myID = auth.currentUser.uid;
-          const response =await fetch(`http://localhost:8080/api/user/delete/${requesterId}`
-, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        
-      });
-          setPendingRequests(prev => prev.filter(r => r !== requesterId));
+        const response = await fetch("http://localhost:8080/api/user/makefriend", {
+          method: "PATCH",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json", 
+          },
+          body: JSON.stringify({ 
+            friendId: requesterId,
+            userId: myID
+          })
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Failed to accept friend request: ${response.status}`);
         }
-        catch{}
-    }
+  
+        const result = await response.json();
+        console.log("Friend request accepted:", result);
+  
+        setPendingRequests(prev => prev.filter(req => req.uid !== requesterId));
+        
+        const newFriend = pendingRequests.find(req => req.uid === requesterId);
+        if (newFriend && setFriends) {
+          setFriends(prev => [...prev, newFriend]);
+        }
+  
+      } else if (action === "reject") {
+        const response = await fetch("http://localhost:8080/api/user/rejectfriend", {
+          method: "PATCH",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            requesterId: requesterId
+          })
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Failed to reject friend request: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        console.log("Friend request rejected:", result);
+  
+
+        setPendingRequests(prev => prev.filter(req => req.uid !== requesterId));
+      }
+  
+      console.log(`Friend request ${action}ed successfully`);
       
     } catch (err) {
-      console.error("Failed to update request", err);
+      console.error(`Failed to ${action} friend request:`, err);
+
     }
   };
 
     return (
-      <div className="flex flex-col w-full h-[calc(100vh-90px)] border-2 border-gray-300 p-5 rounded-md shadow-md">
+      <div className="flex flex-col w-full h-full p-5 flex-1">
         <PendingReqs pendingRequests={pendingRequests} handleRequestAction={handleRequestAction} getUsername={getUsername}/>
 
         <FriendList refreshFriends={refreshFriends } friends={friends} onSelectFriend={onSelectFriend} getUsername={getUsername}/>

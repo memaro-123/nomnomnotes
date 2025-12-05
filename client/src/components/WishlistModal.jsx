@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
 
-export default function WishlistModal({ onClose, wishlist, setWishlist }) {
+export default function WishlistModal({ wishlist, setWishlist }) {
   const [loading, setLoading] = useState(true);
 
   // Stop showing loading once the wishlist is received from Dashboard
@@ -27,46 +27,7 @@ export default function WishlistModal({ onClose, wishlist, setWishlist }) {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 9999,
-      }}
-    >
-      <div
-        style={{
-          width: "400px",
-          maxHeight: "80vh",
-          background: "#fff",
-          borderRadius: 12,
-          overflowY: "auto",
-          padding: 16,
-          position: "relative",
-        }}
-      >
-        <button
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            background: "transparent",
-            border: "none",
-            fontSize: 24,
-            cursor: "pointer",
-          }}
-        >
-          ✕
-        </button>
-
+    <div className="border-1 p-5 w-full h-full">
         <h3>Wishlist</h3>
         {loading && <p>Loading wishlist...</p>}
         {!loading && wishlist.length === 0 && <p>No items in wishlist</p>}
@@ -88,6 +49,5 @@ export default function WishlistModal({ onClose, wishlist, setWishlist }) {
             </div>
           ))}
       </div>
-    </div>
   );
 }
