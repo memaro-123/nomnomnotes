@@ -25,8 +25,8 @@ export default function PendingReqs  ({ pendingRequests, handleRequestAction,get
           <div className="shrink-0">
             <div className="flex w-full items-center justify-between">
               <div className="flex items-center justify-center gap-1">
-              {!open && <button onClick={() => {setOpen(true)}}><CaretUpIcon size={16} weight={'bold'}/></button>}
-              {open && <button onClick={() => {setOpen(false)}}><CaretDownIcon size={16} weight={'bold'}/></button>}
+              {!open && <button className="hover:cursor-pointer" onClick={() => {setOpen(true)}}><CaretUpIcon size={16} weight={'bold'}/></button>}
+              {open && <button className="hover:cursor-pointer" onClick={() => {setOpen(false)}}><CaretDownIcon size={16} weight={'bold'}/></button>}
               <span>friend requests ({pendingRequests.length})</span>
               </div>
               <FriendFinder/>
@@ -50,13 +50,13 @@ export default function PendingReqs  ({ pendingRequests, handleRequestAction,get
                     <div className="flex items-center justify-center">
 
                       <button 
-                        className="hover:cursor-pointer text-lime-500"
+                        className="hover:cursor-pointer text-lime-500 hover:text-lime-600"
                         onClick={() => handleRequestAction(r, "accept")}
                         style={{ marginRight: "5px", cursor: "pointer" }}
                       ><CheckCircleIcon size={20} weight={'fill'}/></button>
 
                       <button
-                        className="hover:cursor-pointer text-red-400" 
+                        className="hover:cursor-pointer text-red-400 hover:text-red-500" 
                         onClick={() => handleRequestAction(r, "reject")}
                         style={{ cursor: "pointer" }}
                       ><XCircleIcon size={20} weight={'fill'}/></button>

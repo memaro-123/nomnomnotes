@@ -108,7 +108,7 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
                                     
                                     {/* options button */}
                                     {!isReadOnly && (
-                                        <button onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}><DotsThreeVerticalIcon size={20}/></button>
+                                        <button className="hover:cursor-pointer" onClick={() => setOpenOptionsId((prevId) => (prevId === entry.id ? null : entry.id))}><DotsThreeVerticalIcon size={20}/></button>
                                     )}
                                 </div>
 

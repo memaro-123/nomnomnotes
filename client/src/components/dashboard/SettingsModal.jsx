@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../../firebase';
 import Logout from '../auth/logoutButton';
-import { GearIcon, XIcon, EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
+import { GearIcon, XIcon, EyeIcon, EyeSlashIcon, CopySimpleIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider} from 'firebase/auth';
 
@@ -110,17 +110,19 @@ export default function SettingsModal({ handleClose, myUsername, handleUsername 
               <GearIcon size={45} weight={"fill"}/>
               <span className="font-pacifico text-3xl">settings</span>
             </div>
-            <button onClick={handleClose}><XIcon/></button>
+            <button className="hover:bg-gray-200 rounded-full transition-all p-2"onClick={() => handleClose(false)}><XIcon/></button>
           </div>
 
           <span>email: {user.email || ''}</span>
           <button 
             onClick={handleCopyUid}
-            className="p-1 hover:bg-gray-100 rounded transition-colors"
+            className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center gap-1"
             title="Copy UID"
           >
-              uid: {user.uid}
+            <CopySimpleIcon size={15}/>
+            my uid: {user.uid}
           </button>
+
           
           <div className="w-full">
             <span>name</span>
@@ -132,7 +134,7 @@ export default function SettingsModal({ handleClose, myUsername, handleUsername 
                   onChange={e => setName(e.target.value)} 
                   type={'text'} placeholder={'enter your name'}/>
               </div>
-              <button onClick={handleNameChange} className="bg-black text-white hover:cursor-pointer px-2 py-1 text-sm rounded-md">change name</button>
+              <button onClick={handleNameChange} className="hover:bg-gray-800 transition-all bg-black text-white hover:cursor-pointer px-2 py-1 text-sm rounded-md">change name</button>
             </div>
           </div>
 
@@ -146,8 +148,8 @@ export default function SettingsModal({ handleClose, myUsername, handleUsername 
                 onChange={e => setPassword(e.target.value)} 
                 type={passwordVisibility} placeholder={'enter current password'}/>
                 <div className="flex-shrink-0">
-                    {passwordVisibility === 'password' && <EyeIcon size={16} onClick={() => setPasswordVisibility('text')}/>}
-                    {passwordVisibility === 'text' && <EyeSlashIcon size={16} onClick={() => setPasswordVisibility('password')}/>}
+                    {passwordVisibility === 'password' && <EyeIcon className="hover:cursor-pointer" size={16} onClick={() => setPasswordVisibility('text')}/>}
+                    {passwordVisibility === 'text' && <EyeSlashIcon className="hover:cursor-pointer" size={16} onClick={() => setPasswordVisibility('password')}/>}
                 </div>
             </div>
 
@@ -159,12 +161,12 @@ export default function SettingsModal({ handleClose, myUsername, handleUsername 
                   onChange={e => setNewPassword(e.target.value)} 
                   type={newPasswordVisibility} placeholder={'enter new password'}/>
                   <div className="flex-shrink-0">
-                      {newPasswordVisibility === 'password' && <EyeIcon size={16} onClick={() => setNewPasswordVisibility('text')}/>}
-                      {newPasswordVisibility === 'text' && <EyeSlashIcon size={16} onClick={() => setNewPasswordVisibility('password')}/>}
+                      {newPasswordVisibility === 'password' && <EyeIcon className="hover:cursor-pointer" size={16} onClick={() => setNewPasswordVisibility('text')}/>}
+                      {newPasswordVisibility === 'text' && <EyeSlashIcon className="hover:cursor-pointer" size={16} onClick={() => setNewPasswordVisibility('password')}/>}
                   </div>
               </div>
 
-              <button className="bg-black text-white hover:cursor-pointer px-2 py-1 text-sm rounded-md" onClick={handleChangePassword}>change password</button>
+              <button className="hover:bg-gray-800 bg-black text-white hover:cursor-pointer px-2 py-1 text-sm rounded-md" onClick={handleChangePassword}>change password</button>
             </div>
           </div>
           }

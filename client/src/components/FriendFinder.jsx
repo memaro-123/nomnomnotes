@@ -71,7 +71,7 @@ export default function FriendFinder () {
   return (
     <div>
       <button 
-      className="bg-black text-white p-1 rounded-md hover:cursor-pointer"
+      className="bg-black text-white p-1 rounded-md hover:cursor-pointer hover:bg-gray-800"
       onClick={() => setOpen(true)}><PlusIcon size={12} weight={'bold'}/></button>
 
       {open &&
@@ -83,7 +83,7 @@ export default function FriendFinder () {
             <UserCirclePlusIcon size={45} weight={'fill'}/>
             <span className="font-pacifico text-3xl">add friends</span>
             </div>
-            <button className="hover:cursor-pointer" onClick={() => {setOpen(false); setFriendCode('')}}><XIcon/></button>
+            <button className="hover:cursor-pointer hover:bg-gray-100 rounded-full p-2" onClick={() => {setOpen(false); setFriendCode('')}}><XIcon/></button>
           </div>
 
           <button 
@@ -109,7 +109,7 @@ export default function FriendFinder () {
                   type="text" placeholder={'enter your friend\'s uid'}/>
               </div>
               <button 
-              className="px-4 py-1 bg-black text-white rounded-md"
+              className="px-4 py-1 bg-black text-white rounded-md hover:bg-gray-800 hover:cursor-pointer"
               onClick={handleFriendCodeAdd}>send</button>
             </div>
           </div>

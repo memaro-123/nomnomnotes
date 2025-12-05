@@ -75,7 +75,7 @@ export default function AddDiaryButton({ fetchDiaries }) {
   return (
     <div>
       <button 
-      className="bg-black text-white p-2 md:px-4 md:py-1 rounded-md text-sm hover:cursor-pointer"
+      className="bg-black text-white p-2 md:px-4 md:py-1 rounded-md text-sm hover:cursor-pointer hover:bg-gray-800"
       onClick={() => setOpenForm(true)}>
         <PlusIcon size={15} weight={"bold"} className="md:hidden"/>
         <span className="hidden md:block">add entry</span>

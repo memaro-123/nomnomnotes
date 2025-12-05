@@ -146,10 +146,10 @@ export default function Dashboard() {
               <div className="w-full flex items-center justify-between">
 
                 <div className="flex items-center justify-center gap-3">
-                  <div className="lg:hidden">
-                    <CaretRightIcon size={28} weight={'bold'} onClick={() => setOpenSidebar(true)}/>
+                  <div className="lg:hidden hover:cursor-pointer hover:bg-gray-200 p-2 rounded-md transition-all">
+                    <CaretRightIcon size={22} weight={'bold'} onClick={() => setOpenSidebar(true)}/>
                   </div>
-                  <button className="hover:cursor-pointer" onClick={() => {setActiveView('diary'); setViewingFriendId(null); fetchDiaries();}}><HouseIcon size={28} weight={'fill'}/></button>
+                  <button className="hover:cursor-pointer hover:bg-gray-200 p-2 rounded-md transition-all" onClick={() => {setActiveView('diary'); setViewingFriendId(null); fetchDiaries();}}><HouseIcon size={22} weight={'fill'}/></button>
                 {activeView === 'diary' ? (
                   <span className="text-24 font-bold">{viewingFriendId && friendUsername ? (`${friendUsername}'s diary`) : ('my diary')}</span>
                 ) : activeView === 'biteback' ? (
@@ -163,7 +163,7 @@ export default function Dashboard() {
                   {!viewingFriendId && <ExploreButton setActiveView={setActiveView}/>}
 
                   {!viewingFriendId && <button onClick={() => setActiveView('biteback')} 
-                  className="bg-black text-white p-2 md:px-4 md:py-1 rounded-md text-sm hover:cursor-pointer">
+                  className="bg-black hover:bg-gray-800 transition-all text-white p-2 md:px-4 md:py-1 rounded-md text-sm hover:cursor-pointer">
                     <ChartLineIcon size={15} weight={"bold"} className="md:hidden"/>
                     <span className="hidden md:block">biteback</span>
                    </button>}

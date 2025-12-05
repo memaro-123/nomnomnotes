@@ -52,7 +52,7 @@ export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiar
             onClick={() => setOpenForm(true)}><TrashIcon size={30} weight={'fill'}/></button>
             {openForm && 
                 <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">
-                    <div className="bg-white border-3 border-red-400 rounded-2xl flex flex-col p-5 gap-5">
+                    <div className="bg-white rounded-2xl flex flex-col p-7 gap-5">
                         <div className="text-red-400 font-bold flex flex-col items-center justify-center gap-2 text-xl text-center">
                             <WarningIcon size={50} weight="fill"/>
                             <span>Are you sure you want to delete? <br/> This is permanent.</span>

@@ -87,7 +87,7 @@ export default function ForgotPassword({ handleAuthPage }) {
                     className="text-gray-400 hover:underline hover:text-black decoration-dotted decoration-2 underline-offset-2 hover:cursor-pointer transition-all"
                     onClick={() => handleAuthPage('emailAndPassword')} >back to login</button>
                     <button 
-                    className="hover:cursor-pointer bg-black text-white px-4 py-1 rounded-md"
+                    className="hover:cursor-pointer bg-black text-white px-4 py-1 rounded-md hover:bg-gray-800 transition-all"
                     onClick={handlePasswordReset} >{success ? 'resend' : 'send'}</button>
                 </div>
             </div>

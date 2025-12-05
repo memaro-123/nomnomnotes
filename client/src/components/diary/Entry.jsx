@@ -7,7 +7,7 @@ export default function Entry({ entry }) {
     const numberOfLines = Math.ceil(window.innerHeight / lineHeight)
 
     return ( 
-    <div className="hidden md:block md:w-3/5 md:h-[calc(100vh-100px)] shadow-md shrink-0 relative overflow-hidden" >
+    <div className="hidden md:block md:w-4/7 md:h-[calc(100vh-100px)] shadow-md shrink-0 relative overflow-hidden" >
         {/* <img className="w-full h-full pointer-events-none object-cover object-center"
             src="paper.png" alt="lined paper" /> */}
 

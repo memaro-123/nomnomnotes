@@ -63,7 +63,9 @@ export default function WishlistModal({ wishlist, setWishlist, setActiveView }) 
               <div style={{ fontWeight: 600 }}>{i.name}</div>
               <div>Rating: {i.rating || "—"}</div>
             </div>
-            <button onClick={() => removeItem(i.id)}><TrashIcon size={20} weight={'fill'}/></button>
+            <button 
+            className="hover:cursor-pointer hover:bg-gray-200 rounded-md transition-all p-2"
+            onClick={() => removeItem(i.id)}><TrashIcon size={20} weight={'fill'}/></button>
           </div>
         ))}
         </div>

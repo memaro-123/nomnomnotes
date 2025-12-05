@@ -219,13 +219,13 @@ export default function EmailAndPassword({ handleAuthPage }) {
 
                         {authMode === 'signUp' && 
                             <button 
-                            className="bg-black text-white px-4 py-1 rounded-md hover:cursor-pointer"
+                            className="bg-black text-white px-4 py-1 rounded-md hover:cursor-pointer hover:bg-gray-800 transition-all"
                             onClick={handleSignUp}>sign up</button>
                         }
 
                         {authMode === 'login' && 
                             <button 
-                            className="bg-black text-white px-4 py-1 rounded-md hover:cursor-pointer"
+                            className="bg-black text-white px-4 py-1 rounded-md hover:cursor-pointer hover:bg-gray-800 transition-all"
                             onClick={handleLogin} >login</button>
                         }
                     </div>
@@ -241,7 +241,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
                 {/* google button */}
                 <div className="flex items-center justify-center w-full">
                     <button 
-                    className="flex gap-2 items-center justify-center hover:cursor-pointer bg-black text-white px-4 py-1 rounded-md"
+                    className="flex gap-2 items-center justify-center hover:cursor-pointer bg-black text-white px-4 py-1 rounded-md hover:bg-gray-800 transition-all"
                     onClick={handleGoogleSignIn}><FcGoogle size={24}/>continue with google</button>
                 </div>
             </div>

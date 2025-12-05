@@ -60,7 +60,7 @@ export default function ChooseUsername({ handleUsername }) {
                   type="text" placeholder={'enter your username'}/>
               </div>
               <button
-              className="bg-black text-white px-4 rounded-md"
+              className="bg-black text-white px-4 rounded-md hover:cursor-pointer hover:bg-gray-800"
               onClick={setNewUsername}
               >enter</button>
             </div>

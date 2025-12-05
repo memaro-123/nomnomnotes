@@ -1,17 +1,28 @@
 import { useState, useEffect } from 'react'
-import { CaretLeftIcon, UsersIcon, StarIcon } from "@phosphor-icons/react";
-import SettingsButton from './SettingsButton'
+import { CaretLeftIcon, UsersIcon, StarIcon, GearIcon } from "@phosphor-icons/react";
 import FriendModal from '../FriendModal'
 import WishlistModal from '../WishlistModal';
+import SettingsModal from './SettingsModal';
 
 export default function Sidebar({ openSidebar, myUsername, setMyUsername, 
-    setOpenSidebar, wishlist, setWishlist, setActiveView }) {
+    setOpenSidebar, wishlist, setWishlist, setActiveView}) {
     const [activeViewModal, setActiveViewModal] = useState('friends')
+    const [openSettings, setOpenSettings] = useState(false)
 
     return (
-        <div className="flex h-full gap-2 items-center justify-center lg:w-1/3">
+        <div className="flex h-full gap-2 items-center justify-center lg:w-1/4">
             {/* mobile sidebar */}
-            <div className={`bg-white left-5 top-5 pl-3 h-[calc(100vh-40px)] transition-all fixed z-40 lg:hidden ${openSidebar ? 'w-75 rounded-md shadow-md border-gray-300 border-1' : 'w-0'}`}>
+            <div
+            className={`
+                fixed left-5 top-5 z-40
+                h-[calc(100vh-40px)] bg-white pl-3
+                w-[300px] rounded-md shadow-md border border-gray-300
+                lg:hidden
+                transform transition-transform duration-300 ease-in-out
+                ${openSidebar ? 'translate-x-0 pointer-events-auto opacity-100' : '-translate-x-full pointer-events-none opacity-0'}
+            `}
+            aria-hidden={!openSidebar}
+            >
                 {openSidebar &&
                 <div className="flex w-full h-full gap-2">
                     <div className="flex flex-col items-center justify-between h-full py-5">
@@ -34,7 +45,8 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername,
                                 <StarIcon size={20} weight={'fill'}/>
                             </button>
                         </div>
-                        <SettingsButton myUsername={myUsername} handleUsername={setMyUsername}/>
+                        <button onClick={() => setOpenSettings(true)} className="flex p-2 items-center justify-center hover:bg-gray-200 rounded-md hover:cursor-pointer">
+                        <GearIcon size={20} weight={"fill"}/></button>
                     </div>
 
                     {activeViewModal === 'friends' && <FriendModal/>}
@@ -61,12 +73,15 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername,
                                     <StarIcon size={20} weight={'fill'}/>
                             </button>
                         </div>
-                        <SettingsButton myUsername={myUsername} handleUsername={setMyUsername}/>
+                        <button onClick={() => setOpenSettings(true)} className="flex p-2 items-center justify-center hover:bg-gray-200 rounded-md hover:cursor-pointer">
+                        <GearIcon size={20} weight={"fill"}/></button>
                     </div>
 
                     {activeViewModal === 'friends' && <FriendModal/>}
                     {activeViewModal === 'wishlist' && <WishlistModal wishlist={wishlist} setWishlist={setWishlist} setActiveView={setActiveView}/>}
                 </div>
             </div>
+
+            {openSettings && <SettingsModal handleClose={setOpenSettings} myUsername={myUsername} handleUsername={setMyUsername}/>}
         </div>
     )}

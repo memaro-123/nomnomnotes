@@ -3,7 +3,6 @@ import Entry from '../diary/Entry';
 import EntryList from '../diary/EntryList';
 import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
 
 export default function Diary({ entries, fetchDiaries, loading, error, viewingFriendId }) {
     const [selectedEntry, setSelectedEntry] = useState(null);
@@ -12,20 +11,6 @@ export default function Diary({ entries, fetchDiaries, loading, error, viewingFr
     const [priceFilters, setPriceFilters] = useState([])
     const [search, setSearch] = useState('')
     const [sortBy, setSortBy] = useState('recent')
-
-    useEffect(() => {
-        if (window.innerWidth < 800) {
-          toast((t) => (
-            <span className="flex items-center justify-center">
-              🍳 expand the window to see your diary entry
-              <button onClick={() => toast.dismiss(t.id)}>
-                <XIcon/>
-              </button>
-            </span>
-          ));
-        }
-    }, [])
-
 
     useEffect(() => {
       fetchDiaries()

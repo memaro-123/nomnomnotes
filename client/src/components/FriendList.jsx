@@ -47,8 +47,8 @@ const handleDelete = async (friendID) =>{
       <div className="shrink-0">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center justify-center gap-1">
-          {!open && <button onClick={() => {setOpen(true)}}><CaretUpIcon size={16} weight={'bold'}/></button>}
-          {open && <button onClick={() => {setOpen(false)}}><CaretDownIcon size={16} weight={'bold'}/></button>}
+          {!open && <button className="hover:cursor-pointer" onClick={() => {setOpen(true)}}><CaretUpIcon size={16} weight={'bold'}/></button>}
+          {open && <button className="hover:cursor-pointer" onClick={() => {setOpen(false)}}><CaretDownIcon size={16} weight={'bold'}/></button>}
           <span>my friends({friends.length})</span>
           </div>
         </div>
@@ -71,7 +71,7 @@ const handleDelete = async (friendID) =>{
               onClick={() => onSelectFriend(f)}
               key={f}>
                 <span>{usernames[f] || "Loading..."}</span>
-                <button className="hover:cursor-pointer" onClick={(e) => {e.stopPropagation(); handleDelete(f);}}><TrashIcon size={20} weight={'fill'}/></button>
+                <button className="hover:cursor-pointer hover:bg-gray-200 p-2 rounded-md transition-all" onClick={(e) => {e.stopPropagation(); handleDelete(f);}}><TrashIcon size={20} weight={'fill'}/></button>
               </div>
             ))}
           </div>

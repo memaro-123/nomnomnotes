@@ -13,7 +13,7 @@ export default function Filters({
     return(
         <div>
             <button 
-            className="bg-black text-white p-1 rounded-md hover:cursor-pointer"
+            className="bg-black text-white p-1 rounded-md hover:cursor-pointer hover:bg-gray-800 transition-all"
             onClick={() => setOpen(true)}><SlidersHorizontalIcon size={16}/></button>
             {open && 
                 <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black/50 z-[1000]">
@@ -23,7 +23,7 @@ export default function Filters({
                                 <SlidersHorizontalIcon size={45}/>
                                 <span className="font-pacifico text-3xl">filters</span>
                             </div>
-                            <button onClick={() => setOpen(false)}><XIcon/></button>
+                            <button className="hover:bg-gray-200 transition-all p-2 rounded-full"onClick={() => setOpen(false)}><XIcon/></button>
                         </div>
 
                         <div className="flex flex-col gap-1">
@@ -31,7 +31,7 @@ export default function Filters({
                             <div className="flex gap-2">
                                 {prices.map((p, i) => (
                                     <button 
-                                        className={`py-1 px-2 rounded-md hover:cursor-pointer ${priceFilters.includes(p) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
+                                        className={`transition-all py-1 px-2 rounded-md hover:cursor-pointer border-1 border-gray-300 ${priceFilters.includes(p) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
                                         key={i} 
                                         onClick={() => handlePriceFilter(p)}
                                     >
@@ -56,7 +56,7 @@ export default function Filters({
                                 )
                                 .map((c, i) => (
                                     <button 
-                                        className={`py-1 px-2 rounded-md hover:cursor-pointer h-auto self-start ${cuisineFilters.includes(c) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
+                                        className={`transition-all border-1 border-gray-300 py-1 px-2 rounded-md hover:cursor-pointer h-auto self-start ${cuisineFilters.includes(c) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
                                         key={i} 
                                         onClick={() => handleCuisineFilter(c)}
                                     >
@@ -81,7 +81,7 @@ export default function Filters({
                                 )
                                 .map((l, i) => (
                                     <button 
-                                    className={`py-1 px-2 rounded-md hover:cursor-pointer h-auto self-start ${labelFilters.includes(l) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
+                                    className={`transition-all border-1 border-gray-300 py-1 px-2 rounded-md hover:cursor-pointer h-auto self-start ${labelFilters.includes(l) ? 'bg-black text-white' : 'hover:bg-gray-400 hover:text-white'}`}
                                         key={i} 
                                         onClick={() => handleLabelFilter(l)}
                                     >
