@@ -68,6 +68,7 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
     if (!user) return;
     const token = await user.getIdToken();
 
+    console.log('calling api for wishlist')
     const res = await fetch("http://localhost:8080/api/wishlist/add", {
       method: "POST",
       headers: {

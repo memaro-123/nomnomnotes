@@ -873,17 +873,22 @@ const insertWishlist = async (wishlistData) => {
   const {
     user_id,
     name,
-    location,
-    vicinity,
-    cuisine,
+    place_id,
+    // location,
+    // vicinity,
+    // cuisine,
+    rating,
     price_level,
-    labels,
-    notes,
-    taste,
-    service,
-    value,
-    images
+    // labels,
+    // notes,
+    // taste,
+    // service,
+    // value,
+    types,
+    photo_reference
   } = wishlistData;
+
+  console.log('in db function for add to wishlist')
 
   const getPSTDateString = () => {
     const now = new Date();
@@ -893,45 +898,36 @@ const insertWishlist = async (wishlistData) => {
     const month = String(pstDate.getMonth() + 1).padStart(2, '0');
     const day = String(pstDate.getDate()).padStart(2, '0');
     const year = pstDate.getFullYear();
-    return `${month}/${day}/${year}`;
+    return `${year}-${month}-${day}`;
   };
 
-  const date = getPSTDateString();
+  const date = getPSTDateString()
+  console.log('date', date)
 
   const db = new sqlite3.Database("my.db");
   const sql = `
     INSERT INTO wishlist (
       user_id,
+      place_id,
       name,
-      location,
-      vicinity,
-      cuisine,
+      rating,
       price_level,
-      labels,
-      notes,
-      taste,
-      service,
-      value,
-      images,
-      date
+      types,
+      photo_reference,
+      created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   try {
     await paramExec(db, sql, [
       user_id,
+      place_id,
       name,
-      location,
-      vicinity,
-      cuisine,
+      rating,
       price_level,
-      labels,
-      notes,
-      taste,
-      service,
-      value,
-      images,
+      types,
+      photo_reference,
       date
     ]);
   } catch (err) {
