@@ -72,7 +72,7 @@ const main = async () => {
         types TEXT,
         location TEXT,
         photo_reference TEXT,
-        distance REAL,
+        vicinity REAL,
         created_at DATETIME DEFAULT (DATETIME('now')), 
         UNIQUE(user_id, place_id)
       );`
