@@ -120,7 +120,7 @@ const getBiteBackData = async (userId, year = null, dbArg = null) => {
       WHERE user_id = ?
       ${yearParam ? `AND strftime('%Y', date) = ?` : ''}`;
 
-  const minEntriesParams = yearParam ? [userId, yearParam] : [userId];
+    const minEntriesParams = yearParam ? [userId, yearParam] : [userId];
     const entryCountResult = await fetchAll(db, minEntriesQuery, minEntriesParams);
     const totalEntries = entryCountResult[0]?.entry_count || 0;
     console.log('BiteBack: entryCountResult=', entryCountResult, 'totalEntries=', totalEntries);
@@ -211,7 +211,7 @@ const getBiteBackData = async (userId, year = null, dbArg = null) => {
       }
     });
 
-    // Get top rated restaurant (minimum 2 visits)
+    // Get top rated restaurant (minimum 1 visits, i want highest rated)
     const topRatedQuery = `
       SELECT 
         json_extract(location, '$.name') as name,
@@ -221,8 +221,10 @@ const getBiteBackData = async (userId, year = null, dbArg = null) => {
       WHERE user_id = ?
       ${yearParam ? `AND strftime('%Y', date) = ?` : ''}
       AND json_extract(location, '$.name') IS NOT NULL
+      AND json_extract(location, '$.name') != ''
+      AND taste > 0 AND service > 0 AND value > 0
       GROUP BY json_extract(location, '$.name')
-      /* No minimum visit requirement: allow restaurants with a single visit */
+      HAVING visit_count >= 1  -- Changed from 2 to 1 to include all restaurants
       ORDER BY rating DESC
       LIMIT 1
     `;
@@ -238,13 +240,13 @@ const getBiteBackData = async (userId, year = null, dbArg = null) => {
     }
 
     const topCity = findMostCommon(cityMap);
-    console.log('BiteBack: cityMap =', JSON.stringify(cityMap));
+    /*console.log('BiteBack: cityMap =', JSON.stringify(cityMap));
     // If all cities are unique (highest count === 1) tests expect the count
     // to reflect the number of parsed city entries (i.e. total parsed count)
     if (topCity.count === 1) {
       const totalParsed = Object.values(cityMap).reduce((s, v) => s + v, 0);
       topCity.count = totalParsed;
-    }
+    }*/
     const topCuisine = findMostCommon(cuisineMap);
     const topPrice = findMostCommon(priceMap);
     const topMonth = findMostCommon(monthMap);
@@ -293,11 +295,9 @@ const getBiteBackData = async (userId, year = null, dbArg = null) => {
       mostDinedCity: topCity,
       priceRange: topPrice,
       mostActiveMonth: topMonth,
-      mostDinedLocation: topRestaurant,
       topRatedRestaurant: {
         name: topRatedResult?.[0]?.name || 'N/A',
-        rating: topRatedResult?.[0]?.rating ? Number(topRatedResult[0].rating).toFixed(1) : 'N/A',
-        visit_count: topRatedResult?.[0]?.visit_count || 0
+        rating: topRatedResult?.[0]?.rating ? Number(topRatedResult[0].rating).toFixed(1) : 'N/A'
       },
       averageRating: {
         overall: ratingStats[0]?.avg_overall_rating ? ratingStats[0].avg_overall_rating.toFixed(2) : 'N/A',

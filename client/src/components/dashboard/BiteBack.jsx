@@ -76,8 +76,8 @@ export default function BiteBack() {
   };
 
   const getActivityMessage = (month, count) => {
-    if (count > 8) return `You were on a food tour in ${month}! 🚗💨`;
-    if (count > 4) return `${month} was your foodie adventure month! 🗺️`;
+    if (count > 8) return `You were on a roll in ${month}! 🚗💨`;
+    if (count > 6) return `${month} was your busy season! 📅`;
     return `${month} treated you well! 👌`;
   };
 
@@ -105,9 +105,9 @@ export default function BiteBack() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <SummaryCard
             icon={<CalendarIcon size={24} weight="fill" />}
-            title="Food Memories"
+            title="Entries Logged"
             value={stats.totalEntries || 0}
-            subtitle="delicious moments"
+            subtitle="new experiences captured"
             color="bg-blue-50 text-blue-700"
           />
           
@@ -129,7 +129,7 @@ export default function BiteBack() {
           
           <SummaryCard
             icon={<TrendUpIcon size={24} weight="fill" />}
-            title="Foodie Peak"
+            title="Most Active Month"
             value={stats.mostActiveMonth.name || "N/A"}
             subtitle={getActivityMessage(stats.mostActiveMonth.name, stats.mostActiveMonth.entry_count)}
             color="bg-purple-50 text-purple-700"
@@ -140,38 +140,50 @@ export default function BiteBack() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Most Visited */}
           <SectionCard 
-            title="Your Go-To Spot" 
-            icon={<MapPinAreaIcon size={20} weight="fill" />}
-            description="The place that feels like home"
-          >
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <HeartIcon size={20} className="text-blue-600" weight="fill" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-800">{stats.mostDinedLocation.name}</h4>
-                  <p className="text-sm text-gray-600">Your happy place</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <CalendarIcon size={14} />
-                  <span>Visited {stats.mostDinedLocation.visit_count} time{stats.mostDinedLocation.visit_count !== 1 ? 's' : ''}</span>
-                </div>
-                {stats.mostDinedLocation.visit_count > 2 && (
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                    Regular status! 👋
-                  </span>
-                )}
-              </div>
+    title="Top Rated Restaurant" 
+    icon={<StarIcon size={20} weight="fill" />}
+    description="Your highest rated dining experience"
+  >
+    <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="p-2 bg-amber-100 rounded-lg">
+          <StarIcon size={20} className="text-amber-600" weight="fill" />
+        </div>
+        <div>
+          <h4 className="font-bold text-gray-800">{stats.topRatedRestaurant.name}</h4>
+          <p className="text-sm text-gray-600">Your favorite by rating</p>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-amber-700">
+              {stats.topRatedRestaurant.rating}
             </div>
-            {stats.mostDinedLocation.visit_count > 1 && (
-              <p className="text-center text-gray-600 text-sm mt-3">
-                They probably know your order by now! 😄
-              </p>
-            )}
-          </SectionCard>
+            <div className="text-xs text-gray-600">rating</div>
+          </div>
+          {stats.topRatedRestaurant.visit_count > 1 && (
+            <div className="text-center">
+              <div className="text-lg font-semibold text-gray-800">
+                {stats.topRatedRestaurant.visit_count}
+              </div>
+              <div className="text-xs text-gray-600">visits</div>
+            </div>
+          )}
+        </div>
+        {stats.topRatedRestaurant.rating > 4.5 && (
+          <span className="px-3 py-1 bg-amber-100 text-amber-800 text-sm rounded-full">
+            Top Pick! ⭐
+          </span>
+        )}
+      </div>
+      {stats.topRatedRestaurant.rating !== 'N/A' && parseFloat(stats.topRatedRestaurant.rating) > 4.0 && (
+        <p className="text-center text-amber-700 text-sm mt-3">
+          This place really impressed you!
+        </p>
+      )}
+    </div>
+  </SectionCard>
           
           {/* Price Insights */}
           <SectionCard 
@@ -217,27 +229,31 @@ export default function BiteBack() {
               <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl">
                 <TrophyIcon size={32} className="text-white" weight="fill" />
               </div>
-              <h2 className="text-3xl font-bold">Your {selectedYear} Food Story</h2>
+              <h2 className="text-3xl font-bold">Your {selectedYear} In a Bite</h2>
             </div>
             
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-              What a year it was! You collected <span className="font-bold text-amber-700">{stats.totalEntries}</span> food memories. 
+              What a year it was! You created <span className="font-bold text-amber-700">{stats.totalEntries}</span> new entries. 
               <br />
               <span className="font-bold">{stats.mostActiveMonth.name}</span> was your busiest month, 
               and you developed a real taste for <span className="font-bold">{stats.favoriteCuisine.name}</span> cuisine.
-              {stats.mostDinedLocation.name !== 'N/A' && (
+              {stats.topRatedRestaurant.name !== 'N/A' && (
                 <>
-                  {" "} You explored <span className="font-bold">{stats.mostDinedLocation.name}</span> the most,
-                  dining there <span className="font-bold">{stats.mostDinedLocation.visit_count} time{stats.mostDinedLocation.visit_count !== 1 ? 's' : ''}!</span>.
+                  {" "} Your top rated spot was <span className="font-bold">{stats.topRatedRestaurant.name}</span> with a <span className="font-bold">{stats.topRatedRestaurant.rating}/5</span> rating!
                 </>
               )}
             </p>
-            
             <div className="flex flex-wrap justify-center gap-3">
               <div className="bg-white/80 rounded-full px-4 py-2 border flex items-center gap-2">
                 <SparkleIcon size={16} className="text-amber-500" weight="fill" />
                 <span className="font-medium">{stats.totalEntries} memories</span>
               </div>
+              {stats.topRatedRestaurant.rating !== 'N/A' && (
+                <div className="bg-white/80 rounded-full px-4 py-2 border flex items-center gap-2">
+                  <StarIcon size={16} className="text-amber-500" weight="fill" />
+                  <span className="font-medium">{stats.topRatedRestaurant.rating} stars</span>
+                </div>
+              )}
               <div className="bg-white/80 rounded-full px-4 py-2 border flex items-center gap-2">
                 <FireIcon size={16} className="text-red-500" weight="fill" />
                 <span className="font-medium">{stats.favoriteCuisine.name} fan</span>
@@ -247,7 +263,6 @@ export default function BiteBack() {
                 <span className="font-medium">{stats.priceRange.range} vibes</span>
               </div>
             </div>
-            
             <div className="mt-6 pt-6 border-t border-amber-300">
               <p className="text-gray-600 text-sm">
                 💕 Can't wait to see what delicious adventures {selectedYear + 1} brings! 💕
