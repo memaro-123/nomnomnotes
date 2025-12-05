@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test('user can create a new diary entry', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Log in first
     await page.getByPlaceholder('enter your email').fill('testuser@gmail.com');
