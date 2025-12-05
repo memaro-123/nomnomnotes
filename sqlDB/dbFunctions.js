@@ -948,10 +948,8 @@ const getWishlistByUser = async (userId) => {
 
   try {
     const rows = await fetchAll(db, sql, [userId]);
-    return rows.map(r => {
-      if (r.types) r.types = JSON.parse(r.types);
-      return r;
-    });
+    console.log(rows)
+    return rows;
   } catch (err) {
     console.log("getWishlistByUser error:", err);
     throw err;

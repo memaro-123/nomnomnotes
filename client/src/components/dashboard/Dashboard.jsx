@@ -139,6 +139,39 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
+
+    // In Dashboard.jsx, add this function with your other fetch functions
+const fetchWishlist = async () => {
+  try {
+    setLoading(true);
+
+    const token = await auth.currentUser.getIdToken();
+    console.log('calling api')
+    const response = await fetch("http://localhost:8080/api/wishlist", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch wishlist');
+    }
+
+    const wishlistData = await response.json();
+    console.log('Wishlist data:', wishlistData);
+    setWishlist(wishlistData.wishlist || []);
+    
+  } catch (error) {
+    console.error("Error fetching wishlist:", error);
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {fetchWishlist()}, [])
+    
     
     return (
         <div className="w-screen h-screen flex gap-5 p-5">

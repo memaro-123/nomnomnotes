@@ -15,6 +15,7 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
 
   const mapRef = useRef(null);
 
+  
   // Load visited places from backend
   useEffect(() => {
     const loadVisited = async () => {

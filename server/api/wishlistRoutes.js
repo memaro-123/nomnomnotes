@@ -28,6 +28,7 @@ router.post("/add", verifyUser, async (req, res) => {
 
 
 router.get("/", verifyUser, async (req, res) => {
+  console.log('in fetching wishlist')
   const uid = req.user.uid;
   try {
     const wishlist = await dbFunctions.getWishlistByUser(uid);
