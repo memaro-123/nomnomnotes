@@ -314,4 +314,4 @@ const getBiteBackData = async (userId, year = null, dbArg = null) => {
   }
 };
 
-module.exports = { getBiteBackData };
+module.exports = { getBiteBackData, extractCity, findMostCommon };
