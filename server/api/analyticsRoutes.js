@@ -10,12 +10,17 @@ router.get("/biteback", verifyUser, async (req, res) => {
   try {
     const userId = req.user.uid;
     const { year } = req.query;
+
+    const yearNum = year ? parseInt(year) : new Date().getFullYear();
     
-    const stats = await getBiteBackData(userId, year);
-    res.json({ result });
+    const result = await getBiteBackData(userId, year);
+    res.json(result);
   } catch (err) {
     console.error("Error fetching BiteBack stats:", err);
-    res.status(500).json({ success: false,error: "Failed to fetch BiteBack stats" });
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch BiteBack stats"
+    });
   }
 });
 
