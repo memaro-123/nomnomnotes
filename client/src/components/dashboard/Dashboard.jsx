@@ -9,6 +9,8 @@ import WishlistModal from "../WishlistModal.jsx";
 import BiteBack from './BiteBack';
 import Diary from './Diary';
 import Sidebar from './Sidebar';
+import ExploreButton from "../explore/ExploreButton.jsx";
+
 
 export default function Dashboard() {
 
@@ -132,7 +134,7 @@ export default function Dashboard() {
             </div> */}
               <Sidebar onSelectFriend={onSelectFriend} openSidebar={openSidebar} 
               myUsername={myUsername} setUsername={setMyUsername} setOpenSidebar={setOpenSidebar}
-              wishlist={wishlist} setWishlist={setWishlist}/>
+              wishlist={wishlist} setWishlist={setWishlist} setActiveView={setActiveView}/>
               {/* <FriendModal onSelectFriend={onSelectFriend}/> */}
           {/* </div> */}
 
@@ -158,16 +160,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex gap-3">
-                  {!viewingFriendId && <button onClick={() => setActiveView('explore')}
-                  className="p-2 md:px-4 md:py-1 bg-black text-white text-sm rounded-md hover:cursor-pointer">
-                    <MapPinIcon size={15} weight={"fill"} className="md:hidden"/>
-                    <span className="hidden md:block">explore</span>
-                  </button>}
-                  {/* 
-                   <button onClick={() => setWishlistOpen(true)}
-                  className="p-1 border rounded hover:bg-gray-200">
-                    <StarIcon size={20} />
-                  </button> */}
+                  {!viewingFriendId && <ExploreButton setActiveView={setActiveView}/>}
 
                   {!viewingFriendId && <button onClick={() => setActiveView('biteback')} 
                   className="bg-black text-white p-2 md:px-4 md:py-1 rounded-md text-sm hover:cursor-pointer">
