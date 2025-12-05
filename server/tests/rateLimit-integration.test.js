@@ -15,6 +15,8 @@ describe('Rate Limiting Integration Tests', () => {
 
   beforeEach(() => {
     app = express();
+    // trust proxy so req.ip respects X-Forwarded-For in tests
+    app.set('trust proxy', true);
     app.use(express.json());
     
     // Reset rate limiting storage for each test
@@ -173,6 +175,8 @@ describe('Actual Rate Limit Middleware Tests', () => {
   
   beforeEach(() => {
     app = express();
+    // trust proxy so req.ip reflects X-Forwarded-For when testing
+    app.set('trust proxy', true);
     app.use(express.json());
     
     // Import and use actual rate limit middleware
