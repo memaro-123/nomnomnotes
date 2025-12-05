@@ -5,7 +5,7 @@ import WishlistModal from '../WishlistModal';
 import SettingsModal from './SettingsModal';
 
 export default function Sidebar({ openSidebar, myUsername, setMyUsername, 
-    setOpenSidebar, wishlist, setWishlist, setActiveView}) {
+    setOpenSidebar, wishlist, setWishlist, setActiveView, onSelectFriend}) {
     const [activeViewModal, setActiveViewModal] = useState('friends')
     const [openSettings, setOpenSettings] = useState(false)
 
@@ -49,7 +49,7 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername,
                         <GearIcon size={20} weight={"fill"}/></button>
                     </div>
 
-                    {activeViewModal === 'friends' && <FriendModal/>}
+                    {activeViewModal === 'friends' && <FriendModal onSelectFriend={onSelectFriend}/>}
                     {activeViewModal === 'wishlist' && <WishlistModal wishlist={wishlist} setWishlist={setWishlist} setActiveView={setActiveView}/>}
                 </div>
                 }
@@ -77,7 +77,7 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername,
                         <GearIcon size={20} weight={"fill"}/></button>
                     </div>
 
-                    {activeViewModal === 'friends' && <FriendModal/>}
+                    {activeViewModal === 'friends' && <FriendModal onSelectFriend={onSelectFriend}/>}
                     {activeViewModal === 'wishlist' && <WishlistModal wishlist={wishlist} setWishlist={setWishlist} setActiveView={setActiveView}/>}
                 </div>
             </div>
