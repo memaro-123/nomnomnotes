@@ -191,6 +191,7 @@ router.patch("/getUsernameList", verifyUser, async (req, res) => {
   }
 });
 router.delete("/delete/:requesterID", verifyUser, async (req, res) => {
+  console.log('inapi')
   const uid = req.user.uid;
   const { requesterID } = req.params;
   if (!requesterID) {

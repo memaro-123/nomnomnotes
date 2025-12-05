@@ -100,8 +100,9 @@ export default function FriendModal({ onSelectFriend }) {
         setFriends(prev => [...prev, requesterId]);
   
       } else if (action === "reject") {
-        const response = await fetch("http://localhost:8080/api/user/rejectfriend", {
-          method: "PATCH",
+        console.log('in frontend for rejecting calling api')
+        const response = await fetch(`http://localhost:8080/api/user/delete/${requesterId}`, {
+          method: "DELETE",
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -119,7 +120,7 @@ export default function FriendModal({ onSelectFriend }) {
         console.log("Friend request rejected:", result);
   
 
-        setPendingRequests(prev => prev.filter(req => req.uid !== requesterId));
+        setPendingRequests(prev => prev.filter(id => id !== requesterId));
       }
   
       console.log(`Friend request ${action}ed successfully`);
