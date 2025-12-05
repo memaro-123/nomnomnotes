@@ -4,7 +4,7 @@ import FriendFinder from './FriendFinder'
 import { auth } from "../firebase.js"; 
 import { toast } from "react-hot-toast"; 
 
-export default function FriendList({refreshFriends, friends, onSelectFriend, getUsername }) {
+export default function FriendList({refreshFriends, friends, onSelectFriend, getUsernameList }) {
   const [usernames, setUsernames] = useState({});
   const [open, setOpen] = useState(false)
 const handleDelete = async (friendID) =>{
@@ -30,15 +30,15 @@ const handleDelete = async (friendID) =>{
     }
 }
   useEffect(() => {
-    const fetchUsernames = async () => {
-      // Fetch all usernames in parallel
-      const entries = await Promise.all(
-        friends.map(async (uid) => [uid, await getUsername(uid)])
-      );
-      setUsernames(Object.fromEntries(entries));
-    };
-    fetchUsernames();
-  }, [friends, getUsername]);
+    
+      const fetchUsernames = async () => {
+    const pendingUsernames = await getUsernameList(friends);
+    setUsernames(pendingUsernames);
+  };
+  fetchUsernames();
+
+  
+  }, [friends, getUsernameList]);
 
   return (
     <div className="flex flex-col py-2 flex-1 min-h-0">

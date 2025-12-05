@@ -2,21 +2,20 @@ import { useEffect, useState } from "react";
 import FriendFinder from './FriendFinder'
 import { CaretUpIcon, CaretDownIcon, CheckCircleIcon, XCircleIcon } from "@phosphor-icons/react";
 
-export default function PendingReqs  ({ pendingRequests, handleRequestAction,getUsername }) {
+export default function PendingReqs  ({ pendingRequests, handleRequestAction,getUsernameList }) {
     const [usernames, setUsernames] = useState({});
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-    const fetchUsernames = async () => {
-      const newUsernames = {};
-      for (const uid of pendingRequests) {
-        const name = await getUsername(uid);
-        newUsernames[uid] = name || uid; 
-      }
-      setUsernames(newUsernames);
-    };
-    fetchUsernames();
-  }, [pendingRequests, getUsername]);
+      
+      const fetchUsernames = async () => {
+    const pendingUsernames = await getUsernameList(pendingRequests);
+    setUsernames(pendingUsernames);
+  };
+  fetchUsernames();
+
+  
+  }, [pendingRequests, getUsernameList]);
 
 
     return(
