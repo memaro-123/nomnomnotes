@@ -8,7 +8,6 @@ export default function FriendList({refreshFriends, friends, onSelectFriend, get
   const [usernames, setUsernames] = useState({});
   const [open, setOpen] = useState(false)
 const handleDelete = async (friendID) =>{
-  e.stopPropagation();
     try {
       const token = await auth.currentUser.getIdToken(); // get Firebase auth token
       const res = await fetch(`http://localhost:8080/api/user/friends/${friendID}`, {
@@ -50,7 +49,7 @@ const handleDelete = async (friendID) =>{
           <div className="flex items-center justify-center gap-1">
           {!open && <button onClick={() => {setOpen(true)}}><CaretUpIcon size={16} weight={'bold'}/></button>}
           {open && <button onClick={() => {setOpen(false)}}><CaretDownIcon size={16} weight={'bold'}/></button>}
-          <span>my friends! ({friends.length})</span>
+          <span>my friends({friends.length})</span>
           </div>
         </div>
 
@@ -72,7 +71,7 @@ const handleDelete = async (friendID) =>{
               onClick={() => onSelectFriend(f)}
               key={f}>
                 <span>{usernames[f] || "Loading..."}</span>
-                <button className="hover:cursor-pointer" onClick={() => handleDelete(f)}><TrashIcon size={20} weight={'fill'}/></button>
+                <button className="hover:cursor-pointer" onClick={(e) => {e.stopPropagation(); handleDelete(f);}}><TrashIcon size={20} weight={'fill'}/></button>
               </div>
             ))}
           </div>

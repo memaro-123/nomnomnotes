@@ -36,9 +36,17 @@ export default function EntryList({ selectedEntry, handleSelectEntry, entries, l
     return (
         <div className="w-full h-[calc(100vh-220px)] overflow-y-auto pl-4" style={{ direction: 'rtl' }}>
             {entries.length <= 0 ? (
-                <div className="flex flex-col gap-2 items-center justify-center h-full " style={{ direction: 'ltr' }}>
+                <div className="flex items-center justify-center h-full" style={{ direction: 'ltr' }}>
+                {isReadOnly ? (
+                    <div className="flex items-center justify-center h-full">
+                        <span>no entries yet...</span>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-2 items-center justify-center h-full">
                     <span className="font-semibold">no entries yet... let's fix that!</span>
                     <AddDiaryButton fetchDiaries={fetchDiaries}/>
+                    </div>
+                )}
                 </div>
             ) : (
                 <div className="w-full h-full flex flex-col gap-2" style={{ direction: 'ltr' }}>

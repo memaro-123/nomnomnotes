@@ -24,20 +24,24 @@ export default function Dashboard() {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [friendUsername, setFriendUsername] = useState("");
   
-  const onSelectFriend = ( friendID) => {
-    setViewingFriendId(friendID)
-    console.log(`LOOKING AT ${friendID}`)
-    fetchFriendDiaries(friendID)
+  const onSelectFriend = async (friendID) => {
+    try {
+      await fetchFriendDiaries(friendID)
+      setViewingFriendId(friendID)
+      setActiveView('diary')
+      console.log(`LOOKING AT ${friendID}`)
+    } catch(error) {
+      console.log(error)
+    }
   }
+
   const handleUsername = (newUsername) => {
     setMyUsername(newUsername)
   }
 
-
     const fetchDiaries = useCallback(async () => {
       setLoading(true)
       try {
-            
             const user = auth.currentUser;
 
             if (!user) {
@@ -67,7 +71,7 @@ export default function Dashboard() {
       }
     }, [setLoading, setEntries, setError]);
 
-    const fetchUsername = async (stateSetter,id) => {
+    const fetchUsername = async (stateSetter, id) => {
       try {
         const token = await auth.currentUser.getIdToken();
         const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${id}`, {
@@ -80,16 +84,17 @@ export default function Dashboard() {
         stateSetter(data.username);
       } catch (err) {
         console.error("Failed to fetch my username", err);
-        stateSetter(null);
+        stateSetter(`user_${id.substring(0, 5)}`);
       }
     };
+
     useEffect(() => {
-  if (!viewingFriendId) {
-    setFriendUsername("")
-    return
-  }
-  fetchUsername(setFriendUsername, viewingFriendId);
-}, [viewingFriendId]);
+      if (!viewingFriendId) {
+      setFriendUsername("")
+      return
+      }
+      fetchUsername(setFriendUsername, viewingFriendId);
+    }, [viewingFriendId]);
 
     useEffect(() => {
       const id =auth.currentUser.uid
@@ -108,6 +113,7 @@ export default function Dashboard() {
         // Marking all entries as not owned so that they are read-only
         const entriesWithOwnership = data.diaryData.map(e => ({ ...e, isOwner: false }));
         setEntries(entriesWithOwnership);
+        return data;
       } catch (err) {
         console.error(err);
         setError(err);
@@ -142,31 +148,31 @@ export default function Dashboard() {
                   <div className="lg:hidden">
                     <SettingsButton myUsername={myUsername} handleUsername={handleUsername}/>
                   </div>
-                  <button className="hover:cursor-pointer" onClick={() => setActiveView('diary')}><HouseIcon size={28} weight={'fill'}/></button>
-                  {activeView === 'diary' ? (
-                  <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s diary' : 'my diary'}</span>
-                ) : activeView === 'bitebaack' ? (
-                  <span className="text-24 font-bold">{viewingFriendId ? 'friend\'s biteback' : 'my biteback'}</span>
+                  <button className="hover:cursor-pointer" onClick={() => {setActiveView('diary'); setViewingFriendId(null); fetchDiaries();}}><HouseIcon size={28} weight={'fill'}/></button>
+                {activeView === 'diary' ? (
+                  <span className="text-24 font-bold">{viewingFriendId && friendUsername ? (`${friendUsername}'s diary`) : ('my diary')}</span>
+                ) : activeView === 'biteback' ? (
+                  <span className="text-24 font-bold">{viewingFriendId ? (`${friendUsername}'s diary`) : 'my biteback'}</span>
                 ) : (
                   <span className="text-24 font-bold">my map</span>
                 )}
                 </div>
 
                 <div className="flex gap-3">
-                  <button onClick={() => setActiveView('explore')}
+                  {!viewingFriendId && <button onClick={() => setActiveView('explore')}
                   className="px-4 py-1 bg-black text-white text-sm rounded-md hover:cursor-pointer">
                     {/* <MapPinIcon size={20} /> */}
                     explore
-                  </button>
-{/* 
+                  </button>}
+                  {/* 
                    <button onClick={() => setWishlistOpen(true)}
                   className="p-1 border rounded hover:bg-gray-200">
                     <StarIcon size={20} />
                   </button> */}
 
-                  <button onClick={() => setActiveView('biteback')} 
+                  {!viewingFriendId && <button onClick={() => setActiveView('biteback')} 
                   className="bg-black text-white px-4 py-1 rounded-md text-sm hover:cursor-pointer">
-                   biteback </button>
+                   biteback </button>}
                   {!viewingFriendId && <AddDiaryButton fetchDiaries={fetchDiaries} />}
                 </div>
 
@@ -178,7 +184,7 @@ export default function Dashboard() {
             {activeView === 'biteback' ? (
               <BiteBack />
             ) : activeView === 'diary' ? ( 
-              <Diary entries={entries} fetchDiaries={fetchDiaries} fetchFriendDiaries ={fetchFriendDiaries} loading={loading} error={error}/>
+              <Diary entries={entries} fetchDiaries={fetchDiaries} fetchFriendDiaries ={fetchFriendDiaries} loading={loading} error={error} viewingFriendId={viewingFriendId}/>
             ) : (
               <ExplorerModal wishlist={wishlist} setWishlist={setWishlist}/>
             )}
