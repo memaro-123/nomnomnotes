@@ -7,7 +7,6 @@ on:
   pull_request:
     branches: [ main, master, test-playwright-ci ]
 
-
 jobs:
   test:
     timeout-minutes: 30
@@ -30,13 +29,13 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # 5. Build the project
+      # 5. Build the project (inside client folder)
       - name: Build project
-        run: npm run build
+        run: cd client && npm run build
 
-      # 6. Start Vite preview server
+      # 6. Start Vite preview server (inside client folder)
       - name: Start preview server
-        run: nohup npm run preview > preview.log 2>&1 &
+        run: cd client && nohup npm run preview > ../preview.log 2>&1 &
 
       # 7. Wait for server to be ready
       - name: Wait for preview server
