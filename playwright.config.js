@@ -10,7 +10,7 @@ export default defineConfig({
   reporter: 'html',
 
   webServer: {
-    command: 'cd client && npm run dev',
+    command: 'cd client && npm run preview',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
