@@ -40,8 +40,8 @@ A full-stack food diary application that helps users track their dining experien
 ### 👥 Social Features
 
 - **Friend System**: Send and accept friend requests using unique user IDs
-- **Friend Discovery**: Find friends by their username or UID
-- **Shared Experiences**: View friends' diary entries (when permissions allow)
+- **Friend Discovery**: Find friends by their UID
+- **Shared Experiences**: View friends' diary entries
 - **Username Customization**: Set and update your display name
 
 ### 🔐 Authentication & Security
