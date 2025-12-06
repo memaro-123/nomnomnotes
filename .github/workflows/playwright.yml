@@ -1,4 +1,4 @@
-name: Playwright E2E Tests
+name: Playwright Tests
 
 on:
   push:
@@ -8,48 +8,39 @@ on:
 
 jobs:
   test:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
-    timeout-minutes: 40
 
     steps:
-      # 1. Checkout the repo
+      # Step 1: Check out your repo
       - uses: actions/checkout@v4
 
-      # 2. Setup Node
+      # Step 2: Set up Node
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
-      # 3. Install dependencies
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 4. Install Playwright browsers
-      - name: Install Playwright browsers
+      # Step 4: Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # 5. Start dev server in the background
-      - name: Start dev server
-        run: |
-          npm run dev &
-          echo "Server started"
-      
-      # 6. Wait for the dev server to be ready
-      - name: Wait for server
+      # Step 5: Start your Vite dev server in the background
+      - name: Start Vite dev server
+        run: npm run dev &
+
+      # Step 6: Wait for the dev server to be ready
+      - name: Wait for dev server
         run: npx wait-on http://localhost:5173
 
-      # 7. Run Playwright tests with retries and slow motion for stability
+      # Step 7: Run Playwright tests
       - name: Run Playwright tests
-        run: |
-          npx playwright test \
-            --retries=2 \
-            --timeout=60000 \
-            --workers=1 \
-            --reporter=list \
-            --trace on-first-retry \
-            --slow-mo 50
+        run: npx playwright test --reporter=list
 
-      # 8. Upload Playwright report for inspection
+      # Step 8: Upload Playwright report
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
