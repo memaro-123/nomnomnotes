@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('user can create a new diary entry', async ({ page }) => {
   // Go to the app
-  await page.goto('http://localhost:5173');
+  await page.goto('http://localhost:4173');
   await page.waitForLoadState('networkidle');
 
   // Switch to login mode if not already there
