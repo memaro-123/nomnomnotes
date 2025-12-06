@@ -49,7 +49,7 @@ A full-stack food diary application that helps users track their dining experien
 - **Firebase Authentication**: Secure login with email/password and Google OAuth
 - **JWT Token Verification**: Protected API routes with Firebase admin SDK
 - **User Initialization**: Automatic user setup in database upon registration
-- **Input Sanitization**: Protection against XSS and injection attacks
+- **Input Sanitization**: Protection agnst XSS and injection attacks
 
 ### 🎨 User Experience
 
@@ -593,6 +593,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [AWS S3](https://aws.amazon.com/s3/) for image storage
 - [Google Places API](https://developers.google.com/maps/documentation/places) for location services
 - All the amazing open-source libraries that made this project possible
+- Please note that generative AI was used in the creation of this README, and was verified by human
+
+---
+
+### Diagrams
+
+<img width="1756" height="1422" alt="Screenshot 2025-12-05 223654" src="https://github.com/user-attachments/assets/487dd930-ddbc-4ce0-9c59-88a247a98ede" />
+
+<img width="961" height="2500" alt="sequence digram_ making diary" src="https://github.com/user-attachments/assets/d10477b6-17bd-4510-84ef-27c7245895fd" />
+
 
 ---
 
