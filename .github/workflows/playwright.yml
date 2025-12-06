@@ -3,7 +3,6 @@ name: Playwright Tests
 on:
   push:
     branches: [ main, master, test-playwright-ci ]
-
   pull_request:
     branches: [ main, master, test-playwright-ci ]
 
@@ -21,31 +20,35 @@ jobs:
         with:
           node-version: lts/*
 
-      # 3. Install dependencies
-      - name: Install dependencies
+      # 3. Install root dependencies (if any)
+      - name: Install root dependencies
         run: npm ci
 
-      # 4. Install Playwright browsers
+      # 4. Install frontend dependencies inside client/
+      - name: Install client dependencies
+        run: cd client && npm ci
+
+      # 5. Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # 5. Build the project (inside client folder)
+      # 6. Build the project inside client/
       - name: Build project
         run: cd client && npm run build
 
-      # 6. Start Vite preview server (inside client folder)
+      # 7. Start Vite preview server inside client/
       - name: Start preview server
         run: cd client && nohup npm run preview > ../preview.log 2>&1 &
 
-      # 7. Wait for server to be ready
+      # 8. Wait for server to be ready
       - name: Wait for preview server
         run: npx wait-on http://127.0.0.1:5173
 
-      # 8. Run Playwright tests
+      # 9. Run Playwright tests
       - name: Run Playwright tests
         run: npx playwright test
 
-      # 9. Upload HTML report (optional)
+      # 10. Upload HTML report (optional)
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -53,7 +56,7 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      # 10. Upload preview server log (optional, for debugging)
+      # 11. Upload preview server log (optional, for debugging)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
