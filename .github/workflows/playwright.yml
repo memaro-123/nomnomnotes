@@ -2,17 +2,17 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, test-playwright-ci ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, test-playwright-ci ]
 
 jobs:
   test:
-    timeout-minutes: 30
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      # 1. Checkout repo
+      # 1. Checkout repository
       - uses: actions/checkout@v4
 
       # 2. Setup Node.js
@@ -20,31 +20,27 @@ jobs:
         with:
           node-version: lts/*
 
-      # 3. Install dependencies
-      - name: Install dependencies
+      # 3. Install root dependencies
+      - name: Install root dependencies
         run: npm ci
 
-      # 4. Install Playwright browsers
-      - name: Install Playwright Browsers
+      # 4. Install client dependencies
+      - name: Install client dependencies
+        run: cd client && npm ci
+
+      # 5. Install Playwright browsers
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # 5. Install wait-on (ensure it's available)
-      - name: Install wait-on
-        run: npm install --save-dev wait-on
+      # 6. Build the client
+      - name: Build client
+        run: cd client && npm run build
 
-      # 6. Start Vite dev server in background (bind to all hosts)
-      - name: Start dev server
-        run: npm run dev -- --host 0.0.0.0 &
-
-      # 7. Wait for dev server to be ready
-      - name: Wait for localhost
-        run: npx wait-on http://localhost:5173
-
-      # 8. Run Playwright tests
+      # 7. Run Playwright tests (Playwright starts server automatically)
       - name: Run Playwright tests
-        run: npx playwright test --reporter=list
+        run: npx playwright test
 
-      # 9. Upload HTML report
+      # 8. Upload HTML report
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
