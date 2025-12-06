@@ -44,6 +44,7 @@ export default function LocationAuto({ defaultLocation, onPlaceSelected, inputPr
   return (
     <input
       ref={ref}
+      data-testid="location-input"
       {...inputProps}
       placeholder={inputProps.placeholder ?? "select location"}
       className="focus:outline-none"

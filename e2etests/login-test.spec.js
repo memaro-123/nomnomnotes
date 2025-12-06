@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('user can log in and log out through settings', async ({ page }) => {
+  // Go to the app
   await page.goto('http://localhost:5173');
   await page.waitForLoadState('networkidle');
 
@@ -14,21 +15,25 @@ test('user can log in and log out through settings', async ({ page }) => {
   // Click login button
   await page.getByRole('button', { name: 'login' }).nth(1).click();
 
-  // Wait for something unique in the dashboard like my diary header
+  // Wait for the dashboard to load
   const diaryHeader = page.getByText('my diary');
-  await expect(diaryHeader).toBeVisible({ timeout: 15000 }); // give extra time for Firebase
+  await expect(diaryHeader).toBeVisible({ timeout: 15000 });
 
-  // Open settings modal (click the first GearIcon button)
-  const settingsButton = page.locator('button:has(svg)').first();
+  // TEMP: take screenshot after login
+  await page.screenshot({ path: 'after-login.png' });
+
+  // Click the sidebar settings button
+  const settingsButton = page.getByTestId('sidebar-settings-btn');
+  await expect(settingsButton).toBeVisible({ timeout: 10000 });
   await settingsButton.click();
 
   // Wait for Logout button inside SettingsModal
   const logoutButton = page.getByRole('button', { name: 'logout' });
-  await expect(logoutButton).toBeVisible();
+  await expect(logoutButton).toBeVisible({ timeout: 10000 });
 
   // Click logout
   await logoutButton.click();
 
-  // Verify that we are back on login screen
+  // Verify we are back on the login screen
   await expect(page.getByText('login')).toBeVisible();
 });

@@ -333,6 +333,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-md w-full p-2 focus-within:shadow-lg transition-shadow">
               <MagnifyingGlassIcon size={16}/>
               <input 
+                data-testid="cuisine-input"
                 className="focus:outline-none text-sm flex-1"
                 type="text" 
                 placeholder="search cuisines" 
@@ -363,6 +364,7 @@ export default function DiaryForm({ handleCloseForm, entry, handleSubmit }) {
             <div className="flex items-center justify-start gap-1 border-1 border-solid rounded-md w-full p-2 focus-within:shadow-lg transition-shadow">
               <MagnifyingGlassIcon size={16}/>
               <input 
+                data-testid="label-input"
                 className="focus:outline-none text-sm flex-1"
                 type="text" 
                 placeholder="search labels" 

@@ -45,7 +45,7 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername,
                                 <StarIcon size={20} weight={'fill'}/>
                             </button>
                         </div>
-                        <button onClick={() => setOpenSettings(true)} className="flex p-2 items-center justify-center hover:bg-gray-200 rounded-md hover:cursor-pointer">
+                        <button data-testid="sidebar-settings-btn" onClick={() => setOpenSettings(true)} className="flex p-2 items-center justify-center hover:bg-gray-200 rounded-md hover:cursor-pointer">
                         <GearIcon size={20} weight={"fill"}/></button>
                     </div>
 
@@ -73,7 +73,7 @@ export default function Sidebar({ openSidebar, myUsername, setMyUsername,
                                     <StarIcon size={20} weight={'fill'}/>
                             </button>
                         </div>
-                        <button onClick={() => setOpenSettings(true)} className="flex p-2 items-center justify-center hover:bg-gray-200 rounded-md hover:cursor-pointer">
+                        <button data-testid="sidebar-settings-btn" onClick={() => setOpenSettings(true)} className="flex p-2 items-center justify-center hover:bg-gray-200 rounded-md hover:cursor-pointer">
                         <GearIcon size={20} weight={"fill"}/></button>
                     </div>
 
