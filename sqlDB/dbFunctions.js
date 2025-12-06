@@ -18,7 +18,22 @@ const intializeUser = async ({ myID, username = "defaultUsername" }) => {
     db.close();
   }
 };
+const acceptOrDeleteReq = async (friendId, uid, action) => {
+  const db = new sqlite3.Database("my.db");
+  const sql = `UPDATE friends SET status = ? WHERE requester_id = ? AND receiver_id = ?`;
+  const newStatus = action === "accept" ? "accepted" : "rejected";
 
+  try {
+    await paramExec(db, sql, [newStatus, friendId, uid])
+    return newStatus;
+  }catch(err) {
+    console.error(err);
+    
+    throw err;
+  }finally {
+    db.close();
+  }
+}
 const insertSentCode = async ({ myID, sentID }) => {
   const db = new sqlite3.Database("my.db");
   try {
@@ -696,7 +711,20 @@ const getEntry = async (entryID) => {
     db.close();
   }
 };
-
+const unfriend = async (uid,friendId) => {
+  const db = new sqlite3.Database("my.db");
+  try{
+    const row = await getFirstRow(db, "SELECT friends FROM friends WHERE user_id = ?", [uid]);
+    let friends = JSON.parse(row.friends || "[]");
+    friends = friends.filter(f => f !== friendId);
+    await paramExec(db, "UPDATE friends SET friends = ? WHERE user_id = ?", [JSON.stringify(friends), uid]);
+  }catch(err) {
+    console.error(err);
+    throw err;
+  } finally {
+    db.close();
+  }
+}
 const getAllEntries = async (userId) => {
   const db = new sqlite3.Database("my.db");
   const sql = `SELECT * FROM diary_entries WHERE user_id = ?`;
@@ -995,6 +1023,7 @@ module.exports = {
   editEntry,
   getEntry,
   usernameExists,
+  acceptOrDeleteReq,
   getUsername,
   getAllEntries,
   updateUsername,
@@ -1017,6 +1046,7 @@ module.exports = {
   deleteWishlistEntry,
   getVisitedPlaceIds, 
   sendFriendRequest,
+  unfriend,
   removeFromReceivedRequests, 
   getBiteBackStats
 };
