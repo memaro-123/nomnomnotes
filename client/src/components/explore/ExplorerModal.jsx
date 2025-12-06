@@ -117,25 +117,33 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
   };
 
   const rejectPlace = (placeId) => {
-    const updated = { ...rejectedPlaceIds, [placeId]: Date.now() };
-    setRejectedPlaceIds(updated);
-    localStorage.setItem('rejectedPlaces', JSON.stringify(updated));
-    
-    // Remove from current list
-    const updatedList = placesList.filter(p => p.place_id !== placeId);
-    setPlacesList(updatedList);
-    
-    if (updatedList.length > 0 && mapRef.current) {
-      mapRef.current.panTo(updatedList[0].geometry.location);
-      mapRef.current.setZoom(16);
+    if (!placeId) return;                          
 
-      setTimeout(() => {
-        const marker = mapRef.current.markers?.find(m => m.title === updatedList[0].name);
-        if (marker) {
-          window.google.maps.event.trigger(marker, 'click');
-        }
-      }, 500);
-    }
+    const updatedRejected = { 
+      ...rejectedPlaceIds, 
+      [placeId]: Date.now() 
+    };
+
+    setRejectedPlaceIds(updatedRejected);
+    localStorage.setItem("rejectedPlaces", JSON.stringify(updatedRejected));
+
+    // Remove rejected place from active list
+    const remainingPlaces = placesList.filter(p => p.place_id !== placeId);
+    setPlacesList(remainingPlaces);
+
+    if (remainingPlaces.length === 0 || !mapRef.current) return;   
+
+    const nextPlace = remainingPlaces[0];
+    mapRef.current.panTo(nextPlace.geometry.location);
+    mapRef.current.setZoom(16);
+
+    // Open associated marker after the map finishes repositioning
+    setTimeout(() => {
+      const marker = mapRef.current.markers?.find(
+        m => m.title === nextPlace.name
+      );
+      marker && window.google.maps.event.trigger(marker, "click");
+    }, 500);
   };
 
   const centerOnPlace = (place) => {

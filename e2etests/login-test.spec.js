@@ -1,29 +1,34 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
-test('user can login successfully, see dashboard, and logout', async ({ page }) => {
-    // Go to the login screen
-    await page.goto('/');
+test('user can log in and log out through settings', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.waitForLoadState('networkidle');
 
-    // Fill login form (match your actual React inputs)
-    await page.fill('input[placeholder="enter your email"]', 'testuser@gmail.com');
-    await page.fill('input[placeholder="enter your password"]', 'testpass123');
+  // Switch to login mode if not already there
+  await page.getByText('login').click();
 
-    // Click login
-    await page.click('button:has-text("login")');
+  // Fill login form
+  await page.getByPlaceholder('enter your email').fill('test@example.com');
+  await page.getByPlaceholder('enter your password').fill('password123');
 
-    // Dashboard should appear
-    await expect(
-        page.getByText(/my diary/i)
-    ).toBeVisible();
+  // Click login button
+  await page.getByRole('button', { name: 'login' }).nth(1).click();
 
-    // Open settings menu to click logout
-    await page.click('button:has-text("settings")');
+  // Wait for something unique in the dashboard like my diary header
+  const diaryHeader = page.getByText('my diary');
+  await expect(diaryHeader).toBeVisible({ timeout: 15000 }); // give extra time for Firebase
 
-    // Click logout
-    await page.click('button:has-text("logout")');
+  // Open settings modal (click the first GearIcon button)
+  const settingsButton = page.locator('button:has(svg)').first();
+  await settingsButton.click();
 
-    // Verify we are back on login page
-    await expect(
-        page.locator('text=login')
-    ).toBeVisible();
+  // Wait for Logout button inside SettingsModal
+  const logoutButton = page.getByRole('button', { name: 'logout' });
+  await expect(logoutButton).toBeVisible();
+
+  // Click logout
+  await logoutButton.click();
+
+  // Verify that we are back on login screen
+  await expect(page.getByText('login')).toBeVisible();
 });
