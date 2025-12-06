@@ -4,6 +4,7 @@ import { loadGoogleMaps } from "../../utils/loadGoogleMaps";
 import ExplorerMap from "./ExplorerMap";
 import ExplorerList from "./ExplorerList";
 import { toast } from 'react-hot-toast';
+import { API_BASE_URL } from '../../config';
 
 export default function ExplorerModal({ wishlist, setWishlist }) {
   const [placesList, setPlacesList] = useState([]);
@@ -23,7 +24,7 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
       if (!user) return;
       const token = await user.getIdToken();
       const res = await fetch(
-        "http://localhost:8080/api/wishlist/visited-places",
+        `${API_BASE_URL}/api/wishlist/visited-places`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) return;
@@ -70,7 +71,7 @@ export default function ExplorerModal({ wishlist, setWishlist }) {
     const token = await user.getIdToken();
 
     console.log('calling api for wishlist')
-    const res = await fetch("http://localhost:8080/api/wishlist/add", {
+    const res = await fetch(`${API_BASE_URL}/api/wishlist/add`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

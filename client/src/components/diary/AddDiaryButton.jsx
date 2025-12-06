@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import { auth } from "../../firebase";
 import DiaryForm from "./DiaryForm";
 import { PlusIcon } from "@phosphor-icons/react";
+import { API_BASE_URL } from '../../config';
 
 export default function AddDiaryButton({ fetchDiaries }) {
   const [openForm, setOpenForm] = useState(false);
@@ -36,7 +37,7 @@ export default function AddDiaryButton({ fetchDiaries }) {
       console.log('calling api')
 
       const writeResponse = await fetch(
-        "http://localhost:8080/api/diary/create",
+        `${API_BASE_URL}/api/diary/create`,
         {
           method: "POST",
           headers: {

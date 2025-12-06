@@ -2,6 +2,7 @@ import { auth } from '../firebase'
 import React, { useState } from "react";
 import { PlusIcon, XIcon, UserCirclePlusIcon, CopySimpleIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
+import { API_BASE_URL } from '../config';
 
 export default function FriendFinder () {
   const [friendCode, setFriendCode] = useState("");
@@ -28,7 +29,7 @@ export default function FriendFinder () {
     try {
       const token = await auth.currentUser.getIdToken()
       const addResponse = await fetch(
-        `http://localhost:8080/api/diary/sendreq`,
+        `${API_BASE_URL}/api/diary/sendreq`,
         {
           method: "PATCH",
           headers: {

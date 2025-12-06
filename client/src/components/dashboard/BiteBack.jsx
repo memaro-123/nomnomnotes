@@ -7,6 +7,7 @@ import {
   TrendUpIcon, MapPinAreaIcon, FireIcon, SparkleIcon,
   HeartIcon, SmileyIcon
 } from "@phosphor-icons/react";
+import { API_BASE_URL } from '../../config';
 
 export default function BiteBack() {
   const [stats, setStats] = useState(null);
@@ -17,7 +18,7 @@ export default function BiteBack() {
     setLoading(true);
     try {
       const token = await auth.currentUser.getIdToken();
-      const res = await fetch(`http://localhost:8080/api/analytics/biteback?year=${year}`, {
+      const res = await fetch(`${API_BASE_URL}/api/analytics/biteback?year=${year}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       

@@ -10,6 +10,7 @@ import BiteBack from './BiteBack';
 import Diary from './Diary';
 import Sidebar from './Sidebar';
 import ExploreButton from "../explore/ExploreButton.jsx";
+import { API_BASE_URL } from '../../config.js';
 
 
 export default function Dashboard() {
@@ -66,7 +67,7 @@ export default function Dashboard() {
 
             const token = await user.getIdToken();
 
-            const fetchResponse = await fetch("http://localhost:8080/api/diary", {
+            const fetchResponse = await fetch(`${API_BASE_URL}/api/diary`, {
               
                 headers: {
                 "Content-Type": "application/json",
@@ -90,7 +91,7 @@ export default function Dashboard() {
     const fetchUsername = async (stateSetter, id) => {
       try {
         const token = await auth.currentUser.getIdToken();
-        const res = await fetch(`http://localhost:8080/api/user/getUsername?id=${id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/getUsername?id=${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -124,7 +125,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const token = await auth.currentUser.getIdToken();
-        const res = await fetch(`http://localhost:8080/api/diary/friend/${friendId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/diary/friend/${friendId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -147,7 +148,7 @@ const fetchWishlist = async () => {
 
     const token = await auth.currentUser.getIdToken();
     console.log('calling api')
-    const response = await fetch("http://localhost:8080/api/wishlist", {
+    const response = await fetch(`${API_BASE_URL}/api/wishlist`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

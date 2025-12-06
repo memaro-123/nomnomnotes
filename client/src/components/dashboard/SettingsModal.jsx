@@ -4,7 +4,7 @@ import Logout from '../auth/logoutButton';
 import { GearIcon, XIcon, EyeIcon, EyeSlashIcon, CopySimpleIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider} from 'firebase/auth';
-
+import { API_BASE_URL } from '../../config';
 
 export default function SettingsModal({ handleClose, myUsername, handleUsername }) {
   const [user, setUser] = useState(null);
@@ -78,7 +78,7 @@ export default function SettingsModal({ handleClose, myUsername, handleUsername 
       }
       const token = await auth.currentUser.getIdToken();
       const myID = auth.currentUser.uid;
-      const res = await fetch("http://localhost:8080/api/user/updateUsername", {
+      const res = await fetch(`${API_BASE_URL}/api/user/updateUsername`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

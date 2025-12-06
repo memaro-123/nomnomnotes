@@ -3,6 +3,7 @@ import { CaretUpIcon, CaretDownIcon, TrashIcon } from "@phosphor-icons/react";
 import FriendFinder from './FriendFinder'
 import { auth } from "../firebase.js"; 
 import { toast } from "react-hot-toast"; 
+import { API_BASE_URL } from '../config.js';
 
 export default function FriendList({refreshFriends, friends, onSelectFriend, getUsernameList }) {
   const [usernames, setUsernames] = useState({});
@@ -10,7 +11,7 @@ export default function FriendList({refreshFriends, friends, onSelectFriend, get
 const handleDelete = async (friendID) =>{
     try {
       const token = await auth.currentUser.getIdToken(); // get Firebase auth token
-      const res = await fetch(`http://localhost:8080/api/user/friends/${friendID}`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/friends/${friendID}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

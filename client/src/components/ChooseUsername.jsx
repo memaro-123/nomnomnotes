@@ -2,6 +2,7 @@ import { useState } from "react";
 import { auth } from "../firebase";
 import { ConfettiIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
+import { API_BASE_URL } from '../config';
 
 export default function ChooseUsername({ handleUsername }) {
   const [username, setUsername] = useState("");
@@ -17,7 +18,7 @@ export default function ChooseUsername({ handleUsername }) {
     try {
       const token = await auth.currentUser.getIdToken();
       const myID = auth.currentUser.uid;
-      const res = await fetch("http://localhost:8080/api/user/updateUsername", {
+      const res = await fetch(`${API_BASE_URL}/api/user/updateUsername`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

@@ -3,6 +3,7 @@ import { auth } from '../../firebase'
 import { TrashIcon } from "@phosphor-icons/react";
 import { toast } from 'react-hot-toast';
 import { WarningIcon } from "@phosphor-icons/react";
+import { API_BASE_URL } from '../../config';
 
 export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiaries }) {
     const [openForm, setOpenForm] = useState(false)
@@ -22,7 +23,7 @@ export default function DeleteDiaryButton({ entry, handleCloseOptions, fetchDiar
                 throw new Error("Entry ID is required for editing");
             }
 
-            const deleteResponse = await fetch(`http://localhost:8080/api/diary/delete/${entry.id}`, {
+            const deleteResponse = await fetch(`${API_BASE_URL}/api/diary/delete/${entry.id}`, {
                 method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import { CircleNotchIcon, StarIcon, TrashIcon } from "@phosphor-icons/react";
 import ExploreButton from "./explore/ExploreButton";
+import { API_BASE_URL } from '../config';
 
 
 export default function WishlistModal({ wishlist, setWishlist, setActiveView }) {
@@ -15,7 +16,7 @@ export default function WishlistModal({ wishlist, setWishlist, setActiveView }) 
   const removeItem = async (id) => {
     try {
       const token = await auth.currentUser.getIdToken();
-      const res = await fetch(`http://localhost:8080/api/wishlist/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/wishlist/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -1,4 +1,5 @@
 import { auth } from '../firebase'
+import { API_BASE_URL } from '../config';
 
 export async function loadGoogleMaps(libraries = ["places"]) {
   // Get API key from backend
@@ -38,7 +39,7 @@ async function fetchApiKey() {
     if (!token) throw new Error('Not authenticated');
     
     // Add the full backend URL
-    const response = await fetch('http://localhost:8080/api/config/maps-key', {
+    const response = await fetch(`${API_BASE_URL}/api/config/maps-key`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 

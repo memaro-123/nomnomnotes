@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { FcGoogle } from "react-icons/fc";
 import { auth } from '../../firebase';
 import { toast } from 'react-hot-toast';
+import { API_BASE_URL } from '../../config';
 
 
 export default function EmailAndPassword({ handleAuthPage }) {
@@ -86,7 +87,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
             const user = userCredential.user;
     
             const token = await user.getIdToken();
-            const response = await fetch("http://localhost:8080/api/diary/initfriend", {
+            const response = await fetch(`${API_BASE_URL}/api/diary/initfriend`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -132,7 +133,7 @@ export default function EmailAndPassword({ handleAuthPage }) {
             const user = result.user;
     
             const token = await user.getIdToken();
-            const response = await fetch("http://localhost:8080/api/diary/initfriend", {
+            const response = await fetch(`${API_BASE_URL}/api/diary/initfriend`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

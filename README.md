@@ -156,6 +156,7 @@ AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
 AWS_REGION=us-east-2
 S3_BUCKET_NAME=your_bucket_name
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 
 # Server
 PORT=8080
@@ -169,7 +170,7 @@ NODE_ENV=development
 3. Generate a service account key:
    - Go to **Project Settings** → **Service Accounts**
    - Click **"Generate new private key"**
-   - Save as `service-account.json`
+   - Drop the `service-account.json` file into the server file
 
 ### 5. Set Up AWS S3
 
@@ -219,20 +220,6 @@ npm run dev
 The application will be available at:
 - **Frontend:** [http://localhost:5173](http://localhost:5173)
 - **Backend API:** [http://localhost:8080](http://localhost:8080)
-
-**Production Mode:**
-
-Build the client:
-```bash
-cd client
-npm run build
-```
-
-Start the server:
-```bash
-cd server
-npm run start:prod
-```
 
 ---
 

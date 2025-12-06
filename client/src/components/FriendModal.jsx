@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import PendingReqs from "./PendingReqs.jsx"
 import FriendList from "./FriendList.jsx"
+import { API_BASE_URL } from '../config.js';
 
 export default function FriendModal({ onSelectFriend }) {
   const [friends, setFriends] = useState([]);
@@ -11,7 +12,7 @@ export default function FriendModal({ onSelectFriend }) {
 
   const refreshFriends = async () => {
   const token = await auth.currentUser.getIdToken();
-  const friendsRes = await fetch("http://localhost:8080/api/user/friends", {
+  const friendsRes = await fetch(`${API_BASE_URL}/api/user/friends`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -22,7 +23,7 @@ export default function FriendModal({ onSelectFriend }) {
   const getUsernameList= async (ids) =>{
     const token = await auth.currentUser.getIdToken();
     try{
-      const res = await fetch(`http://localhost:8080/api/user/getUsernameList`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/getUsernameList`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`,"Content-Type": "application/json" },
       
@@ -45,7 +46,7 @@ export default function FriendModal({ onSelectFriend }) {
         const token = await auth.currentUser.getIdToken();
 
         // Friends list
-        const friendsRes = await fetch("http://localhost:8080/api/user/friends", {
+        const friendsRes = await fetch(`${API_BASE_URL}/api/user/friends`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const friendsData = await friendsRes.json();
@@ -53,7 +54,7 @@ export default function FriendModal({ onSelectFriend }) {
         console.log(friendsData)
 
         // Pending friend requests
-        const pendingRes = await fetch("http://localhost:8080/api/user/friends/requests", {
+        const pendingRes = await fetch(`${API_BASE_URL}/api/user/friends/requests`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const pendingData = await pendingRes.json();
@@ -77,7 +78,7 @@ export default function FriendModal({ onSelectFriend }) {
         const myID = auth.currentUser.uid;
         console.log('accepting api with requeseterId', requesterId)
       console.log('accpeting api with myid', myID)
-        const response = await fetch("http://localhost:8080/api/user/makefriend", {
+        const response = await fetch(`${API_BASE_URL}/api/user/makefriend`, {
           method: "PATCH",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -101,7 +102,7 @@ export default function FriendModal({ onSelectFriend }) {
   
       } else if (action === "reject") {
         console.log('in frontend for rejecting calling api')
-        const response = await fetch(`http://localhost:8080/api/user/delete/${requesterId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/user/delete/${requesterId}`, {
           method: "DELETE",
           headers: {
             "Authorization": `Bearer ${token}`,

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { auth } from '../../firebase';
 import DiaryForm from './DiaryForm';
+import { API_BASE_URL } from '../../config';
 
 export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiaries}) {
     const [openForm, setOpenForm] = useState(false)
@@ -66,7 +67,7 @@ export default function EditDiaryButton({ entry, handleCloseOptions, fetchDiarie
             console.log('Total images after edit:', existingImages.length + newImages.length);
             console.log('=== END DEBUG ===');
 
-            const editResponse = await fetch("http://localhost:8080/api/diary/edit", {
+            const editResponse = await fetch(`${API_BASE_URL}/api/diary/edit`, {
                 method: "PATCH",
                 headers: {
                    Authorization: `Bearer ${token}`,
