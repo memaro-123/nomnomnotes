@@ -14,7 +14,7 @@ test('user can log in and log out through settings', async ({ page }) => {
   // Click login button
   await page.getByRole('button', { name: 'login' }).nth(1).click();
 
-  // Wait for something unique in the dashboard
+  // Wait for something unique in the dashboard like my diary header
   const diaryHeader = page.getByText('my diary');
   await expect(diaryHeader).toBeVisible({ timeout: 15000 }); // give extra time for Firebase
 
