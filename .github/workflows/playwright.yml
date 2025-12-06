@@ -12,35 +12,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out your repo
+      # 1. Checkout repo
       - uses: actions/checkout@v4
 
-      # Step 2: Set up Node
+      # 2. Setup Node.js
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
-      # Step 3: Install dependencies
+      # 3. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Step 4: Install Playwright browsers
+      # 4. Install Playwright browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Step 5: Start your Vite dev server in the background
-      - name: Start Vite dev server
+      # 5. Start Vite dev server in background
+      - name: Start dev server
         run: npm run dev &
-
-      # Step 6: Wait for the dev server to be ready
-      - name: Wait for dev server
+      
+      # 6. Wait for dev server to be ready
+      - name: Wait for localhost
         run: npx wait-on http://localhost:5173
 
-      # Step 7: Run Playwright tests
+      # 7. Run Playwright tests
       - name: Run Playwright tests
-        run: npx playwright test --reporter=list
+        run: npx playwright test
 
-      # Step 8: Upload Playwright report
+      # 8. Upload HTML report (optional)
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
