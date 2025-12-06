@@ -28,22 +28,33 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # 5. Start Vite dev server in background
-      - name: Start dev server
-        run: npm run dev &
-      
-      # 6. Wait for dev server to be ready
-      - name: Wait for localhost
-        run: npx wait-on http://localhost:5173
+      # 5. Build the project
+      - name: Build project
+        run: npm run build
 
-      # 7. Run Playwright tests
+      # 6. Start Vite preview server
+      - name: Start preview server
+        run: nohup npm run preview > preview.log 2>&1 &
+
+      # 7. Wait for server to be ready
+      - name: Wait for preview server
+        run: npx wait-on http://127.0.0.1:5173
+
+      # 8. Run Playwright tests
       - name: Run Playwright tests
         run: npx playwright test
 
-      # 8. Upload HTML report (optional)
+      # 9. Upload HTML report (optional)
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      # 10. Upload preview server log (optional, for debugging)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preview-log
+          path: preview.log
