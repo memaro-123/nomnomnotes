@@ -24,7 +24,6 @@ router.get("/friends", verifyUser, async (req, res) => {
   }
 });
 
-// This gets all pending friend requests for the logged-in user
 router.get("/friends/requests", verifyUser, async (req, res) => {
   const uid = req.user.uid;
   try {
@@ -46,24 +45,18 @@ router.patch("/friends/:friendId", verifyUser, async (req, res) => {
     return res.status(400).json({ error: "Invalid action" });
   }
 
-  const db = new sqlite3.Database("my.db");
-  const sql = `UPDATE friends SET status = ? WHERE requester_id = ? AND receiver_id = ?`;
 
   try {
-    const newStatus = action === "accept" ? "accepted" : "rejected";
-    await paramExec(db, sql, [newStatus, friendId, uid]);
+    const newStatus = await dbFunctions.acceptOrDeleteReq(friendId, uid, action);
     res.json({ success: true, message: `Friend request ${newStatus}` });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to update friend request" });
-  } finally {
-    db.close();
-  }
+  }   
 });
 router.patch("/makefriend", verifyUser, async (req, res) => {
   console.log('in api')
   console.log('reqbody', req.body)
-  //API TO ACCEPT A FRIEND REQ
   const { userId, friendId } = req.body;
   if (!userId || !friendId) {
     console.log('missing ids')
@@ -77,7 +70,7 @@ router.patch("/makefriend", verifyUser, async (req, res) => {
     console.log('calling db function userid', userId)
     console.log('calling db function friendid', friendId)
     await dbFunctions.insertNewFriend( { myID: userId, friendID: friendId } );
-    console.log("insertNewFriend jsut ran type shit");
+    console.log("insertNewFriend just ran");
 
     res.json({ success: true });
   } catch (err) {
@@ -85,23 +78,18 @@ router.patch("/makefriend", verifyUser, async (req, res) => {
     res.status(500).json({ error: "Failed to update friendstuff 2" });
   }
 });
-// This handles removing a friend (i dont think we need a block feature for this app)
+// Remove friend without blocking as blocking is unnessacary here
 router.delete("/friends/:friendId", verifyUser, async (req, res) => {
   const uid = req.user.uid;
   const { friendId } = req.params;
   const db = new sqlite3.Database("my.db");
   try {
-    const row = await getFirstRow(db, "SELECT friends FROM friends WHERE user_id = ?", [uid]);
-    let friends = JSON.parse(row.friends || "[]");
-    friends = friends.filter(f => f !== friendId);
-    await paramExec(db, "UPDATE friends SET friends = ? WHERE user_id = ?", [JSON.stringify(friends), uid]);
+    dbFunctions.unfriend(uid,friendId)
     res.json({ success: true, message: "Friend removed" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to remove friend" });
-  } finally {
-    db.close();
-  }
+  } 
 });
 
 router.patch("/updateUsername", verifyUser, async (req, res) => {
